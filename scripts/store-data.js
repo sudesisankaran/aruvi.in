@@ -429,6 +429,7 @@
           localStorage.setItem('aruvi_admin_email', cleanEmail);
           localStorage.setItem('aruvi_admin_auth_provider', 'google.com');
           localStorage.setItem('aruvi_admin_user', JSON.stringify(googleUserData));
+          sessionStorage.setItem('aruvi_admin_logged_in', 'true');
         } catch (e) {}
 
         window.dispatchEvent(new CustomEvent('aruvi:admin_auth_changed', {
@@ -493,7 +494,7 @@
 
       // If authorized admin email, automatically activate Admin Mode
       if (user.email === 'aruvicollections.25@gmail.com') {
-        this.loginAdmin('aruvicollections.25@gmail.com');
+        this.loginAdminWithGoogle(googleUserData);
       }
 
       window.dispatchEvent(new CustomEvent('aruvi:customer_auth_changed', {

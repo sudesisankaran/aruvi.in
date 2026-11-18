@@ -288,6 +288,16 @@
             window.dispatchEvent(new CustomEvent('aruvi:customer_auth_changed', { detail: { loggedIn: true, user: googleUser } }));
           }
 
+          const isAdmin = (googleUser.email || '').toLowerCase() === 'aruvicollections.25@gmail.com';
+          if (isAdmin) {
+            this.showAlert(`✓ Administrator Verified (aruvicollections.25@gmail.com)! Opening Admin Dashboard... 👑`, 'success');
+            setTimeout(() => {
+              this.closeModal();
+              window.location.href = 'admin.html';
+            }, 800);
+            return;
+          }
+
           this.showAlert(`✓ Welcome back, ${googleUser.name}! ✨`, 'success');
           setTimeout(() => {
             this.closeModal();
@@ -331,6 +341,16 @@
       }
 
       if (res.success) {
+        const isAdmin = (res.user.email || '').toLowerCase() === 'aruvicollections.25@gmail.com';
+        if (isAdmin) {
+          this.showAlert(`✓ Administrator Verified (aruvicollections.25@gmail.com)! Opening Admin Dashboard... 👑`, 'success');
+          setTimeout(() => {
+            this.closeModal();
+            window.location.href = 'admin.html';
+          }, 800);
+          return;
+        }
+
         this.showAlert(`✓ Welcome back, ${res.user.name}!`, 'success');
         setTimeout(() => {
           this.closeModal();
@@ -554,11 +574,15 @@
         if (userNameElem) userNameElem.textContent = auth.user.name;
         if (userEmailElem) userEmailElem.textContent = auth.user.email;
 
-        // Show Admin link exclusively if signed in as aruvicollections.25@gmail.com
+        // Show Admin link and top banner exclusively if signed in as aruvicollections.25@gmail.com
         const isAdmin = auth.user.email && auth.user.email.toLowerCase() === 'aruvicollections.25@gmail.com';
         const adminLink = document.getElementById('account-admin-link-item');
+        const adminTopBanner = document.getElementById('account-admin-top-banner');
         if (adminLink) {
           adminLink.style.display = isAdmin ? 'block' : 'none';
+        }
+        if (adminTopBanner) {
+          adminTopBanner.style.display = isAdmin ? 'block' : 'none';
         }
       } else {
         authView.style.display = 'block';
