@@ -40,6 +40,7 @@
   const DOM = {
     // Auth (Strictly for aruvicollections.25@gmail.com)
     authOverlay: document.getElementById('admin-auth-overlay'),
+    btnAdminGoogle: document.getElementById('btn-admin-google-login'),
     formAdminLogin: document.getElementById('form-admin-direct-login'),
     adminInputEmail: document.getElementById('admin-input-email'),
     adminInputPassword: document.getElementById('admin-input-password'),
@@ -1381,6 +1382,67 @@
      EVENT LISTENERS & BINDING
      ========================================================================== */
   function bindEvents() {
+    // Admin Google Login
+    if (DOM.btnAdminGoogle) {
+      DOM.btnAdminGoogle.addEventListener('click', function () {
+        DOM.btnAdminGoogle.disabled = true;
+        DOM.btnAdminGoogle.style.opacity = '0.7';
+
+        if (!window.AruviFirebaseAuth || typeof window.AruviFirebaseAuth.signInWithGoogle !== 'function') {
+          if (DOM.authStatusAlert) {
+            DOM.authStatusAlert.textContent = 'Firebase Auth is initializing. Please verify network connection.';
+            DOM.authStatusAlert.style.display = 'block';
+            DOM.authStatusAlert.style.background = '#fce8e6';
+            DOM.authStatusAlert.style.color = '#c5221f';
+            DOM.authStatusAlert.style.border = '1px solid #fad2cf';
+          }
+          DOM.btnAdminGoogle.disabled = false;
+          DOM.btnAdminGoogle.style.opacity = '';
+          return;
+        }
+
+        window.AruviFirebaseAuth.signInWithGoogle()
+          .then(function (googleUser) {
+            const result = Store.loginAdminWithGoogle(googleUser);
+            if (result.success) {
+              if (DOM.authStatusAlert) {
+                DOM.authStatusAlert.textContent = `✓ Authorized Administrator Verified: Welcome, ${googleUser.name}!`;
+                DOM.authStatusAlert.style.display = 'block';
+                DOM.authStatusAlert.style.background = '#e6f4ea';
+                DOM.authStatusAlert.style.color = '#137333';
+                DOM.authStatusAlert.style.border = '1px solid #ceead6';
+              }
+              setTimeout(function () {
+                if (DOM.authOverlay) DOM.authOverlay.classList.remove('active');
+                showToast(`Verified Administrator Access: ${googleUser.name} ✨`, 'success');
+                initDashboard();
+              }, 600);
+            } else {
+              if (DOM.authStatusAlert) {
+                DOM.authStatusAlert.textContent = result.message || 'Access Denied: Only aruvicollections.25@gmail.com is authorized.';
+                DOM.authStatusAlert.style.display = 'block';
+                DOM.authStatusAlert.style.background = '#fce8e6';
+                DOM.authStatusAlert.style.color = '#c5221f';
+                DOM.authStatusAlert.style.border = '1px solid #fad2cf';
+              }
+            }
+          })
+          .catch(function (err) {
+            if (DOM.authStatusAlert) {
+              DOM.authStatusAlert.textContent = err.message || 'Google sign in failed.';
+              DOM.authStatusAlert.style.display = 'block';
+              DOM.authStatusAlert.style.background = '#fce8e6';
+              DOM.authStatusAlert.style.color = '#c5221f';
+              DOM.authStatusAlert.style.border = '1px solid #fad2cf';
+            }
+          })
+          .finally(function () {
+            DOM.btnAdminGoogle.disabled = false;
+            DOM.btnAdminGoogle.style.opacity = '';
+          });
+      });
+    }
+
     // Admin Direct Login Form
     if (DOM.formAdminLogin) {
       DOM.formAdminLogin.addEventListener('submit', function (e) {

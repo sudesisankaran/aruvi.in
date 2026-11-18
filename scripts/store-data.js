@@ -418,6 +418,34 @@
       };
     },
 
+    loginAdminWithGoogle: function (googleUserData) {
+      if (!googleUserData || !googleUserData.email) {
+        return { success: false, message: 'Google account details missing.' };
+      }
+      const cleanEmail = (googleUserData.email || '').trim().toLowerCase();
+      if (cleanEmail === 'aruvicollections.25@gmail.com') {
+        try {
+          localStorage.setItem('aruvi_admin_logged_in', 'true');
+          localStorage.setItem('aruvi_admin_email', cleanEmail);
+          localStorage.setItem('aruvi_admin_auth_provider', 'google.com');
+          localStorage.setItem('aruvi_admin_user', JSON.stringify(googleUserData));
+        } catch (e) {}
+
+        window.dispatchEvent(new CustomEvent('aruvi:admin_auth_changed', {
+          detail: { loggedIn: true, email: cleanEmail, provider: 'google.com' }
+        }));
+        window.dispatchEvent(new CustomEvent('aruvi:data_updated', {
+          detail: { key: 'aruvi_admin_logged_in', val: 'true' }
+        }));
+        return { success: true, email: cleanEmail };
+      } else {
+        return {
+          success: false,
+          message: 'Access Denied: ' + cleanEmail + ' is not authorized. Only aruvicollections.25@gmail.com has Administrator privileges.'
+        };
+      }
+    },
+
     login: function (identifier) {
       return this.loginAdmin(identifier);
     },
@@ -434,7 +462,7 @@
       window.dispatchEvent(new CustomEvent('aruvi:data_updated', { detail: { key: 'aruvi_admin_logged_in', val: 'false' } }));
     },
 
-    // Customer Authentication (Email & Password)
+    // Customer Authentication (Firebase Google & Email/Password)
     getCustomerAuth: function () {
       try {
         const logged = localStorage.getItem('aruvi_customer_logged_in') === 'true';
@@ -444,6 +472,34 @@
       } catch (e) {
         return { loggedIn: false, user: null };
       }
+    },
+
+    loginCustomerWithGoogle: function (googleUserData) {
+      if (!googleUserData || !googleUserData.email) {
+        return { success: false, message: 'Google account details missing.' };
+      }
+      const user = {
+        uid: googleUserData.uid || ('goog_' + Date.now()),
+        name: googleUserData.name || googleUserData.displayName || 'Google Patron',
+        email: (googleUserData.email || '').trim().toLowerCase(),
+        photoURL: googleUserData.photoURL || '',
+        provider: 'google.com',
+        loginTime: new Date().toISOString()
+      };
+      try {
+        localStorage.setItem('aruvi_customer_logged_in', 'true');
+        localStorage.setItem('aruvi_customer_user', JSON.stringify(user));
+      } catch (e) {}
+
+      // If authorized admin email, automatically activate Admin Mode
+      if (user.email === 'aruvicollections.25@gmail.com') {
+        this.loginAdmin('aruvicollections.25@gmail.com');
+      }
+
+      window.dispatchEvent(new CustomEvent('aruvi:customer_auth_changed', {
+        detail: { loggedIn: true, user: user, provider: 'google.com' }
+      }));
+      return { success: true, user: user };
     },
 
     loginCustomerWithEmail: function (email, password) {

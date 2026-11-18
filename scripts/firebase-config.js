@@ -172,7 +172,74 @@
     }
   };
 
+  /**
+   * Main Firebase Authentication API (Google Sign-In & Session)
+   */
+  const AruviFirebaseAuth = {
+    getAuth: function () {
+      if (typeof firebase !== 'undefined' && typeof firebase.auth === 'function') {
+        return firebase.auth();
+      }
+      return firebaseAuth;
+    },
+
+    /**
+     * Signs in with Google using Firebase GoogleAuthProvider
+     * @returns {Promise<{uid: string, name: string, email: string, photoURL: string, provider: string}>}
+     */
+    signInWithGoogle: function () {
+      return new Promise((resolve, reject) => {
+        try {
+          if (typeof firebase === 'undefined' || typeof firebase.auth !== 'function') {
+            return reject(new Error('Firebase Auth SDK is not available. Please verify network connection.'));
+          }
+
+          const auth = firebase.auth();
+          const provider = new firebase.auth.GoogleAuthProvider();
+          provider.setCustomParameters({ prompt: 'select_account' });
+
+          auth.signInWithPopup(provider)
+            .then((result) => {
+              const u = result.user;
+              resolve({
+                uid: u.uid,
+                name: u.displayName || 'Google Patron',
+                email: (u.email || '').toLowerCase().trim(),
+                photoURL: u.photoURL || '',
+                provider: 'google.com'
+              });
+            })
+            .catch((err) => {
+              if (err.code === 'auth/popup-closed-by-user') {
+                return reject(new Error('Google sign-in window was closed.'));
+              }
+              if (err.code === 'auth/unauthorized-domain') {
+                const host = window.location.hostname || 'current domain';
+                return reject(new Error(`Firebase Google Auth domain unauthorized. Please add "${host}" to Firebase Console -> Authentication -> Settings -> Authorized Domains.`));
+              }
+              if (err.code === 'auth/operation-not-supported-in-this-environment') {
+                return reject(new Error('Google Sign-In requires HTTP/HTTPS server (not file://). Please host on localhost or web server.'));
+              }
+              reject(err);
+            });
+        } catch (e) {
+          reject(e);
+        }
+      });
+    },
+
+    signOut: function () {
+      try {
+        if (typeof firebase !== 'undefined' && typeof firebase.auth === 'function') {
+          return firebase.auth().signOut();
+        }
+      } catch (e) {}
+      return Promise.resolve();
+    }
+  };
+
   // Export
   window.AruviFirebaseStorage = AruviFirebaseStorage;
+  window.AruviFirebaseAuth = AruviFirebaseAuth;
 
 })(window);
