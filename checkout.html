@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure Checkout | Aruvi Collections</title>
+  <meta name="description" content="Complete your order securely with encrypted UPI, Cards, Net Banking, or Cash on Delivery.">
+  <link rel="icon" type="image/jpeg" href="assets/icons/WhatsApp Image 2026-09-21 at 7.49.20 AM (1).jpeg">
+  
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/animations.css">
+  <link rel="stylesheet" href="styles/auth.css">
+</head>
+<body>
+
+  
+
+  <canvas id="particles-bg-canvas"></canvas>
+  <div class="ambient-gradient-mesh" aria-hidden="true">
+    <div class="mesh-orb mesh-orb-1"></div>
+    <div class="mesh-orb mesh-orb-2"></div>
+  </div>
+
+  <!-- Header for Checkout -->
+  <header class="site-header" id="site-header" style="background: #ffffff; border-bottom: 1px solid var(--color-border);">
+    <div class="container header-container">
+      <a href="index.html" class="brand-logo">
+        <img src="assets/icons/WhatsApp Image 2026-09-21 at 7.49.20 AM (1).jpeg" alt="Aruvi Collections" class="brand-logo-img" style="height: 52px; width: auto; max-height: 52px; object-fit: contain; border-radius: 8px;" />
+      </a>
+
+      <ul class="main-nav">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="shop.html?category=sarees" class="nav-link">Sarees</a></li>
+        <li><a href="shop.html?category=salwar" class="nav-link">Salwar</a></li>
+        <li><a href="shop.html?category=sharara" class="nav-link">Sharara</a></li>
+        <li><a href="shop.html?category=ethnic-wears" class="nav-link">Ethnic Wears</a></li>
+        <li><a href="shop.html?category=co-ord-sets" class="nav-link">Co-ord Sets</a></li>
+        <li><a href="shop.html?category=western-tops" class="nav-link">Western Tops</a></li>
+        <li><a href="shop.html?category=kids" class="nav-link">Kids <span class="badge-tag" style="background:var(--color-gold);color:#0e2920;font-size:0.62rem;padding:2px 6px;border-radius:99px;font-weight:700;">NEW</span></a></li>
+      </ul>
+
+      <div class="header-actions">
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--color-primary); font-weight: 600; background: var(--color-mint-pale); padding: 6px 14px; border-radius: var(--radius-full);">
+          <span>🔒 256-Bit SSL Encrypted</span>
+        </div>
+
+        <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Open navigation menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       CHECKOUT MAIN CONTAINER
+       ======================================================================== -->
+  <main style="padding: 40px 0 70px 0;">
+    <div class="container">
+      
+      <!-- Checkout Steps Breadcrumb -->
+      <div style="max-width: 600px; margin: 0 auto 36px auto; display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--color-primary); font-size: 0.85rem;">
+          <span style="width: 26px; height: 26px; border-radius: 50%; background: var(--color-primary); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">1</span>
+          <span>Shipping Address</span>
+        </div>
+        <div style="flex: 1; height: 2px; background: var(--color-primary); margin: 0 14px;"></div>
+        <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--color-primary); font-size: 0.85rem;">
+          <span style="width: 26px; height: 26px; border-radius: 50%; background: var(--color-primary); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">2</span>
+          <span>Payment</span>
+        </div>
+        <div style="flex: 1; height: 2px; background: var(--color-border); margin: 0 14px;"></div>
+        <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; color: var(--color-text-light); font-size: 0.85rem;">
+          <span style="width: 26px; height: 26px; border-radius: 50%; background: var(--color-mint-pale); color: var(--color-text-muted); display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">3</span>
+          <span>Confirmation</span>
+        </div>
+      </div>
+
+      <!-- Checkout Layout: Forms (Left) & Order Summary (Right) -->
+      <div class="checkout-page-layout">
+        
+        <!-- Left Column: Steps Form -->
+        <div style="display: flex; flex-direction: column; gap: 28px;">
+          
+          <!-- Step 1: Shipping Address Card -->
+          <section class="card-3d" style="background: #ffffff; border-radius: var(--radius-lg); border: 1px solid var(--color-border); padding: 28px; box-shadow: var(--shadow-sm);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+              <h2 style="font-family: var(--font-serif); font-size: 1.35rem; color: var(--color-primary-dark);">1. Select Delivery Address</h2>
+              <button class="btn btn-secondary btn-sm" id="btn-add-address-toggle">+ Add New Address</button>
+            </div>
+
+            <!-- Address Options Container -->
+            <div id="addresses-list-container" style="display: flex; flex-direction: column; gap: 12px;">
+              <!-- Clean Customer Delivery Address Entry -->
+              <div style="padding: 20px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md); background: #ffffff;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                  <div>
+                    <label style="font-size: 0.78rem; font-weight: 700; color: var(--color-charcoal); display: block; margin-bottom: 4px;">Full Name *</label>
+                    <input type="text" id="chk-input-name" required placeholder="Enter your full name" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: 0.85rem;" />
+                  </div>
+                  <div>
+                    <label style="font-size: 0.78rem; font-weight: 700; color: var(--color-charcoal); display: block; margin-bottom: 4px;">Mobile Number *</label>
+                    <input type="tel" id="chk-input-phone" required placeholder="10-digit mobile number" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: 0.85rem;" />
+                  </div>
+                  <div style="grid-column: 1 / -1;">
+                    <label style="font-size: 0.78rem; font-weight: 700; color: var(--color-charcoal); display: block; margin-bottom: 4px;">Flat, House No., Street, Area *</label>
+                    <input type="text" id="chk-input-street" required placeholder="Door no, Apartment, Street name" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: 0.85rem;" />
+                  </div>
+                  <div>
+                    <label style="font-size: 0.78rem; font-weight: 700; color: var(--color-charcoal); display: block; margin-bottom: 4px;">City / Town *</label>
+                    <input type="text" id="chk-input-city" required placeholder="City name" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: 0.85rem;" />
+                  </div>
+                  <div>
+                    <label style="font-size: 0.78rem; font-weight: 700; color: var(--color-charcoal); display: block; margin-bottom: 4px;">PIN Code *</label>
+                    <input type="text" id="chk-input-pincode" required placeholder="6-digit PIN code" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: 0.85rem;" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- New Address Form Box (Expandable) -->
+            <div id="new-address-form-box" style="display: none; margin-top: 18px; padding: 20px; border: 1px dashed var(--color-gold); border-radius: var(--radius-md); background: var(--color-mint-bg);">
+              <h4 style="font-family: var(--font-serif); font-size: 1.1rem; color: var(--color-primary-dark); margin-bottom: 14px;">Add New Delivery Address</h4>
+              <form id="form-new-address" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div style="grid-column: 1 / -1;">
+                  <label style="font-size: 0.78rem; font-weight: 700; color: var(--color-charcoal); display: block; margin-bottom: 4px;">Full Name *</label>
+                  <input type="text" id="addr-name" required placeholder="Enter your full name" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: 0.85rem;" />
+                </div>
+                <div>
+                  <label style="font-size: 0.78rem; font-weight: 700; color: var(--color-charcoal); display: block; margin-bottom: 4px;">Phone Number *</label>
+                  <input type="tel" id="addr-phone" required placeholder="10-digit mobile number" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: 0.85rem;" />
+                </div>
+                <div>
+                  <label style="font-size: 0.78rem; font-weight: 700; color: var(--color-charcoal); display: block; margin-bottom: 4px;">PIN Code *</label>
+                  <input type="text" id="addr-pincode" required placeholder="6-digit PIN" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: 0.85rem;" />
+                </div>
+                <div style="grid-column: 1 / -1;">
+                  <label style="font-size: 0.78rem; font-weight: 700; color: var(--color-charcoal); display: block; margin-bottom: 4px;">Flat, House No., Building, Street *</label>
+                  <input type="text" id="addr-street" required placeholder="Door no, Apartment, Street name" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: 0.85rem;" />
+                </div>
+                <div>
+                  <label style="font-size: 0.78rem; font-weight: 700; color: var(--color-charcoal); display: block; margin-bottom: 4px;">City / Town *</label>
+                  <input type="text" id="addr-city" required placeholder="City name" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: 0.85rem;" />
+                </div>
+                <div>
+                  <label style="font-size: 0.78rem; font-weight: 700; color: var(--color-charcoal); display: block; margin-bottom: 4px;">State *</label>
+                  <input type="text" id="addr-state" required placeholder="Tamil Nadu" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: 0.85rem;" />
+                </div>
+                <div style="grid-column: 1 / -1; display: flex; gap: 10px; margin-top: 6px;">
+                  <button type="submit" class="btn btn-primary btn-sm">Save & Use This Address</button>
+                  <button type="button" class="btn btn-secondary btn-sm" id="btn-cancel-address">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </section>
+
+          <!-- Step 2: Delivery Option -->
+          <section class="card-3d" style="background: #ffffff; border-radius: var(--radius-lg); border: 1px solid var(--color-border); padding: 28px; box-shadow: var(--shadow-sm);">
+            <h2 style="font-family: var(--font-serif); font-size: 1.35rem; color: var(--color-primary-dark); margin-bottom: 18px;">2. Delivery Option</h2>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <label class="delivery-speed-option active" id="delivery-opt-standard">
+                <input type="radio" name="delivery-speed" value="standard" checked style="accent-color: var(--color-primary);" />
+                <div>
+                  <div style="font-size: 0.88rem; font-weight: 700; color: var(--color-primary-dark);">Standard Delivery</div>
+                  <div style="font-size: 0.76rem; color: var(--color-text-muted);">Delivers in 3-5 business days</div>
+                </div>
+                <strong style="margin-left: auto; color: var(--color-success); font-size: 0.88rem;">FREE</strong>
+              </label>
+
+              <label class="delivery-speed-option" id="delivery-opt-express">
+                <input type="radio" name="delivery-speed" value="express" style="accent-color: var(--color-primary);" />
+                <div>
+                  <div style="font-size: 0.88rem; font-weight: 700; color: var(--color-primary-dark);">Express VIP Courier</div>
+                  <div style="font-size: 0.76rem; color: var(--color-text-muted);">Delivers in 1-2 business days</div>
+                </div>
+                <strong style="margin-left: auto; color: var(--color-gold-dark); font-size: 0.88rem;">₹99</strong>
+              </label>
+            </div>
+          </section>
+
+          <!-- Step 3: Payment Method -->
+          <section class="card-3d" style="background: #ffffff; border-radius: var(--radius-lg); border: 1px solid var(--color-border); padding: 28px; box-shadow: var(--shadow-sm);">
+            <h2 style="font-family: var(--font-serif); font-size: 1.35rem; color: var(--color-primary-dark); margin-bottom: 18px;">3. Select Payment Method</h2>
+
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <!-- UPI Option -->
+              <div>
+                <label class="payment-radio-label active" data-method="upi">
+                  <input type="radio" name="checkout-payment" value="upi" checked style="accent-color: var(--color-primary);" />
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-size: 0.92rem; font-weight: 700; color: var(--color-primary-dark);">⚡ Instant UPI / QR Code (Recommended)</span>
+                    <span style="font-size: 0.76rem; color: var(--color-text-muted);">Google Pay, PhonePe, Paytm, BHIM & all UPI apps</span>
+                  </div>
+                </label>
+                <div class="payment-details-box active" id="details-upi">
+                  <p style="color: var(--color-text-muted); margin-bottom: 8px;">Enter your Virtual Payment Address (VPA) / UPI ID:</p>
+                  <div style="display: flex; gap: 8px; max-width: 360px;">
+                    <input type="text" id="input-upi-id" placeholder="username@oksbi / username@paytm" value="" placeholder="username@oksbi / username@paytm" style="flex: 1; padding: 8px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: 0.85rem;" />
+                    <button type="button" class="btn btn-secondary btn-sm" id="btn-verify-upi">Verified ✓</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card Option -->
+              <div>
+                <label class="payment-radio-label" data-method="card">
+                  <input type="radio" name="checkout-payment" value="card" style="accent-color: var(--color-primary);" />
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-size: 0.92rem; font-weight: 700; color: var(--color-primary-dark);">💳 Credit / Debit Card</span>
+                    <span style="font-size: 0.76rem; color: var(--color-text-muted);">Visa, MasterCard, RuPay, Maestro & American Express</span>
+                  </div>
+                </label>
+                <div class="payment-details-box" id="details-card">
+                  <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; max-width: 440px;">
+                    <div style="grid-column: 1 / -1;">
+                      <label style="font-size: 0.75rem; font-weight: 600; color: var(--color-text-muted);">Card Number</label>
+                      <input type="text" placeholder="4532 •••• •••• 8892" maxlength="19" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: 0.85rem;" />
+                    </div>
+                    <div>
+                      <label style="font-size: 0.75rem; font-weight: 600; color: var(--color-text-muted);">Expiry</label>
+                      <input type="text" placeholder="MM/YY" maxlength="5" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: 0.85rem;" />
+                    </div>
+                    <div>
+                      <label style="font-size: 0.75rem; font-weight: 600; color: var(--color-text-muted);">CVV</label>
+                      <input type="password" placeholder="•••" maxlength="4" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: 0.85rem;" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Net Banking Option -->
+              <div>
+                <label class="payment-radio-label" data-method="netbanking">
+                  <input type="radio" name="checkout-payment" value="netbanking" style="accent-color: var(--color-primary);" />
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-size: 0.92rem; font-weight: 700; color: var(--color-primary-dark);">🏛️ Net Banking</span>
+                    <span style="font-size: 0.76rem; color: var(--color-text-muted);">State Bank of India, HDFC, ICICI, Axis Bank & 50+ Banks</span>
+                  </div>
+                </label>
+                <div class="payment-details-box" id="details-netbanking">
+                  <label style="font-size: 0.75rem; font-weight: 600; color: var(--color-text-muted); display: block; margin-bottom: 4px;">Choose Bank:</label>
+                  <select style="padding: 8px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: 0.85rem; max-width: 320px; width: 100%;">
+                    <option>HDFC Bank</option>
+                    <option>State Bank of India (SBI)</option>
+                    <option>ICICI Bank</option>
+                    <option>Axis Bank</option>
+                    <option>Kotak Mahindra Bank</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- COD Option -->
+              <div>
+                <label class="payment-radio-label" data-method="cod">
+                  <input type="radio" name="checkout-payment" value="cod" style="accent-color: var(--color-primary);" />
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-size: 0.92rem; font-weight: 700; color: var(--color-primary-dark);">💵 Cash on Delivery (COD)</span>
+                    <span style="font-size: 0.76rem; color: var(--color-text-muted);">Pay in cash or scan delivery agent's QR upon receiving parcel</span>
+                  </div>
+                </label>
+                <div class="payment-details-box" id="details-cod">
+                  <div style="color: var(--color-primary); font-weight: 600;">✓ COD available for your pin code with zero additional surcharge.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button class="btn btn-primary hover-shimmer hover-lift" id="btn-place-order" style="width: 100%; margin-top: 24px; padding: 16px; font-size: 1.05rem;">
+              Confirm & Pay Securely 🔒
+            </button>
+          </section>
+
+        </div>
+
+        <!-- Right Column: Order Summary Preview -->
+        <aside class="card-3d" style="background: #ffffff; border-radius: var(--radius-lg); border: 1px solid var(--color-border); padding: 28px; box-shadow: var(--shadow-md); position: sticky; top: 20px;">
+          <h3 style="font-family: var(--font-serif); font-size: 1.3rem; color: var(--color-primary-dark); margin-bottom: 18px;">Order Summary</h3>
+
+          <div id="checkout-items-preview" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; max-height: 260px; overflow-y: auto;">
+            <!-- Cart item previews dynamically injected -->
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.88rem; padding-top: 16px; border-top: 1px solid var(--color-border); margin-bottom: 18px;">
+            <div style="display: flex; justify-content: space-between; color: var(--color-text-muted);">
+              <span>Items Subtotal</span>
+              <span id="chk-subtotal">₹0</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; color: var(--color-success);">
+              <span>Coupon ARUVI20 (20% Off)</span>
+              <span id="chk-discount">-₹0</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; color: var(--color-text-muted);">
+              <span>Delivery Fee</span>
+              <span id="chk-delivery" style="color: var(--color-gold); font-weight: 700;">FREE</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 1.15rem; font-weight: 800; color: var(--color-primary-dark); padding-top: 12px; border-top: 1px dashed var(--color-border-dark);">
+              <span>Total Amount</span>
+              <span id="chk-total">₹0</span>
+            </div>
+          </div>
+
+          <div style="background: var(--color-mint-pale); border-radius: var(--radius-sm); padding: 12px; font-size: 0.78rem; color: var(--color-primary); line-height: 1.5;">
+            ✨ Guaranteed Handcrafted Silk Mark Quality • 7-Day Hassle-Free Returns
+          </div>
+          <div class="card-glare"></div>
+        </aside>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Celebration Order Success Modal -->
+  <div class="modal-overlay" id="order-success-modal">
+    <div class="modal-container" style="max-width: 500px; text-align: center; padding: 40px 30px;">
+      <div style="font-size: 3.5rem; margin-bottom: 16px;">🎉</div>
+      <h2 style="font-family: var(--font-serif); font-size: 2rem; color: var(--color-primary-dark); margin-bottom: 10px;">Order Placed Successfully!</h2>
+      <p style="color: var(--color-text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 24px;">
+        Thank you for choosing Aruvi Collections! Your handcrafted drape is being prepared with utmost care.
+      </p>
+      <div style="background: var(--color-mint-pale); border-radius: var(--radius-md); padding: 16px; margin-bottom: 28px; text-align: left; font-size: 0.84rem;">
+        <div style="font-weight: 700; color: var(--color-primary); margin-bottom: 4px;" id="success-order-id-display">Order ID: #ARUVI-881357</div>
+        <div style="color: var(--color-text-muted);" id="success-delivery-speed-display">Estimated Delivery: 3 Business Days via Express Courier</div>
+      </div>
+      <a href="account.html" class="btn btn-primary" style="width: 100%;">View My Orders 📦</a>
+    </div>
+  </div>
+
+  <!-- Mobile Slide Navigation Drawer -->
+  <div class="mobile-nav-drawer" id="mobile-nav-drawer">
+    <div class="mobile-nav-header">
+      <div class="brand-logo">
+        <img src="assets/icons/WhatsApp Image 2026-09-21 at 7.49.20 AM (1).jpeg" alt="Aruvi Collections" class="brand-logo-img" style="height: 44px; width: auto; max-height: 44px; object-fit: contain; border-radius: 6px;" />
+      </div>
+      <button class="mobile-nav-close" id="mobile-nav-close" aria-label="Close navigation menu">✕</button>
+    </div>
+    <ul class="mobile-nav-links">
+        <li><a href="index.html" class="mobile-nav-link"><span>🏠 Home</span> <span>›</span></a></li>
+        <li><a href="shop.html?category=sarees" class="mobile-nav-link"><span>🥻 Sarees</span> <span>›</span></a></li>
+        <li><a href="shop.html?category=salwar" class="mobile-nav-link"><span>👗 Salwar</span> <span>›</span></a></li>
+        <li><a href="shop.html?category=sharara" class="mobile-nav-link"><span>✨ Sharara</span> <span>›</span></a></li>
+        <li><a href="shop.html?category=ethnic-wears" class="mobile-nav-link"><span>🪡 Ethnic Wears</span> <span>›</span></a></li>
+        <li><a href="shop.html?category=co-ord-sets" class="mobile-nav-link"><span>👚 Co-ord Sets</span> <span>›</span></a></li>
+        <li><a href="shop.html?category=western-tops" class="mobile-nav-link"><span>🧥 Western Tops</span> <span>›</span></a></li>
+        <li><a href="shop.html?category=kids" class="mobile-nav-link"><span>👶 Kids</span> <span>›</span></a></li>
+        <li><a href="wishlist.html" class="mobile-nav-link"><span>❤️ My Saved Wishlist</span> <span class="action-badge wishlist-count-badge">0</span></a></li>
+        <li><a href="cart.html" class="mobile-nav-link"><span>👜 Shopping Bag</span> <span class="action-badge cart-count-badge">0</span></a></li>
+        <li><a href="account.html" class="mobile-nav-link"><span>👤 My Account & Orders</span> <span>›</span></a></li>
+      </ul>
+    <div class="mobile-nav-footer">
+      <div style="font-size: 0.78rem; color: var(--color-text-muted); text-align: center;">
+        Handcrafted South Indian Heritage • Silk Mark Certified
+      </div>
+      <a href="shop.html" class="btn btn-primary btn-sm" style="width: 100%; text-align: center;">Explore Catalogue</a>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="scripts/effects.js"></script>
+    <!-- Firebase SDKs & Cloud Storage -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+  <script src="scripts/firebase-config.js"></script>
+  <script src="scripts/store-data.js"></script>
+  <script src="scripts/app-main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      let currentDeliveryFee = 0;
+      let calculatedSubtotal = 0;
+      let calculatedDiscount = 0;
+
+      const previewContainer = document.getElementById('checkout-items-preview');
+      const subtotalEl = document.getElementById('chk-subtotal');
+      const discountEl = document.getElementById('chk-discount');
+      const deliveryEl = document.getElementById('chk-delivery');
+      const totalEl = document.getElementById('chk-total');
+
+      function recalculateTotals() {
+        const grandTotal = calculatedSubtotal - calculatedDiscount + currentDeliveryFee;
+        subtotalEl.textContent = '₹' + calculatedSubtotal.toLocaleString('en-IN');
+        discountEl.textContent = '-₹' + calculatedDiscount.toLocaleString('en-IN');
+        deliveryEl.textContent = currentDeliveryFee === 0 ? 'FREE' : '₹' + currentDeliveryFee;
+        totalEl.textContent = '₹' + grandTotal.toLocaleString('en-IN');
+      }
+
+      function renderCheckoutItems() {
+        const cart = window.Aruvi.AppState.cart;
+        if (!cart || cart.length === 0) {
+          previewContainer.innerHTML = `
+            <div style="text-align: center; padding: 20px; color: var(--color-text-muted); font-size: 0.85rem;">
+              Your bag is currently empty.<br>
+              <a href="shop.html" class="btn btn-primary btn-sm" style="margin-top: 10px;">Browse Collections</a>
+            </div>
+          `;
+          calculatedSubtotal = 0;
+          calculatedDiscount = 0;
+          recalculateTotals();
+          return;
+        }
+
+        previewContainer.innerHTML = cart.map(item => `
+          <div style="display: flex; gap: 12px; align-items: center; border-bottom: 1px solid var(--color-mint-pale); padding-bottom: 8px;">
+            <img src="${item.product.image}" alt="${item.product.title}" style="width: 50px; height: 60px; object-fit: cover; border-radius: 6px;" />
+            <div style="flex: 1; font-size: 0.82rem;">
+              <div style="font-weight: 700; color: var(--color-primary-dark);">${item.product.title}</div>
+              <div style="color: var(--color-text-muted);">Qty: ${item.quantity} • ${item.selectedSize}</div>
+            </div>
+            <div style="font-weight: 700; font-size: 0.85rem; color: var(--color-charcoal);">₹${(item.product.price * item.quantity).toLocaleString('en-IN')}</div>
+          </div>
+        `).join('');
+
+        calculatedSubtotal = cart.reduce((sum, i) => sum + (i.product.price * i.quantity), 0);
+        calculatedDiscount = Math.round(calculatedSubtotal * 0.20);
+        recalculateTotals();
+      }
+
+      renderCheckoutItems();
+
+      // Delivery Speed Radio Toggle
+      const deliveryRadios = document.querySelectorAll('input[name="delivery-speed"]');
+      const optStandard = document.getElementById('delivery-opt-standard');
+      const optExpress = document.getElementById('delivery-opt-express');
+
+      deliveryRadios.forEach(radio => {
+        radio.addEventListener('change', () => {
+          if (radio.value === 'express') {
+            currentDeliveryFee = 99;
+            optExpress.classList.add('active');
+            optStandard.classList.remove('active');
+          } else {
+            currentDeliveryFee = 0;
+            optStandard.classList.add('active');
+            optExpress.classList.remove('active');
+          }
+          recalculateTotals();
+        });
+      });
+
+      // Payment Method Radio Selection
+      const paymentLabels = document.querySelectorAll('.payment-radio-label');
+      const paymentBoxes = document.querySelectorAll('.payment-details-box');
+
+      paymentLabels.forEach(label => {
+        label.addEventListener('click', () => {
+          const method = label.getAttribute('data-method');
+          paymentLabels.forEach(l => l.classList.remove('active'));
+          paymentBoxes.forEach(b => b.classList.remove('active'));
+
+          label.classList.add('active');
+          const detailBox = document.getElementById(`details-${method}`);
+          if (detailBox) detailBox.classList.add('active');
+
+          const radio = label.querySelector('input[type="radio"]');
+          if (radio) radio.checked = true;
+        });
+      });
+
+      // Address Form Toggle
+      const btnAddAddress = document.getElementById('btn-add-address-toggle');
+      const addressFormBox = document.getElementById('new-address-form-box');
+      const btnCancelAddress = document.getElementById('btn-cancel-address');
+      const addressList = document.getElementById('addresses-list-container');
+      const formNewAddress = document.getElementById('form-new-address');
+
+      if (btnAddAddress) {
+        btnAddAddress.addEventListener('click', () => {
+          addressFormBox.style.display = addressFormBox.style.display === 'none' ? 'block' : 'none';
+        });
+      }
+
+      if (btnCancelAddress) {
+        btnCancelAddress.addEventListener('click', () => {
+          addressFormBox.style.display = 'none';
+        });
+      }
+
+      if (formNewAddress) {
+        formNewAddress.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const name = document.getElementById('addr-name').value.trim();
+          const phone = document.getElementById('addr-phone').value.trim();
+          const street = document.getElementById('addr-street').value.trim();
+          const city = document.getElementById('addr-city').value.trim();
+          const state = document.getElementById('addr-state').value.trim();
+          const pincode = document.getElementById('addr-pincode').value.trim();
+
+          const fullAddress = `${name}, ${street}, ${city}, ${state} - ${pincode}`;
+
+          // Uncheck other addresses
+          addressList.querySelectorAll('.address-radio-card').forEach(c => {
+            c.style.borderColor = 'var(--color-border)';
+            c.style.background = '#ffffff';
+          });
+
+          const newCard = document.createElement('label');
+          newCard.className = 'address-radio-card';
+          newCard.style.cssText = 'display: flex; gap: 14px; padding: 18px; border: 2px solid var(--color-primary); border-radius: var(--radius-md); background: var(--color-mint-pale); cursor: pointer;';
+          newCard.innerHTML = `
+            <input type="radio" name="shipping-address" value="${fullAddress}" checked style="accent-color: var(--color-primary); margin-top: 4px;" />
+            <div>
+              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+                <strong style="font-size: 0.95rem; color: var(--color-primary-dark);">${name}</strong>
+                <span class="product-badge-tag tag-gold" style="position: static; font-size: 0.65rem; padding: 2px 8px;">NEW</span>
+              </div>
+              <p style="font-size: 0.86rem; color: var(--color-charcoal); margin-bottom: 6px;">
+                ${street}, ${city}, ${state} - <strong>${pincode}</strong>
+              </p>
+              <div style="font-size: 0.8rem; color: var(--color-text-muted);">Contact: +91 ${phone}</div>
+            </div>
+          `;
+
+          addressList.prepend(newCard);
+          formNewAddress.reset();
+          addressFormBox.style.display = 'none';
+          window.Aruvi.showToast('New shipping address saved! 📍', 'success');
+        });
+      }
+
+      // Place Order Button Execution
+      const placeOrderBtn = document.getElementById('btn-place-order');
+      if (placeOrderBtn) {
+        placeOrderBtn.addEventListener('click', function() {
+          const cart = window.Aruvi.AppState.cart;
+          if (!cart || cart.length === 0) {
+            window.Aruvi.showToast('Please add items to your bag before checking out.', 'warning');
+            return;
+          }
+
+          const selectedAddressInput = document.querySelector('input[name="shipping-address"]:checked');
+          const nameVal = (document.getElementById('chk-input-name') && document.getElementById('chk-input-name').value.trim()) || 'Boutique Patron';
+          const streetVal = (document.getElementById('chk-input-street') && document.getElementById('chk-input-street').value.trim()) || '';
+          const cityVal = (document.getElementById('chk-input-city') && document.getElementById('chk-input-city').value.trim()) || '';
+          const pinVal = (document.getElementById('chk-input-pincode') && document.getElementById('chk-input-pincode').value.trim()) || '';
+          const selectedAddress = streetVal ? `${nameVal}, ${streetVal}, ${cityVal} - ${pinVal}` : 'Boutique Delivery';
+
+          const selectedSpeedInput = document.querySelector('input[name="delivery-speed"]:checked');
+          const isExpress = selectedSpeedInput && selectedSpeedInput.value === 'express';
+
+          const selectedPaymentInput = document.querySelector('input[name="checkout-payment"]:checked');
+          const paymentMethod = selectedPaymentInput ? selectedPaymentInput.value.toUpperCase() : 'UPI';
+
+          this.innerHTML = '<span class="btn-spinner"></span> Processing Secure Payment...';
+          this.disabled = true;
+
+          const orderId = 'ARUVI-' + Math.floor(100000 + Math.random() * 900000);
+          const orderTotal = calculatedSubtotal - calculatedDiscount + currentDeliveryFee;
+
+          const newOrder = {
+            id: orderId,
+            date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+            items: JSON.parse(JSON.stringify(cart)),
+            subtotal: calculatedSubtotal,
+            discount: calculatedDiscount,
+            deliveryFee: currentDeliveryFee,
+            total: orderTotal,
+            status: isExpress ? 'Express Dispatch' : 'Confirmed',
+            estimatedDelivery: isExpress ? '1-2 Business Days via Express Courier' : '3-5 Business Days Standard Delivery',
+            shippingAddress: selectedAddress,
+            paymentMethod: paymentMethod
+          };
+
+          try {
+            const existingOrders = JSON.parse(localStorage.getItem('aruvi_orders') || '[]');
+            existingOrders.unshift(newOrder);
+            localStorage.setItem('aruvi_orders', JSON.stringify(existingOrders));
+          } catch (e) {
+            console.error('Failed to save order to localStorage', e);
+          }
+
+          setTimeout(() => {
+            // Clear cart upon order completion
+            window.Aruvi.AppState.cart = [];
+            window.Aruvi.saveStoredCart();
+            window.Aruvi.updateCartDrawerUI();
+
+            const idDisplay = document.getElementById('success-order-id-display');
+            if (idDisplay) idDisplay.textContent = `Order ID: #${orderId}`;
+
+            const speedDisplay = document.getElementById('success-delivery-speed-display');
+            if (speedDisplay) speedDisplay.textContent = `Estimated Delivery: ${newOrder.estimatedDelivery}`;
+
+            document.getElementById('order-success-modal').classList.add('active');
+          }, 1400);
+        });
+      }
+    });
+  </script>
+
+  <script src="scripts/customer-auth.js"></script>
+</body>
+</html>

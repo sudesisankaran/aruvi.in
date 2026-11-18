@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aruvi Collections | Admin Central Dashboard & Website Control</title>
+  <meta name="description" content="Central management system for Aruvi Collections boutique. Complete control over products, orders, categories, discount coupons, hero banners, and customer accounts.">
+  <link rel="icon" type="image/jpeg" href="assets/icons/WhatsApp Image 2026-09-21 at 7.49.20 AM (1).jpeg">
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="styles/admin.css?v=1">
+</head>
+<body class="admin-body">
+
+  <!-- ========================================================================
+       ADMIN GOOGLE AUTHENTICATION OVERLAY GATE
+       ======================================================================== -->
+  <div class="admin-auth-overlay active" id="admin-auth-overlay">
+    <div class="admin-auth-card">
+      <div class="auth-logo-wrap">
+        <img src="assets/icons/WhatsApp Image 2026-09-21 at 7.49.20 AM (1).jpeg" alt="Aruvi Collections Logo">
+      </div>
+      <h2>Administrator Security Gate</h2>
+      <p style="font-size: 0.86rem; color: var(--admin-text-muted); line-height: 1.6; margin-bottom: 24px;">
+        Restricted boutique control portal. Access is strictly limited to the verified owner Google account: <br>
+        <strong style="color: var(--admin-primary-dark); font-weight: 700; word-break: break-all;">aruvicollections.25@gmail.com</strong>
+      </p>
+
+      <!-- Google Sign In Button -->
+      <button type="button" class="btn-google-signin" id="btn-google-login">
+        <svg class="google-icon" viewBox="0 0 24 24" width="22" height="22">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+        <span>Sign in with Google</span>
+      </button>
+
+      <div id="auth-status-alert" style="display: none; margin-top: 18px; padding: 12px 14px; border-radius: 8px; font-size: 0.82rem; text-align: left;"></div>
+
+      <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--admin-border-subtle); display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem;">
+        <span style="color: var(--admin-text-muted);">🔒 Google OAuth 2.0 Protected</span>
+        <a href="index.html" style="color: var(--admin-primary); text-decoration: none; font-weight: 600;">← Back to Store</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Google Account Chooser Modal (Official Google Dialog Style) -->
+  <div class="google-oauth-modal" id="google-oauth-modal">
+    <div class="google-oauth-box">
+      <div class="google-oauth-header">
+        <svg viewBox="0 0 24 24" width="28" height="28">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+        <div style="font-family: 'Roboto', sans-serif; font-size: 1.15rem; font-weight: 500; color: #202124; margin-top: 8px;">Choose an account</div>
+        <div style="font-size: 0.85rem; color: #5f6368;">to continue to Aruvi Collections Admin Portal</div>
+      </div>
+
+      <div class="google-account-list">
+        <!-- Authorized Owner Account Item -->
+        <div class="google-account-item" id="google-acc-authorized">
+          <div class="google-avatar" style="background: #153c30; color: #ffffff;">A</div>
+          <div class="google-acc-meta">
+            <div class="google-acc-name">Aruvi Collections</div>
+            <div class="google-acc-email">aruvicollections.25@gmail.com</div>
+            <div class="google-acc-badge">✓ Authorized Administrator</div>
+          </div>
+        </div>
+
+        <!-- Another Account Option -->
+        <div class="google-account-item" id="google-acc-other">
+          <div class="google-avatar" style="background: #f1f3f4; color: #5f6368; font-size: 1.2rem;">+</div>
+          <div class="google-acc-meta">
+            <div class="google-acc-name" style="font-weight: 500;">Use another Google account</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Custom Email Prompt Input Box -->
+      <div id="google-other-email-box" style="display: none; padding: 16px 20px; border-top: 1px solid #dadce0;">
+        <label style="display: block; font-size: 0.78rem; font-weight: 600; color: #3c4043; margin-bottom: 6px;">Enter Google Email Address:</label>
+        <div style="display: flex; gap: 8px;">
+          <input type="email" id="google-custom-email-input" class="form-input" placeholder="e.g. user@gmail.com" style="flex: 1; padding: 8px 12px; font-size: 0.88rem;">
+          <button type="button" id="btn-submit-other-google" class="btn-admin btn-admin-primary btn-admin-sm">Sign In</button>
+        </div>
+      </div>
+
+      <div id="google-oauth-error" style="display: none; margin: 12px 20px; padding: 10px 14px; background: #fce8e6; border: 1px solid #fad2cf; border-radius: 8px; font-size: 0.82rem; color: #c5221f; line-height: 1.5;"></div>
+
+      <div class="google-oauth-footer">
+        <button type="button" id="btn-cancel-google-oauth" class="btn-admin btn-admin-secondary btn-admin-sm" style="background: transparent; border: none; color: #1a73e8; font-weight: 600; cursor: pointer;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       SIDEBAR NAVIGATION
+       ======================================================================== -->
+  <aside class="admin-sidebar" id="admin-sidebar">
+    <!-- Brand Header -->
+    <div class="admin-sidebar-header">
+      <img src="assets/icons/WhatsApp Image 2026-09-21 at 7.49.20 AM (1).jpeg" alt="Aruvi" class="admin-sidebar-logo">
+      <div class="admin-brand-info">
+        <h2>Aruvi Collections</h2>
+        <div class="admin-brand-badge">
+          <span class="status-dot-pulse"></span> Boutique Live
+        </div>
+      </div>
+    </div>
+
+    <!-- Nav Links -->
+    <nav class="admin-sidebar-nav">
+      <div class="admin-nav-category-title">Store Operations</div>
+      <a class="admin-nav-link active" data-tab="dashboard">
+        <div class="admin-nav-icon-title">
+          <span>📊</span>
+          <span>Dashboard Overview</span>
+        </div>
+      </a>
+      <a class="admin-nav-link" data-tab="products">
+        <div class="admin-nav-icon-title">
+          <span>🛍️</span>
+          <span>Product Catalog</span>
+        </div>
+        <span class="admin-nav-badge" id="badge-products-count">12</span>
+      </a>
+      <a class="admin-nav-link" data-tab="orders">
+        <div class="admin-nav-icon-title">
+          <span>📦</span>
+          <span>Orders & Tracking</span>
+        </div>
+        <span class="admin-nav-badge danger" id="badge-pending-orders">2</span>
+      </a>
+      <a class="admin-nav-link" data-tab="categories">
+        <div class="admin-nav-icon-title">
+          <span>🏷️</span>
+          <span>Categories & Tags</span>
+        </div>
+      </a>
+
+      <div class="admin-nav-category-title">Marketing & Promos</div>
+      <a class="admin-nav-link" data-tab="banners">
+        <div class="admin-nav-icon-title">
+          <span>📢</span>
+          <span>Banners & Announcements</span>
+        </div>
+      </a>
+      <a class="admin-nav-link" data-tab="coupons">
+        <div class="admin-nav-icon-title">
+          <span>🎟️</span>
+          <span>Coupons & Promos</span>
+        </div>
+      </a>
+      <a class="admin-nav-link" data-tab="customers">
+        <div class="admin-nav-icon-title">
+          <span>👥</span>
+          <span>VIP Customers</span>
+        </div>
+      </a>
+
+      <div class="admin-nav-category-title">System & Branding</div>
+      <a class="admin-nav-link" data-tab="settings">
+        <div class="admin-nav-icon-title">
+          <span>⚙️</span>
+          <span>Store Settings</span>
+        </div>
+      </a>
+      <a class="admin-nav-link" data-tab="backup">
+        <div class="admin-nav-icon-title">
+          <span>💾</span>
+          <span>Backup & Sync</span>
+        </div>
+      </a>
+    </nav>
+
+    <!-- Sidebar User Footer -->
+    <div class="admin-sidebar-footer">
+      <div class="admin-user-info">
+        <div class="admin-user-avatar">A</div>
+        <div>
+          <div class="admin-user-name">Aruvi Collections</div>
+          <div class="admin-user-role" style="font-size:0.68rem;color:var(--admin-accent-gold);word-break:break-all;">aruvicollections.25@gmail.com</div>
+        </div>
+      </div>
+      <button class="btn-sidebar-logout" id="btn-admin-logout" title="Sign Out">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ========================================================================
+       MAIN WRAPPER
+       ======================================================================== -->
+  <div class="admin-main-wrapper">
+    
+    <!-- Topbar -->
+    <header class="admin-topbar">
+      <div class="admin-topbar-left">
+        <button class="mobile-sidebar-toggle" id="mobile-sidebar-toggle" aria-label="Toggle Menu">
+          ☰
+        </button>
+        <div class="admin-topbar-title-wrap">
+          <h1 id="breadcrumb-current">Dashboard Overview</h1>
+          <span class="admin-topbar-breadcrumb">Aruvi Collections Control Centre</span>
+        </div>
+      </div>
+
+      <div class="admin-topbar-right">
+        <!-- Global Search -->
+        <div class="admin-global-search">
+          <span class="admin-search-icon">🔍</span>
+          <input type="text" id="admin-global-search-input" placeholder="Search catalog, orders, SKU..." autocomplete="off">
+        </div>
+
+        <!-- View Live Storefront Button -->
+        <a href="index.html" target="_blank" class="btn-view-store" title="Open live e-commerce website">
+          <span>🌐 View Live Website</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+        </a>
+
+        <!-- Notifications Bell -->
+        <button class="admin-icon-btn" title="Low stock & order alerts" onclick="window.AdminApp.showToast('All notifications read! 2 orders pending dispatch.', 'info')">
+          🔔
+          <span class="admin-icon-badge" id="badge-low-stock">1</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Content Viewport -->
+    <main class="admin-content">
+
+      <!-- ====================================================================
+           TAB 1: DASHBOARD OVERVIEW
+           ==================================================================== -->
+      <section class="admin-tab-pane active" id="tab-dashboard">
+        
+        <!-- Top Stats Row -->
+        <div class="admin-stats-grid">
+          <!-- Stat 1: Revenue -->
+          <div class="admin-stat-card stat-card-gold-stripe">
+            <div>
+              <div class="stat-info-title">Total Gross Revenue</div>
+              <div class="stat-info-val" id="stat-total-revenue">₹0</div>
+              <div class="stat-trend positive">↑ +24.8% this month</div>
+            </div>
+            <div class="stat-icon-wrapper">💰</div>
+          </div>
+
+          <!-- Stat 2: Orders -->
+          <div class="admin-stat-card stat-card-gold-stripe">
+            <div>
+              <div class="stat-info-title">Total Orders Placed</div>
+              <div class="stat-info-val" id="stat-total-orders">0</div>
+              <div class="stat-trend positive">↑ 100% fulfilled</div>
+            </div>
+            <div class="stat-icon-wrapper">📦</div>
+          </div>
+
+          <!-- Stat 3: Products -->
+          <div class="admin-stat-card stat-card-gold-stripe">
+            <div>
+              <div class="stat-info-title">Active Products</div>
+              <div class="stat-info-val" id="stat-total-products">0</div>
+              <div class="stat-trend neutral">Catalog in stock</div>
+            </div>
+            <div class="stat-icon-wrapper">👗</div>
+          </div>
+
+          <!-- Stat 4: Customers -->
+          <div class="admin-stat-card stat-card-gold-stripe">
+            <div>
+              <div class="stat-info-title">VIP Patrons & Members</div>
+              <div class="stat-info-val" id="stat-total-customers">0</div>
+              <div class="stat-trend positive">↑ High loyalty retention</div>
+            </div>
+            <div class="stat-icon-wrapper">👑</div>
+          </div>
+        </div>
+
+        <!-- Analytics Charts Grid -->
+        <div class="admin-analytics-grid">
+          <!-- Sales Trend Line Chart -->
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <div>
+                <h3 class="admin-card-title">Weekly Sales Performance</h3>
+                <p style="font-size: 0.8rem; color: var(--admin-text-muted);">Real-time revenue generated from handcrafted saree & suit orders</p>
+              </div>
+              <span class="badge-status status-active">Live Metrics</span>
+            </div>
+            <div class="chart-container-box" id="sales-trend-chart-box">
+              <!-- Dynamically rendered via SVG -->
+            </div>
+          </div>
+
+          <!-- Category Breakdown Bar Chart -->
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <div>
+                <h3 class="admin-card-title">Category Share</h3>
+                <p style="font-size: 0.8rem; color: var(--admin-text-muted);">Inventory & sales distribution</p>
+              </div>
+            </div>
+            <div id="category-distribution-box" style="padding-top: 6px;">
+              <!-- Dynamically rendered -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Orders & Inventory Alert Grid -->
+        <div style="display: grid; grid-template-columns: 2fr 1.2fr; gap: 22px; margin-bottom: 24px;">
+          <!-- Recent Orders -->
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <div>
+                <h3 class="admin-card-title">Recent Customer Orders</h3>
+                <p style="font-size: 0.8rem; color: var(--admin-text-muted);">Latest dispatches and delivery confirmations</p>
+              </div>
+              <button class="btn-admin btn-admin-secondary btn-admin-sm" onclick="window.AdminApp.switchTab('orders')">View All Orders →</button>
+            </div>
+            <div class="table-responsive-wrap" style="border: none; box-shadow: none;">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Items</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="recent-orders-table-body">
+                  <!-- Injected via scripts/admin.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Low Stock Alert -->
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <div>
+                <h3 class="admin-card-title">⚠️ Stock Alerts</h3>
+                <p style="font-size: 0.8rem; color: var(--admin-text-muted);">Items with critically low inventory</p>
+              </div>
+              <button class="btn-admin btn-admin-gold btn-admin-sm" id="btn-open-add-product-quick">+ Add Item</button>
+            </div>
+            <div id="low-stock-alert-list">
+              <!-- Injected via scripts/admin.js -->
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ====================================================================
+           TAB 2: PRODUCT CATALOG MANAGEMENT
+           ==================================================================== -->
+      <section class="admin-tab-pane" id="tab-products">
+        <div class="section-header">
+          <div class="section-header-left">
+            <h2>Product Catalog & Inventory</h2>
+            <p>Add new handcrafted sarees, adjust prices, edit descriptions, upload images, and control stock status in real-time.</p>
+          </div>
+          <div class="section-header-actions">
+            <button class="btn-admin btn-admin-gold" id="btn-open-add-product">
+              <span>+ Add New Collection Item</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter & Search Bar -->
+        <div class="admin-filter-bar">
+          <div class="filter-group-left">
+            <input type="text" id="prod-search-input" class="filter-input-search" placeholder="Search by title, SKU, fabric...">
+            <select id="prod-category-filter" class="filter-select">
+              <option value="all">All 7 Collections</option>
+              <option value="sarees">1. Sarees</option>
+              <option value="salwar">2. Salwar</option>
+              <option value="sharara">3. Sharara</option>
+              <option value="ethnic-wears">4. Ethnic Wears</option>
+              <option value="co-ord-sets">5. Co-ord Sets</option>
+              <option value="western-tops">6. Western Tops</option>
+              <option value="kids">7. Kids</option>
+            </select>
+            <select id="prod-stock-filter" class="filter-select">
+              <option value="all">All Stock Levels</option>
+              <option value="in_stock">In Stock (&gt; 8)</option>
+              <option value="low_stock">Low Stock (1-8)</option>
+              <option value="out_of_stock">Out of Stock (0)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Products Table -->
+        <div class="table-responsive-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th style="width: 40px;"><input type="checkbox" id="check-all-products"></th>
+                <th>Product Details</th>
+                <th>Category</th>
+                <th>Price & MRP</th>
+                <th>Inventory Stock</th>
+                <th>Badge Tag</th>
+                <th>Store Visibility</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="products-table-body">
+              <!-- Injected via scripts/admin.js -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           TAB 3: ORDERS MANAGEMENT & INVOICE
+           ==================================================================== -->
+      <section class="admin-tab-pane" id="tab-orders">
+        <div class="section-header">
+          <div class="section-header-left">
+            <h2>Customer Orders & Logistics</h2>
+            <p>Track customer purchases, update courier consignment numbers, mark statuses, and generate official printable boutique invoices.</p>
+          </div>
+        </div>
+
+        <!-- Order Filter Bar -->
+        <div class="admin-filter-bar">
+          <div class="filter-group-left">
+            <input type="text" id="order-search-input" class="filter-input-search" placeholder="Search Order ID, customer phone, courier AWB...">
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <button class="btn-admin btn-admin-secondary btn-admin-sm order-status-tab active" data-status="all">All</button>
+              <button class="btn-admin btn-admin-secondary btn-admin-sm order-status-tab" data-status="Confirmed">Confirmed</button>
+              <button class="btn-admin btn-admin-secondary btn-admin-sm order-status-tab" data-status="Shipped">Shipped</button>
+              <button class="btn-admin btn-admin-secondary btn-admin-sm order-status-tab" data-status="Delivered">Delivered</button>
+              <button class="btn-admin btn-admin-secondary btn-admin-sm order-status-tab" data-status="Cancelled">Cancelled</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="table-responsive-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Order ID & Date</th>
+                <th>Patron Details</th>
+                <th>Items Ordered</th>
+                <th>Total Value</th>
+                <th>Payment Mode</th>
+                <th>Fulfillment Status</th>
+                <th>Courier & AWB</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="orders-table-body">
+              <!-- Injected via scripts/admin.js -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           TAB 4: CATEGORIES MANAGEMENT
+           ==================================================================== -->
+      <section class="admin-tab-pane" id="tab-categories">
+        <div class="section-header">
+          <div class="section-header-left">
+            <h2>Categories & Collections</h2>
+            <p>Organize products by traditional South Indian craft, silken weaves, festive drapes, and modern bridalwear.</p>
+          </div>
+          <div class="section-header-actions">
+            <button class="btn-admin btn-admin-gold" id="btn-open-add-category">+ Add New Category</button>
+          </div>
+        </div>
+
+        <div class="admin-stats-grid" id="categories-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+          <!-- Injected via scripts/admin.js -->
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           TAB 5: HERO & ANNOUNCEMENT BANNERS (STOREFRONT CONTROL)
+           ==================================================================== -->
+      <section class="admin-tab-pane" id="tab-banners">
+        <div class="section-header">
+          <div class="section-header-left">
+            <h2>Storefront Banners & Live Messaging</h2>
+            <p>Update the top announcement ticker and homepage luxury hero slider without touching any code. Changes reflect instantly on the live website.</p>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+          <!-- Top Announcement Bar Editor -->
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <h3 class="admin-card-title">Top Header Announcement Bar</h3>
+              <span class="badge-status status-active">Top Ticker</span>
+            </div>
+
+            <!-- Live Preview -->
+            <div style="margin-bottom: 20px; padding: 12px 18px; border-radius: var(--admin-radius-sm); background: var(--admin-primary); color: #fff; font-size: 0.8rem; display: flex; align-items: center; justify-content: space-between;">
+              <span id="preview-announcement-text">✨ Use code ARUVI20 for Extra 20% Off + Free Shipping ✨</span>
+              <span style="background: var(--admin-accent-gold); color: #153c30; padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 0.68rem;">LIVE PREVIEW</span>
+            </div>
+
+            <form id="form-announcement-settings">
+              <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 700;">
+                  <input type="checkbox" id="ann-input-enable" checked style="accent-color: var(--admin-accent-gold);">
+                  <span>Enable Announcement Bar on Storefront</span>
+                </label>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Announcement Tag</label>
+                <input type="text" id="ann-input-tag" class="form-input" value="Festive Sale">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Announcement Text / Promo Offer</label>
+                <textarea id="ann-input-text" class="form-textarea" rows="3">✨ Use code ARUVI20 for Extra 20% Off + Free Shipping on orders above ₹999 ✨</textarea>
+              </div>
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">Right Link Text</label>
+                  <input type="text" id="ann-input-link" class="form-input" value="Track Order">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Right Link Destination</label>
+                  <input type="text" id="ann-input-url" class="form-input" value="account.html#orders">
+                </div>
+              </div>
+              <button type="submit" class="btn-admin btn-admin-primary" style="width: 100%;">
+                Publish Announcement Bar Live
+              </button>
+            </form>
+          </div>
+
+          <!-- Hero Slider / Banner Editor -->
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <h3 class="admin-card-title">Homepage Hero Spotlight</h3>
+              <span class="badge-status status-active">Front & Center</span>
+            </div>
+
+            <!-- Live Hero Card Preview -->
+            <div style="margin-bottom: 20px; border-radius: var(--admin-radius-md); overflow: hidden; border: 1px solid var(--admin-border); position: relative; height: 160px; background: #000;">
+              <img id="preview-hero-img" src="assets/images/hero_saree_model.jpg" alt="Hero" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.65;">
+              <div style="position: absolute; bottom: 12px; left: 16px; right: 16px; color: #fff;">
+                <span id="preview-hero-badge" style="font-size: 0.65rem; font-weight: 700; color: var(--admin-accent-gold); text-transform: uppercase;">ROYAL HERITAGE COLLECTION</span>
+                <h4 id="preview-hero-title" style="font-family: var(--admin-font-serif); font-size: 1.1rem; line-height: 1.2;">Tradition In Every Thread.</h4>
+                <p id="preview-hero-subtitle" style="font-size: 0.72rem; color: #ddd; max-height: 2.4em; overflow: hidden;">Pure Kanchipuram silk sarees handwoven by master weavers.</p>
+              </div>
+            </div>
+
+            <form id="form-hero-settings">
+              <div class="form-group">
+                <label class="form-label">Royal Badge Eyebrow</label>
+                <input type="text" id="hero-input-badge" class="form-input" value="ROYAL HERITAGE COLLECTION • 2026">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Main Headline</label>
+                <input type="text" id="hero-input-title" class="form-input" value="Tradition In Every Thread.">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Tagline Subtitle</label>
+                <textarea id="hero-input-subtitle" class="form-textarea" rows="2">Discover pure Kanchipuram silk sarees handwoven by multi-generational master weavers in South India.</textarea>
+              </div>
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">Discount Pill Tag</label>
+                  <input type="text" id="hero-input-discount" class="form-input" value="FLAT 20% OFF FESTIVE LAUNCH">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Hero Model Image</label>
+                  <select id="hero-input-image" class="form-select-full">
+                    <option value="assets/images/hero_saree_model.jpg">Model 1: Royal Silk Saree</option>
+                    <option value="assets/images/kanjivaram_green.jpg">Model 2: Kanjivaram Green</option>
+                    <option value="assets/images/banarasi_saree.jpg">Model 3: Crimson Banarasi</option>
+                    <option value="assets/images/festive_promo.jpg">Model 4: Festive Celebration</option>
+                    <option value="assets/images/lehenga_set.jpg">Model 5: Bridal Lehenga</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">CTA Button Label</label>
+                  <input type="text" id="hero-input-cta" class="form-input" value="Explore Handloom Silks">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">CTA Link URL</label>
+                  <input type="text" id="hero-input-link" class="form-input" value="shop.html?category=sarees">
+                </div>
+              </div>
+              <button type="submit" class="btn-admin btn-admin-gold" style="width: 100%;">
+                Publish Homepage Hero Banner
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           TAB 6: COUPONS & DISCOUNTS
+           ==================================================================== -->
+      <section class="admin-tab-pane" id="tab-coupons">
+        <div class="section-header">
+          <div class="section-header-left">
+            <h2>Discount Coupons & Promo Codes</h2>
+            <p>Create promotional vouchers (percentage or flat discounts). When customers enter these in cart or checkout, discounts calculate automatically.</p>
+          </div>
+          <div class="section-header-actions">
+            <button class="btn-admin btn-admin-gold" id="btn-open-add-coupon">+ Create New Coupon Code</button>
+          </div>
+        </div>
+
+        <div id="coupons-list">
+          <!-- Injected via scripts/admin.js -->
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           TAB 7: CUSTOMERS & VIP PATRONS
+           ==================================================================== -->
+      <section class="admin-tab-pane" id="tab-customers">
+        <div class="section-header">
+          <div class="section-header-left">
+            <h2>Customer Directory & VIP Patrons</h2>
+            <p>View registered clients, monitor cumulative order spend, manage Heritage Loyalty points, and assign patron tiers.</p>
+          </div>
+          <div class="section-header-actions">
+            <button class="btn-admin btn-admin-gold" id="btn-open-add-customer">+ Register New Patron</button>
+          </div>
+        </div>
+
+        <div class="table-responsive-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Customer & Location</th>
+                <th>Contact Details</th>
+                <th>Membership Tier</th>
+                <th style="text-align: center;">Orders</th>
+                <th>Total Spent</th>
+                <th>Loyalty Balance</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="customers-table-body">
+              <!-- Injected via scripts/admin.js -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           TAB 8: STORE SETTINGS & BRAND IDENTITY
+           ==================================================================== -->
+      <section class="admin-tab-pane" id="tab-settings">
+        <div class="section-header">
+          <div class="section-header-left">
+            <h2>Store Configuration & Brand Settings</h2>
+            <p>Manage boutique contact information, WhatsApp concierge numbers, shipping thresholds, tax rules, and administrator security.</p>
+          </div>
+        </div>
+
+        <div class="admin-card" style="max-width: 800px;">
+          <form id="form-store-settings">
+            <h3 style="font-family: var(--admin-font-serif); font-size: 1.25rem; color: var(--admin-primary-dark); margin-bottom: 16px;">1. Brand Identity & Headquarters</h3>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Storefront Name</label>
+                <input type="text" id="set-store-name" class="form-input" value="Aruvi Collections">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Brand Tagline</label>
+                <input type="text" id="set-tagline" class="form-input" value="Tradition In Every Thread">
+              </div>
+              <div class="form-group col-span-2">
+                <label class="form-label">Boutique Headquarters Address</label>
+                <textarea id="set-address" class="form-textarea" rows="2">Boutique Suite 402, Heritage Silk Enclave, Avinashi Road, Peelamedu, Coimbatore - 641004</textarea>
+              </div>
+            </div>
+
+            <h3 style="font-family: var(--admin-font-serif); font-size: 1.25rem; color: var(--admin-primary-dark); margin: 24px 0 16px 0;">2. Customer Concierge & Instant WhatsApp</h3>
+            <div class="form-grid-3">
+              <div class="form-group">
+                <label class="form-label">Helpline Phone</label>
+                <input type="text" id="set-phone" class="form-input" value="+91 98765 43210">
+              </div>
+              <div class="form-group">
+                <label class="form-label">WhatsApp Concierge (Digits)</label>
+                <input type="text" id="set-whatsapp" class="form-input" value="919876543210">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Official Support Email</label>
+                <input type="email" id="set-email" class="form-input" value="support@aruvicollections.com">
+              </div>
+            </div>
+
+            <h3 style="font-family: var(--admin-font-serif); font-size: 1.25rem; color: var(--admin-primary-dark); margin: 24px 0 16px 0;">3. Shipping, Taxes & Currency</h3>
+            <div class="form-grid-3">
+              <div class="form-group">
+                <label class="form-label">Free Shipping Threshold (₹)</label>
+                <input type="number" id="set-free-shipping" class="form-input" value="999">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Express Delivery Fee (₹)</label>
+                <input type="number" id="set-express-fee" class="form-input" value="99">
+              </div>
+              <div class="form-group">
+                <label class="form-label">GST / Tax Percent (%)</label>
+                <input type="number" id="set-tax" class="form-input" value="5">
+              </div>
+            </div>
+
+            <h3 style="font-family: var(--admin-font-serif); font-size: 1.25rem; color: var(--admin-primary-dark); margin: 24px 0 16px 0;">4. Security & Store Status</h3>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Admin Master Password</label>
+                <input type="text" id="set-admin-pass" class="form-input" value="admin">
+              </div>
+              <div class="form-group" style="display: flex; align-items: flex-end; padding-bottom: 12px;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 700; color: var(--admin-danger);">
+                  <input type="checkbox" id="set-maintenance" style="accent-color: var(--admin-danger);">
+                  <span>Enable Boutique Maintenance Mode</span>
+                </label>
+              </div>
+            </div>
+
+            <div style="margin-top: 24px;">
+              <button type="submit" class="btn-admin btn-admin-primary">
+                Save All Store Configurations
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           TAB 9: BACKUP & FACTORY RESTORE
+           ==================================================================== -->
+      <section class="admin-tab-pane" id="tab-backup">
+        <div class="section-header">
+          <div class="section-header-left">
+            <h2>Data Backup, Synchronization & Disaster Recovery</h2>
+            <p>Export your full e-commerce database (products, customer orders, categories, coupons, and settings) as a single JSON file. Restore or reset anytime.</p>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+          <!-- Export Card -->
+          <div class="admin-card" style="border-top: 4px solid var(--admin-success);">
+            <div style="font-size: 2.2rem; margin-bottom: 12px;">📥</div>
+            <h3 class="admin-card-title">Export Full Store Backup</h3>
+            <p style="font-size: 0.85rem; color: var(--admin-text-muted); margin: 8px 0 20px 0; line-height: 1.5;">
+              Download a complete JSON snapshot of all products, live orders, discount codes, customer profiles, and boutique configurations.
+            </p>
+            <button class="btn-admin btn-admin-primary" id="btn-export-store-data" style="width: 100%;">
+              <span>Download Backup (.JSON)</span>
+            </button>
+          </div>
+
+          <!-- Import Card -->
+          <div class="admin-card" style="border-top: 4px solid var(--admin-accent-gold);">
+            <div style="font-size: 2.2rem; margin-bottom: 12px;">📤</div>
+            <h3 class="admin-card-title">Restore from Backup</h3>
+            <p style="font-size: 0.85rem; color: var(--admin-text-muted); margin: 8px 0 20px 0; line-height: 1.5;">
+              Upload an exported JSON backup file to instantly restore product catalog, orders, and boutique configurations.
+            </p>
+            <input type="file" id="file-import-data" accept=".json" style="display: none;">
+            <button class="btn-admin btn-admin-gold" id="btn-import-store-data" style="width: 100%;">
+              <span>Choose File & Restore Backup</span>
+            </button>
+          </div>
+
+          <!-- Factory Reset Card -->
+          <div class="admin-card" style="border-top: 4px solid var(--admin-danger);">
+            <div style="font-size: 2.2rem; margin-bottom: 12px;">🔄</div>
+            <h3 class="admin-card-title">Reset to Demo Defaults</h3>
+            <p style="font-size: 0.85rem; color: var(--admin-text-muted); margin: 8px 0 20px 0; line-height: 1.5;">
+              Reset all catalog items, sample orders, categories, and promotions back to fresh initial demonstration state.
+            </p>
+            <button class="btn-admin btn-admin-danger" id="btn-reset-factory-data" style="width: 100%;">
+              <span>Reset Store to Factory Defaults</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 1: ADD / EDIT PRODUCT
+       ======================================================================== -->
+  <div class="admin-modal-overlay" id="modal-product">
+    <div class="admin-modal-box modal-lg">
+      <div class="admin-modal-header">
+        <h3 id="modal-product-title">Add New Collection Item</h3>
+        <button class="admin-modal-close">&times;</button>
+      </div>
+      <div class="admin-modal-body">
+        <form id="form-product">
+          
+          <div style="display: grid; grid-template-columns: 240px 1fr; gap: 24px; margin-bottom: 20px;">
+            <!-- Left: Live Image Preview & Presets -->
+            <div>
+              <label class="form-label">Product Image Preview</label>
+              <div style="width: 100%; height: 280px; border-radius: var(--admin-radius-md); overflow: hidden; border: 1.5px solid var(--admin-border); background: #f9f9f9; margin-bottom: 10px;">
+                <img id="product-img-live-preview" src="assets/images/kanjivaram_green.jpg" alt="Preview" style="width: 100%; height: 100%; object-fit: cover;">
+              </div>
+              <label class="form-label" style="font-size: 0.74rem;">Preset Luxury Gallery (Click to Select):</label>
+              <div class="image-presets-selector">
+                <div class="image-preset-option selected" data-src="assets/images/kanjivaram_green.jpg">
+                  <img src="assets/images/kanjivaram_green.jpg" alt="Green Silk">
+                </div>
+                <div class="image-preset-option" data-src="assets/images/banarasi_saree.jpg">
+                  <img src="assets/images/banarasi_saree.jpg" alt="Banarasi">
+                </div>
+                <div class="image-preset-option" data-src="assets/images/anarkali_suit.jpg">
+                  <img src="assets/images/anarkali_suit.jpg" alt="Anarkali">
+                </div>
+                <div class="image-preset-option" data-src="assets/images/cotton_saree.jpg">
+                  <img src="assets/images/cotton_saree.jpg" alt="Cotton">
+                </div>
+                <div class="image-preset-option" data-src="assets/images/lehenga_set.jpg">
+                  <img src="assets/images/lehenga_set.jpg" alt="Lehenga">
+                </div>
+                <div class="image-preset-option" data-src="assets/images/kurti_wear.jpg">
+                  <img src="assets/images/kurti_wear.jpg" alt="Kurti">
+                </div>
+                <div class="image-preset-option" data-src="assets/images/printed_georgette.jpg">
+                  <img src="assets/images/printed_georgette.jpg" alt="Georgette">
+                </div>
+                <div class="image-preset-option" data-src="assets/images/western_ethnic.jpg">
+                  <img src="assets/images/western_ethnic.jpg" alt="Western">
+                </div>
+                <div class="image-preset-option" data-src="assets/images/ethnic_accessories.jpg">
+                  <img src="assets/images/ethnic_accessories.jpg" alt="Accessories">
+                </div>
+              </div>
+
+              <!-- Firebase Cloud Storage Upload Option -->
+              <div style="margin-top: 10px; padding: 12px; border: 1.5px dashed var(--admin-gold); border-radius: var(--admin-radius-sm); background: #fdfaf3; text-align: center;">
+                <input type="file" id="prod-file-firebase-upload" accept="image/*" style="display: none;">
+                <button type="button" class="btn-admin btn-admin-gold btn-sm" id="btn-trigger-firebase-upload" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 700;">
+                  <span>🔥</span> Upload to Firebase Storage
+                </button>
+                <div id="firebase-upload-progress" style="display: none; margin-top: 8px;">
+                  <div style="width: 100%; height: 6px; background: #e0e0e0; border-radius: 99px; overflow: hidden;">
+                    <div id="firebase-progress-bar" style="width: 0%; height: 100%; background: #f57c00; transition: width 0.2s;"></div>
+                  </div>
+                  <span id="firebase-progress-text" style="font-size: 0.72rem; color: #555; display: block; margin-top: 3px;">Uploading to Firebase... 0%</span>
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-top: 8px;">
+                <label class="form-label" style="font-size: 0.75rem;">Or Custom Image URL</label>
+                <input type="text" id="prod-input-image" class="form-input" style="font-size: 0.75rem;" value="assets/images/kanjivaram_green.jpg">
+              </div>
+            </div>
+
+            <!-- Right: Details Form -->
+            <div>
+              <div class="form-grid-2">
+                <div class="form-group col-span-2">
+                  <label class="form-label">Product Title *</label>
+                  <input type="text" id="prod-input-title" class="form-input" required placeholder="e.g. Kanjivaram Pure Silk Gold Zari Saree">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Item SKU / ID</label>
+                  <input type="text" id="prod-input-id" class="form-input" readonly style="background: #f4f7f5;">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Category *</label>
+                  <select id="prod-input-category" class="form-select-full" required>
+                    <!-- Populated dynamically -->
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Fabric Material</label>
+                  <input type="text" id="prod-input-fabric" class="form-input" placeholder="e.g. Pure Silk, Georgette, Handloom Cotton">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Occasion</label>
+                  <input type="text" id="prod-input-occasion" class="form-input" placeholder="e.g. Wedding, Festive, Daily Wear">
+                </div>
+              </div>
+
+              <!-- Price & MRP Grid -->
+              <div class="form-grid-3" style="background: var(--admin-gold-pale); padding: 14px; border-radius: var(--admin-radius-sm); border: 1px solid rgba(200, 157, 56, 0.2); margin-bottom: 16px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label">Selling Price (₹) *</label>
+                  <input type="number" id="prod-input-price" class="form-input" required placeholder="e.g. 4999">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label">Original MRP (₹)</label>
+                  <input type="number" id="prod-input-orig-price" class="form-input" placeholder="e.g. 6499">
+                </div>
+                <div class="form-group" style="margin-bottom: 0; display: flex; flex-direction: column; justify-content: center;">
+                  <label class="form-label">Auto Discount</label>
+                  <span id="prod-calc-discount-display" style="font-weight: 800; color: var(--admin-success); font-size: 0.95rem;"></span>
+                </div>
+              </div>
+
+              <div class="form-grid-3">
+                <div class="form-group">
+                  <label class="form-label">Stock Inventory *</label>
+                  <input type="number" id="prod-input-stock" class="form-input" required value="12">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Badge Label</label>
+                  <input type="text" id="prod-input-badge" class="form-input" placeholder="e.g. Bestseller, New, Trending">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Badge Styling</label>
+                  <select id="prod-input-badge-type" class="form-select-full">
+                    <option value="tag-gold">Royal Gold Tag</option>
+                    <option value="tag-discount">Sale Discount Tag</option>
+                    <option value="">Standard Tag</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">Available Sizes (Comma Separated)</label>
+                  <input type="text" id="prod-input-sizes" class="form-input" value="Free Size">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Hex Colors (Comma Separated)</label>
+                  <input type="text" id="prod-input-colors" class="form-input" value="#153c30, #c93b3b, #c89d38">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Tagline & Summary</label>
+                <textarea id="prod-input-tagline" class="form-textarea" rows="2" placeholder="Handwoven pure silk with gold zari border and peacock pallu."></textarea>
+              </div>
+
+              <div class="form-grid-3">
+                <div class="form-group">
+                  <label class="form-label">Star Rating</label>
+                  <input type="number" step="0.1" max="5" min="1" id="prod-input-rating" class="form-input" value="4.8">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Reviews Count</label>
+                  <input type="number" id="prod-input-reviews" class="form-input" value="38">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Store Visibility</label>
+                  <select id="prod-input-status" class="form-select-full">
+                    <option value="active">Active (Visible)</option>
+                    <option value="inactive">Inactive (Hidden)</option>
+                  </select>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="admin-modal-footer" style="padding: 16px 0 0 0; margin-top: 16px;">
+            <button type="button" class="btn-admin btn-admin-secondary btn-modal-cancel">Cancel</button>
+            <button type="submit" class="btn-admin btn-admin-primary">Save Collection Item</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 2: ORDER DETAILS & PRINTABLE INVOICE
+       ======================================================================== -->
+  <div class="admin-modal-overlay" id="modal-order-details">
+    <div class="admin-modal-box modal-lg">
+      <div class="admin-modal-header">
+        <h3>Order Details & Packing Invoice</h3>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <button class="btn-admin btn-admin-primary btn-admin-sm" onclick="window.print()">
+            <span>🖨️ Print Packing Slip / Invoice</span>
+          </button>
+          <button class="admin-modal-close">&times;</button>
+        </div>
+      </div>
+      <div class="admin-modal-body" id="order-details-modal-content">
+        <!-- Injected via scripts/admin.js -->
+      </div>
+      <div class="admin-modal-footer">
+        <button type="button" class="btn-admin btn-admin-secondary btn-modal-cancel">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 3: ADD / EDIT CATEGORY
+       ======================================================================== -->
+  <div class="admin-modal-overlay" id="modal-category">
+    <div class="admin-modal-box" style="max-width: 520px;">
+      <div class="admin-modal-header">
+        <h3>Manage Category</h3>
+        <button class="admin-modal-close">&times;</button>
+      </div>
+      <div class="admin-modal-body">
+        <form id="form-category">
+          <div class="form-group">
+            <label class="form-label">Category Name *</label>
+            <input type="text" id="cat-input-name" class="form-input" required placeholder="e.g. Handcrafted Sarees">
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Category Slug / ID</label>
+              <input type="text" id="cat-input-id" class="form-input" placeholder="auto-generated">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Emoji Icon</label>
+              <input type="text" id="cat-input-icon" class="form-input" value="🥻" placeholder="🥻, 👗, ✨">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Short Description</label>
+            <textarea id="cat-input-desc" class="form-textarea" rows="2" placeholder="South Indian pure silk drapes and bridal weaves"></textarea>
+          </div>
+          <div class="form-group">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 700;">
+              <input type="checkbox" id="cat-input-featured" checked style="accent-color: var(--admin-accent-gold);">
+              <span>Feature on Homepage and Main Navigation</span>
+            </label>
+          </div>
+          <div class="admin-modal-footer" style="padding: 14px 0 0 0;">
+            <button type="button" class="btn-admin btn-admin-secondary btn-modal-cancel">Cancel</button>
+            <button type="submit" class="btn-admin btn-admin-primary">Save Category</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 4: CREATE COUPON CODE
+       ======================================================================== -->
+  <div class="admin-modal-overlay" id="modal-coupon">
+    <div class="admin-modal-box" style="max-width: 500px;">
+      <div class="admin-modal-header">
+        <h3>Create New Discount Coupon</h3>
+        <button class="admin-modal-close">&times;</button>
+      </div>
+      <div class="admin-modal-body">
+        <form id="form-coupon">
+          <div class="form-group">
+            <label class="form-label">Coupon Code *</label>
+            <input type="text" id="coupon-input-code" class="form-input" style="text-transform: uppercase; font-weight: 700; letter-spacing: 1px;" required placeholder="e.g. FESTIVE25">
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Discount Type</label>
+              <select id="coupon-input-type" class="form-select-full">
+                <option value="percentage">Percentage (%) Discount</option>
+                <option value="flat">Flat Rupee (₹) Off</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Discount Value *</label>
+              <input type="number" id="coupon-input-value" class="form-input" required placeholder="e.g. 20 or 500">
+            </div>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Minimum Order Value (₹)</label>
+              <input type="number" id="coupon-input-min" class="form-input" value="999">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Expiry Date</label>
+              <input type="date" id="coupon-input-expiry" class="form-input" value="2026-12-31">
+            </div>
+          </div>
+          <div class="admin-modal-footer" style="padding: 14px 0 0 0;">
+            <button type="button" class="btn-admin btn-admin-secondary btn-modal-cancel">Cancel</button>
+            <button type="submit" class="btn-admin btn-admin-gold">Activate Coupon</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 5: CUSTOMER EDIT
+       ======================================================================== -->
+  <div class="admin-modal-overlay" id="modal-customer">
+    <div class="admin-modal-box" style="max-width: 520px;">
+      <div class="admin-modal-header">
+        <h3>Manage Customer Profile</h3>
+        <button class="admin-modal-close">&times;</button>
+      </div>
+      <div class="admin-modal-body">
+        <form id="form-customer">
+          <input type="hidden" id="cust-input-id">
+          <div class="form-group">
+            <label class="form-label">Customer Name *</label>
+            <input type="text" id="cust-input-name" class="form-input" required>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Email Address</label>
+              <input type="email" id="cust-input-email" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone Number</label>
+              <input type="tel" id="cust-input-phone" class="form-input">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">City & State</label>
+            <input type="text" id="cust-input-city" class="form-input">
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Membership Tier</label>
+              <select id="cust-input-tier" class="form-select-full">
+                <option value="Patron">Patron</option>
+                <option value="Silver Patron">Silver Patron</option>
+                <option value="Gold Patron">Gold Patron</option>
+                <option value="Royal Patron">Royal Patron</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Loyalty Points Balance</label>
+              <input type="number" id="cust-input-points" class="form-input" value="100">
+            </div>
+          </div>
+          <div class="admin-modal-footer" style="padding: 14px 0 0 0;">
+            <button type="button" class="btn-admin btn-admin-secondary btn-modal-cancel">Cancel</button>
+            <button type="submit" class="btn-admin btn-admin-primary">Save Patron Details</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="admin-toast-container" id="admin-toast-container"></div>
+
+  <!-- Firebase SDKs & Storage Configuration -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+  <script src="scripts/firebase-config.js"></script>
+
+  <!-- Scripts -->
+  <script src="scripts/store-data.js"></script>
+  <script src="scripts/admin.js"></script>
+</body>
+</html>

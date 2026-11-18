@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop Sarees & Handcrafted Ethnic Wear | Aruvi Collections</title>
+  <meta name="description" content="Explore our complete collection of handcrafted pure Kanjivaram silk, Banarasi brocades, bridal lehengas, and everyday handloom cotton sarees.">
+  <link rel="icon" type="image/jpeg" href="assets/icons/WhatsApp Image 2026-09-21 at 7.49.20 AM (1).jpeg">
+  
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/animations.css">
+  <link rel="stylesheet" href="styles/fitting-room.css">
+  <link rel="stylesheet" href="styles/auth.css">
+</head>
+<body>
+
+  
+
+  <!-- Background Animations -->
+  <canvas id="particles-bg-canvas"></canvas>
+  <div class="ambient-gradient-mesh" aria-hidden="true">
+    <div class="mesh-orb mesh-orb-1"></div>
+    <div class="mesh-orb mesh-orb-2"></div>
+    <div class="mesh-orb mesh-orb-3"></div>
+  </div>
+
+  <!-- Top Announcement Bar -->
+  <header class="announcement-bar">
+    <div class="announcement-inner">
+      <div class="announcement-promo">
+        <span class="announcement-tag">Exclusive Code</span>
+        <span>✨ Apply <strong>ARUVI20</strong> for 20% Off on all pure silk sarees ✨</span>
+      </div>
+      <div class="announcement-links">
+        <a href="account.html">Track Order</a>
+        <a href="index.html#support">Help</a>
+        <span>INR (₹)</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Site Header -->
+  <nav class="site-header" id="site-header">
+    <div class="container header-container">
+      
+      <!-- Brand Logo -->
+      <a href="index.html" class="brand-logo" aria-label="Aruvi Collections Home">
+        <img src="assets/icons/WhatsApp Image 2026-09-21 at 7.49.20 AM (1).jpeg" alt="Aruvi Collections" class="brand-logo-img" style="height: 52px; width: auto; max-height: 52px; object-fit: contain; border-radius: 8px;" />
+      </a>
+
+      <!-- Main Navigation Menu -->
+      <ul class="main-nav">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="shop.html?category=sarees" class="nav-link">Sarees</a></li>
+        <li><a href="shop.html?category=salwar" class="nav-link">Salwar</a></li>
+        <li><a href="shop.html?category=sharara" class="nav-link">Sharara</a></li>
+        <li><a href="shop.html?category=ethnic-wears" class="nav-link">Ethnic Wears</a></li>
+        <li><a href="shop.html?category=co-ord-sets" class="nav-link">Co-ord Sets</a></li>
+        <li><a href="shop.html?category=western-tops" class="nav-link">Western Tops</a></li>
+        <li><a href="shop.html?category=kids" class="nav-link">Kids <span class="badge-tag" style="background:var(--color-gold);color:#0e2920;font-size:0.62rem;padding:2px 6px;border-radius:99px;font-weight:700;">NEW</span></a></li>
+      </ul>
+
+      <!-- Search -->
+      <div class="header-search">
+        <input type="text" id="header-search-input" class="search-input" placeholder="Search sarees, suits..." />
+        <button class="search-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="header-actions">
+        <button class="action-btn" id="header-wishlist-btn" title="View Wishlist">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+          <span class="action-badge wishlist-count-badge">2</span>
+        </button>
+
+        <button class="action-btn" id="header-cart-btn" title="View Bag">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          <span class="action-badge cart-count-badge">2</span>
+        </button>
+
+        <a href="account.html" class="action-btn" id="header-user-btn" title="My Account">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </a>
+
+        <!-- Mobile Menu Toggle -->
+        <button class="action-btn mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Open Mobile Menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+    </div>
+  </nav>
+
+  <!-- ========================================================================
+       SHOP CATEGORY HEADER & HERO BANNER (from mockup center)
+       ======================================================================== -->
+  <section style="padding: 28px 0 20px 0; background: var(--color-mint-pale); border-bottom: 1px solid var(--color-border);">
+    <div class="container">
+      
+      <!-- Breadcrumb -->
+      <nav style="display: flex; gap: 8px; font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 18px;">
+        <a href="index.html" style="color: var(--color-primary);">Home</a>
+        <span>/</span>
+        <a href="shop.html" style="color: var(--color-primary);">Collections</a>
+        <span>/</span>
+        <span style="color: var(--color-charcoal); font-weight: 600;" id="shop-breadcrumb-category">All Collections</span>
+      </nav>
+
+      <!-- Category Hero Banner Card -->
+      <div class="card-3d" style="background: linear-gradient(135deg, #e3eee8 0%, #ffffff 100%); border-radius: var(--radius-lg); border: 1px solid var(--color-border); overflow: hidden; display: flex; align-items: center; justify-content: space-between; padding: 28px 44px; position: relative; box-shadow: var(--shadow-sm);">
+        <div style="max-width: 500px;">
+          <span style="font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; color: var(--color-gold-dark);">South Indian Mastery</span>
+          <h1 style="font-family: var(--font-serif); font-size: 2.8rem; font-weight: 700; color: var(--color-primary-dark); margin: 6px 0 8px 0;" id="shop-banner-title">All Collections</h1>
+          <p style="font-family: var(--font-serif); font-style: italic; font-size: 1.15rem; color: var(--color-primary); margin-bottom: 12px;" id="shop-banner-subtitle">Grace in every drape</p>
+          <p style="font-size: 0.84rem; color: var(--color-text-muted);" id="shop-banner-desc">Explore authentic Kanjivaram pure silk, Banarasi gold zari, Chanderi festive weaves, and lightweight handloom cottons.</p>
+        </div>
+
+        <div style="width: 220px; height: 160px; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-md); border: 4px solid #ffffff; flex-shrink: 0;">
+          <img src="assets/images/hero_saree_model.jpg" alt="Showcase" id="shop-banner-img" style="width: 100%; height: 100%; object-fit: cover;" />
+        </div>
+        <div class="card-glare"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       MAIN CATALOG SECTION WITH FILTERS & PAGINATION
+       ======================================================================== -->
+  <section class="catalog-section">
+    <div class="container">
+      
+      <!-- Horizontal Scrollable Category Pills Bar (Touch-Friendly for All Screen Sizes) -->
+      <div class="shop-category-pills-bar" id="shop-cat-pills-bar">
+        <button class="shop-cat-pill active" data-cat="all">✨ All Collections</button>
+        <button class="shop-cat-pill" data-cat="sarees">🥻 1. Sarees</button>
+        <button class="shop-cat-pill" data-cat="salwar">👗 2. Salwar</button>
+        <button class="shop-cat-pill" data-cat="sharara">✨ 3. Sharara</button>
+        <button class="shop-cat-pill" data-cat="ethnic-wears">🪡 4. Ethnic Wears</button>
+        <button class="shop-cat-pill" data-cat="co-ord-sets">👚 5. Co-ord Sets</button>
+        <button class="shop-cat-pill" data-cat="western-tops">🧥 6. Western Tops</button>
+        <button class="shop-cat-pill" data-cat="kids">👶 7. Kids (NEW)</button>
+      </div>
+
+      <!-- Toolbar Row: Product Counts & Sort Dropdown -->
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 14px;">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <button class="mobile-filter-trigger-btn" id="btn-toggle-mobile-filters" type="button">
+            <span>⚡ Filters</span>
+          </button>
+          <span style="font-size: 0.86rem; color: var(--color-text-muted);">Showing <strong style="color: var(--color-primary-dark);" id="catalog-count-display">0</strong> designs</span>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+          <button class="btn btn-secondary btn-sm hover-lift btn-ai-tryon" id="btn-shop-open-fitting" style="display: flex; align-items: center; gap: 8px; border-color: var(--color-gold); background: #ffffff; color: var(--color-primary-dark); font-weight: 700; padding: 7px 18px; border-radius: var(--radius-full); box-shadow: 0 2px 8px rgba(200, 157, 56, 0.2);">
+            <span>🪞</span>
+            <span>AI Virtual Fitting Room</span>
+            <span class="badge-tag" style="background: var(--color-gold); color: #0e2920; font-size: 0.62rem; padding: 2px 6px; border-radius: 99px;">TRY ON</span>
+          </button>
+
+          <label style="font-size: 0.82rem; font-weight: 600; color: var(--color-charcoal);">Sort by:</label>
+          <select id="catalog-sort-select" style="background: #ffffff; border: 1px solid var(--color-border); border-radius: var(--radius-full); padding: 7px 18px; font-size: 0.82rem; font-weight: 600; color: var(--color-primary-dark); cursor: pointer;">
+            <option value="popularity">Popularity</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+            <option value="rating">Highest Rated</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Catalog Layout -->
+      <div class="catalog-layout">
+        
+        <!-- Filter Sidebar (Responsive Drawer on Tablet & Mobile) -->
+        <aside class="filter-sidebar" id="catalog-filter-sidebar">
+          <div class="filter-sidebar-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 class="filter-sidebar-title">Filters</h3>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <button class="clear-filters-btn" id="btn-clear-filters">Clear All</button>
+              <button class="btn-close-filter-drawer" id="btn-close-mobile-filters" style="display: none; background: #f2f7f4; border: 1px solid var(--color-border); border-radius: 50%; width: 30px; height: 30px; font-size: 1rem; color: var(--color-charcoal); cursor: pointer;" aria-label="Close Filters">✕</button>
+            </div>
+          </div>
+
+          <!-- Category Filter -->
+          <div class="filter-group">
+            <h4 class="filter-group-title">Category</h4>
+            <div class="filter-options-list">
+              <label class="filter-checkbox-label">
+                <input type="checkbox" name="filter-cat" value="sarees">
+                <span>1. Sarees</span>
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="checkbox" name="filter-cat" value="salwar">
+                <span>2. Salwar</span>
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="checkbox" name="filter-cat" value="sharara">
+                <span>3. Sharara</span>
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="checkbox" name="filter-cat" value="ethnic-wears">
+                <span>4. Ethnic Wears</span>
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="checkbox" name="filter-cat" value="co-ord-sets">
+                <span>5. Co-ord Sets</span>
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="checkbox" name="filter-cat" value="western-tops">
+                <span>6. Western Tops</span>
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="checkbox" name="filter-cat" value="kids">
+                <span>7. Kids</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Price Range Slider -->
+          <div class="filter-group">
+            <h4 class="filter-group-title">Price Range</h4>
+            <div class="price-range-wrapper">
+              <input type="range" class="price-range-slider" id="price-range-slider" min="1000" max="15000" step="500" value="15000" />
+              <div class="price-values-row">
+                <span>₹1,000</span>
+                <span id="max-price-display" class="text-gold">₹15,000</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Color Swatches -->
+          <div class="filter-group">
+            <h4 class="filter-group-title">Color</h4>
+            <div class="color-swatches-grid">
+              <button class="color-swatch-btn" style="background: #153c30;" data-color="green" title="Deep Emerald Green"></button>
+              <button class="color-swatch-btn" style="background: #c93b3b;" data-color="red" title="Ruby Red"></button>
+              <button class="color-swatch-btn" style="background: #5a1846;" data-color="purple" title="Royal Wine / Purple"></button>
+              <button class="color-swatch-btn" style="background: #d8ac44;" data-color="mustard" title="Mustard Gold"></button>
+              <button class="color-swatch-btn" style="background: #a9cdbd;" data-color="mint" title="Mint Green"></button>
+              <button class="color-swatch-btn" style="background: #f4c2b2;" data-color="peach" title="Blush Peach"></button>
+              <button class="color-swatch-btn" style="background: #c89d38;" data-color="gold" title="Antique Zari Gold"></button>
+            </div>
+          </div>
+
+          <!-- Size Selector -->
+          <div class="filter-group">
+            <h4 class="filter-group-title">Size</h4>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+              <button class="btn btn-secondary btn-sm filter-size-btn" data-size="S" style="padding: 6px 12px; font-size: 0.75rem;">S</button>
+              <button class="btn btn-secondary btn-sm filter-size-btn" data-size="M" style="padding: 6px 12px; font-size: 0.75rem;">M</button>
+              <button class="btn btn-secondary btn-sm filter-size-btn" data-size="L" style="padding: 6px 12px; font-size: 0.75rem;">L</button>
+              <button class="btn btn-secondary btn-sm filter-size-btn" data-size="XL" style="padding: 6px 12px; font-size: 0.75rem;">XL</button>
+              <button class="btn btn-secondary btn-sm filter-size-btn" data-size="Free Size" style="padding: 6px 12px; font-size: 0.75rem;">Free Size</button>
+            </div>
+          </div>
+
+          <!-- Occasion Checkboxes -->
+          <div class="filter-group">
+            <h4 class="filter-group-title">Occasion</h4>
+            <div class="filter-options-list">
+              <label class="filter-checkbox-label">
+                <input type="checkbox" name="filter-occasion" value="wedding">
+                <span>Wedding (32)</span>
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="checkbox" name="filter-occasion" value="festive">
+                <span>Party Wear (22)</span>
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="checkbox" name="filter-occasion" value="daily">
+                <span>Daily Wear (15)</span>
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="checkbox" name="filter-occasion" value="festive">
+                <span>Festive (28)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Fabric Checkboxes -->
+          <div class="filter-group">
+            <h4 class="filter-group-title">Fabric</h4>
+            <div class="filter-options-list">
+              <label class="filter-checkbox-label">
+                <input type="checkbox" name="filter-fabric" value="silk">
+                <span>Silk (54)</span>
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="checkbox" name="filter-fabric" value="georgette">
+                <span>Georgette (28)</span>
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="checkbox" name="filter-fabric" value="cotton">
+                <span>Cotton (19)</span>
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="checkbox" name="filter-fabric" value="velvet">
+                <span>Velvet (12)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Discount Filter -->
+          <div class="filter-group">
+            <h4 class="filter-group-title">Discount</h4>
+            <div class="filter-options-list">
+              <label class="filter-checkbox-label">
+                <input type="checkbox" name="filter-discount" value="10">
+                <span>10% Off & Above</span>
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="checkbox" name="filter-discount" value="20">
+                <span>20% Off & Above</span>
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="checkbox" name="filter-discount" value="30">
+                <span>30% Off & Above</span>
+              </label>
+            </div>
+          </div>
+
+        </aside>
+
+        <!-- Main Products Grid Area -->
+        <div>
+          <main class="products-grid" id="products-grid">
+            <!-- Dynamic 3D cards injected via app.js -->
+          </main>
+
+          <!-- Interactive Pagination (matching mockup center) -->
+          <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 48px;">
+            <button class="btn btn-secondary btn-icon" style="width: 38px; height: 38px;">‹</button>
+            <button class="btn btn-primary btn-icon" style="width: 38px; height: 38px;">1</button>
+            <button class="btn btn-secondary btn-icon" style="width: 38px; height: 38px;">2</button>
+            <button class="btn btn-secondary btn-icon" style="width: 38px; height: 38px;">3</button>
+            <button class="btn btn-secondary btn-icon" style="width: 38px; height: 38px;">4</button>
+            <button class="btn btn-secondary btn-icon" style="width: 38px; height: 38px;">5</button>
+            <button class="btn btn-secondary btn-icon" style="width: 38px; height: 38px;">›</button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       TRUST BADGES STRIP
+       ======================================================================== -->
+  <section class="trust-strip-section">
+    <div class="container">
+      <div class="trust-badges-grid">
+        <div class="trust-badge-item">
+          <div class="trust-icon-box">🏷️</div>
+          <div class="trust-text-box">
+            <span class="trust-title">Premium Quality</span>
+            <span class="trust-sub">100% Certified Pure Silk</span>
+          </div>
+        </div>
+        <div class="trust-badge-item">
+          <div class="trust-icon-box">🔒</div>
+          <div class="trust-text-box">
+            <span class="trust-title">Secure Payments</span>
+            <span class="trust-sub">100% Encrypted & Safe</span>
+          </div>
+        </div>
+        <div class="trust-badge-item">
+          <div class="trust-icon-box">📦</div>
+          <div class="trust-text-box">
+            <span class="trust-title">Free Shipping</span>
+            <span class="trust-sub">On orders above ₹999</span>
+          </div>
+        </div>
+        <div class="trust-badge-item">
+          <div class="trust-icon-box">🔄</div>
+          <div class="trust-text-box">
+            <span class="trust-title">Easy Returns</span>
+            <span class="trust-sub">Hassle-free 7 Days Return</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top-grid">
+        <div class="footer-brand-col">
+          <div class="footer-logo">
+            <img src="assets/icons/WhatsApp Image 2026-09-21 at 7.49.20 AM (1).jpeg" alt="Aruvi Collections" class="footer-logo-img" style="height: 56px; width: auto; max-height: 56px; object-fit: contain; border-radius: 8px;" />
+          </div>
+          <span class="footer-tagline-text">Tradition In Every Thread</span>
+          <p class="footer-desc">Curating authentic South Indian bridal silks, handcrafted brocades, and graceful festive drapes.</p>
+        </div>
+        <div class="footer-col">
+          <h4 class="footer-col-title">Quick Links</h4>
+          <ul class="footer-links-list">
+            <li><a href="index.html" class="footer-link">Home</a></li>
+            <li><a href="shop.html" class="footer-link">Shop Collection</a></li>
+            <li><a href="wishlist.html" class="footer-link">My Wishlist</a></li>
+            <li><a href="cart.html" class="footer-link">Shopping Bag</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4 class="footer-col-title">Customer Care</h4>
+          <ul class="footer-links-list">
+            <li><a href="#faq" class="footer-link">FAQs</a></li>
+            <li><a href="#shipping" class="footer-link">Shipping & Delivery</a></li>
+            <li><a href="#returns" class="footer-link">Returns Policy</a></li>
+            <li><a href="#size" class="footer-link">Size Guide</a></li>
+          </ul>
+        </div>
+        <div class="footer-newsletter-box">
+          <h4 class="footer-col-title">Newsletter</h4>
+          <p class="newsletter-desc">Subscribe to receive exclusive festive coupons.</p>
+          <form class="newsletter-form" id="footer-newsletter-form">
+            <input type="email" class="newsletter-input" placeholder="Your email address" required />
+            <button type="submit" class="newsletter-submit-btn">Subscribe</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="footer-bottom-row">
+        <span>© 2026 Aruvi Collections. All rights reserved.</span>
+        <div class="payment-badges-row">
+          <span class="payment-badge">UPI / GPAY</span>
+          <span class="payment-badge">VISA</span>
+          <span class="payment-badge">MASTERCARD</span>
+          <span class="payment-badge">COD</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Slide-Over Cart & Wishlist Drawers -->
+  <div class="drawer-backdrop" id="drawer-backdrop"></div>
+  
+  <aside class="cart-drawer" id="cart-drawer">
+    <div class="cart-drawer-header">
+      <div class="cart-header-title-wrap">
+        <h3 class="cart-drawer-title">Your Cart</h3>
+        <span class="cart-item-count-badge cart-count-badge">0</span>
+      </div>
+      <button class="drawer-close-btn" id="close-cart-btn">✕</button>
+    </div>
+    <div class="cart-free-shipping-bar">
+      <div class="shipping-bar-text" id="shipping-progress-text">
+        <span>Free Shipping above ₹999</span>
+        <span>Eligible</span>
+      </div>
+      <div class="shipping-progress-track">
+        <div class="shipping-progress-fill" id="shipping-progress-fill"></div>
+      </div>
+    </div>
+    <div class="cart-items-list" id="cart-items-list"></div>
+    <div class="cart-empty-state" id="cart-empty-state">
+      <h4>Your cart is empty</h4>
+      <p>Explore our collections and add your favorite drapes.</p>
+    </div>
+    <div class="cart-drawer-footer">
+      <div class="cart-coupon-row">
+        <input type="text" class="coupon-input" id="cart-coupon-input" placeholder="Coupon (ARUVI20)" />
+        <button class="btn-apply-coupon" id="btn-apply-coupon">Apply</button>
+      </div>
+      <div class="cart-totals-table">
+        <div class="totals-row"><span>Subtotal</span><span id="cart-subtotal">₹0</span></div>
+        <div class="totals-row"><span>Shipping</span><span id="cart-shipping">FREE</span></div>
+        <div class="totals-row" id="cart-discount-row" style="display: none;"><span>Discount</span><span id="cart-discount-amt">-₹0</span></div>
+        <div class="totals-row final-total"><span>Total</span><span id="cart-total">₹0</span></div>
+      </div>
+      <a href="checkout.html" class="btn btn-primary checkout-action-btn hover-shimmer">Proceed to Payment →</a>
+    </div>
+  </aside>
+
+  <!-- Wishlist Drawer -->
+  <aside class="cart-drawer" id="wishlist-drawer">
+    <div class="cart-drawer-header">
+      <div class="cart-header-title-wrap">
+        <h3 class="cart-drawer-title">My Wishlist</h3>
+        <span class="cart-item-count-badge wishlist-count-badge">0</span>
+      </div>
+      <button class="drawer-close-btn" id="close-wishlist-btn">✕</button>
+    </div>
+    <div class="cart-items-list" id="wishlist-items-list"></div>
+    <div class="cart-empty-state" id="wishlist-empty-state">
+      <h4>Your wishlist is empty</h4>
+    </div>
+    <div class="cart-drawer-footer" id="wishlist-drawer-footer">
+      <button class="btn btn-primary checkout-action-btn hover-shimmer" id="btn-move-all-cart">Move All to Bag 🛍️</button>
+    </div>
+  </aside>
+
+  <!-- Quick View 3D Modal -->
+  <div class="modal-overlay" id="quick-view-modal">
+    <div class="modal-container scene-3d"></div>
+  </div>
+
+  <!-- ========================================================================
+       MOBILE NAVIGATION DRAWER
+       ======================================================================== -->
+  <div class="mobile-nav-drawer" id="mobile-nav-drawer" aria-label="Mobile Navigation">
+    <div class="mobile-nav-header">
+      <div class="brand-logo">
+        <img src="assets/icons/WhatsApp Image 2026-09-21 at 7.49.20 AM (1).jpeg" alt="Aruvi Collections" class="brand-logo-img" style="height: 42px; width: auto; max-height: 42px; object-fit: contain; border-radius: 6px;" />
+      </div>
+      <button class="drawer-close-btn" id="close-mobile-nav" aria-label="Close Navigation" style="color: #ffffff;">✕</button>
+    </div>
+    <div class="mobile-nav-body">
+      <ul class="mobile-nav-links">
+        <li><a href="index.html" class="mobile-nav-link"><span>🏠 Home</span> <span>›</span></a></li>
+        <li><a href="shop.html?category=sarees" class="mobile-nav-link"><span>🥻 Sarees</span> <span>›</span></a></li>
+        <li><a href="shop.html?category=salwar" class="mobile-nav-link"><span>👗 Salwar</span> <span>›</span></a></li>
+        <li><a href="shop.html?category=sharara" class="mobile-nav-link"><span>✨ Sharara</span> <span>›</span></a></li>
+        <li><a href="shop.html?category=ethnic-wears" class="mobile-nav-link"><span>🪡 Ethnic Wears</span> <span>›</span></a></li>
+        <li><a href="shop.html?category=co-ord-sets" class="mobile-nav-link"><span>👚 Co-ord Sets</span> <span>›</span></a></li>
+        <li><a href="shop.html?category=western-tops" class="mobile-nav-link"><span>🧥 Western Tops</span> <span>›</span></a></li>
+        <li><a href="shop.html?category=kids" class="mobile-nav-link"><span>👶 Kids</span> <span>›</span></a></li>
+        <li><a href="wishlist.html" class="mobile-nav-link"><span>❤️ My Saved Wishlist</span> <span class="action-badge wishlist-count-badge">0</span></a></li>
+        <li><a href="cart.html" class="mobile-nav-link"><span>👜 Shopping Bag</span> <span class="action-badge cart-count-badge">0</span></a></li>
+        <li><a href="account.html" class="mobile-nav-link"><span>👤 My Account & Orders</span> <span>›</span></a></li>
+      </ul>
+    </div>
+    <div class="mobile-nav-footer">
+      <div style="font-size: 0.8rem; color: var(--color-primary-dark); font-weight: 700;">✨ Festive Sale Code: ARUVI20 (20% Off)</div>
+      <a href="account.html#support" style="font-size: 0.78rem; color: var(--color-text-muted);">Need Help? Contact 24/7 Concierge</a>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="scripts/effects.js"></script>
+    <!-- Firebase SDKs & Cloud Storage -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+  <script src="scripts/firebase-config.js"></script>
+  <script src="scripts/store-data.js"></script>
+  <script src="scripts/app-main.js"></script>
+  <script src="scripts/fitting-room.js"></script>
+
+  <script src="scripts/customer-auth.js"></script>
+</body>
+</html>

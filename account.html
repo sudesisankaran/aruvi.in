@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Account & Orders | Aruvi Collections</title>
+  <meta name="description" content="Track your handcrafted saree orders, manage saved shipping addresses, and review wishlist.">
+  <link rel="icon" type="image/jpeg" href="assets/icons/WhatsApp Image 2026-09-21 at 7.49.20 AM (1).jpeg">
+  
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/animations.css">
+  <style>
+    .account-tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--color-charcoal);
+      transition: all var(--duration-fast);
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: none;
+    }
+    .account-tab-btn:hover {
+      background: var(--color-mint-bg);
+      color: var(--color-primary);
+    }
+    .account-tab-btn.active {
+      background: var(--color-mint-pale);
+      color: var(--color-primary);
+      font-weight: 700;
+    }
+    .account-tab-panel {
+      display: none;
+    }
+    .account-tab-panel.active {
+      display: block;
+      animation: fadeIn var(--duration-normal) ease;
+    }
+  </style>
+  <link rel="stylesheet" href="styles/auth.css">
+</head>
+<body>
+
+  
+
+  <canvas id="particles-bg-canvas"></canvas>
+  <div class="ambient-gradient-mesh" aria-hidden="true">
+    <div class="mesh-orb mesh-orb-1"></div>
+    <div class="mesh-orb mesh-orb-2"></div>
+  </div>
+
+  <!-- Announcement Bar -->
+  <header class="announcement-bar">
+    <div class="announcement-inner">
+      <div class="announcement-promo">
+        <span class="announcement-tag">Member Portal</span>
+        <span>✨ Welcome to Aruvi Collections • Handcrafted South Indian Heritage Fashion ✨</span>
+      </div>
+      <div class="announcement-right">
+        <a href="#orders" class="announcement-link">Track Shipment</a>
+        <a href="#support" class="announcement-link">Boutique Concierge</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Site Header -->
+  <nav class="site-header" id="site-header">
+    <div class="container header-container">
+      <a href="index.html" class="brand-logo">
+        <img src="assets/icons/WhatsApp Image 2026-09-21 at 7.49.20 AM (1).jpeg" alt="Aruvi Collections" class="brand-logo-img" style="height: 52px; width: auto; max-height: 52px; object-fit: contain; border-radius: 8px;" />
+      </a>
+
+      <ul class="main-nav">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="shop.html?category=sarees" class="nav-link">Sarees</a></li>
+        <li><a href="shop.html?category=salwar" class="nav-link">Salwar</a></li>
+        <li><a href="shop.html?category=sharara" class="nav-link">Sharara</a></li>
+        <li><a href="shop.html?category=ethnic-wears" class="nav-link">Ethnic Wears</a></li>
+        <li><a href="shop.html?category=co-ord-sets" class="nav-link">Co-ord Sets</a></li>
+        <li><a href="shop.html?category=western-tops" class="nav-link">Western Tops</a></li>
+        <li><a href="shop.html?category=kids" class="nav-link">Kids <span class="badge-tag" style="background:var(--color-gold);color:#0e2920;font-size:0.62rem;padding:2px 6px;border-radius:99px;font-weight:700;">NEW</span></a></li>
+      </ul>
+
+      <div class="header-actions">
+        <a href="wishlist.html" class="action-btn" title="View Wishlist">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+          <span class="action-badge wishlist-count-badge">0</span>
+        </a>
+
+        <a href="cart.html" class="action-btn" title="View Bag">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          <span class="action-badge cart-count-badge">0</span>
+        </a>
+
+        <a href="account.html" class="action-btn" title="My Account" style="background: var(--color-primary); color: #ffffff;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </a>
+
+        <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Open navigation menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ========================================================================
+       ACCOUNT PAGE CONTAINER
+       ======================================================================== -->
+  <main style="padding: 40px 0 70px 0;">
+    <div class="container">
+      
+      <!-- Account Page Layout -->
+      
+      <!-- ====================================================================
+           AUTH VIEW: Shown when customer is NOT logged in
+           (Firebase Google Login & Email/Password Login)
+           ==================================================================== -->
+      <div id="account-auth-view" style="display: block;">
+        <div class="account-auth-container">
+          
+          <div class="auth-card-header">
+            <span class="auth-badge">ARUVI PATRON ACCESS</span>
+            <h2 class="auth-title">My Account</h2>
+            <p class="auth-subtitle">Sign in to view your orders, addresses & boutique wishlist.</p>
+          </div>
+
+          <div class="auth-tabs-row">
+            <button class="auth-tab-btn active" id="acc-page-tab-login">Sign In</button>
+            <button class="auth-tab-btn" id="acc-page-tab-register">Create Account</button>
+          </div>
+
+          <div class="auth-card-body">
+            
+            <div class="auth-alert-box" id="acc-page-alert-box"></div>
+
+            <!-- Firebase Google Sign-In -->
+            <button class="btn-google-auth" id="btn-acc-page-google-login" type="button">
+              <svg class="google-logo-svg" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              <span>Continue with Google</span>
+            </button>
+
+            <div class="auth-divider">
+              <span>OR with email</span>
+            </div>
+
+            <!-- Email & Password Form -->
+            <form id="form-acc-page-login" style="display: block;">
+              <div class="auth-form-group">
+                <label class="auth-form-label">Email Address *</label>
+                <input type="email" id="acc-input-login-email" class="auth-form-input" placeholder="name@example.com" required autocomplete="email" />
+              </div>
+
+              <div class="auth-form-group">
+                <label class="auth-form-label">Password *</label>
+                <div class="auth-input-wrapper">
+                  <input type="password" id="acc-input-login-password" class="auth-form-input" placeholder="Enter your password" required autocomplete="current-password" />
+                  <button type="button" class="auth-password-toggle" data-target="acc-input-login-password">👁️</button>
+                </div>
+              </div>
+
+              <div class="auth-helper-row">
+                <label class="auth-remember-label">
+                  <input type="checkbox" id="acc-login-remember" checked style="accent-color: var(--color-primary);" />
+                  <span>Remember me</span>
+                </label>
+                <span class="auth-forgot-link" id="acc-link-forgot-password">Forgot password?</span>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-auth-submit hover-shimmer">
+                Sign In to Account
+              </button>
+            </form>
+
+            <!-- Registration Form -->
+            <form id="form-acc-page-register" style="display: none;">
+              <div class="auth-form-group">
+                <label class="auth-form-label">Full Name *</label>
+                <input type="text" id="acc-input-reg-name" class="auth-form-input" placeholder="e.g. Ananya Sharma" required autocomplete="name" />
+              </div>
+
+              <div class="auth-form-group">
+                <label class="auth-form-label">Email Address *</label>
+                <input type="email" id="acc-input-reg-email" class="auth-form-input" placeholder="name@example.com" required autocomplete="email" />
+              </div>
+
+              <div class="auth-form-group">
+                <label class="auth-form-label">Password * (Min 6 chars)</label>
+                <div class="auth-input-wrapper">
+                  <input type="password" id="acc-input-reg-password" class="auth-form-input" placeholder="Create a secure password" minlength="6" required autocomplete="new-password" />
+                  <button type="button" class="auth-password-toggle" data-target="acc-input-reg-password">👁️</button>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-auth-submit hover-shimmer">
+                Create Account
+              </button>
+            </form>
+
+            <div class="auth-footer-note">
+              Secure authentication powered by Firebase Auth.
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ====================================================================
+           DASHBOARD VIEW: Shown when customer IS logged in
+           ==================================================================== -->
+      <div id="account-dashboard-view" style="display: none;">
+<div class="account-page-layout">
+        
+        <!-- Account Sidebar Profile Box -->
+        <aside class="card-3d" style="background: #ffffff; border-radius: var(--radius-lg); border: 1px solid var(--color-border); padding: 26px; box-shadow: var(--shadow-sm); position: sticky; top: 20px;">
+          
+          <!-- User Profile Header -->
+          <div style="display: flex; align-items: center; gap: 16px; padding-bottom: 22px; border-bottom: 1px solid var(--color-border); margin-bottom: 20px;">
+            <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--color-mint-pale); border: 2px solid var(--color-gold); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; color: var(--color-primary);">
+              👤
+            </div>
+            <div>
+              <h2 style="font-family: var(--font-serif); font-size: 1.2rem; color: var(--color-primary-dark); line-height: 1.2;" id="account-user-name">Patron Account</h2>
+              <span style="font-size: 0.78rem; color: var(--color-text-muted);" id="account-user-email">guest@aruvicollections.com</span>
+              <div style="margin-top: 4px;">
+                <span class="product-badge-tag tag-gold" style="position: static; font-size: 0.65rem; padding: 2px 8px;">Customer Portal</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Account Tabs List -->
+          <ul style="display: flex; flex-direction: column; gap: 6px; list-style: none; padding: 0; margin: 0;">
+            <li id="account-admin-link-item" style="display: none; margin-bottom: 6px;">
+              <a href="admin.html" class="account-tab-btn" style="text-decoration: none; background: #0e2920; color: #d4af37; font-weight: 700; border: 1px solid #d4af37; box-shadow: 0 2px 8px rgba(212,175,55,0.25);">
+                <span>👑</span> Boutique Admin Portal →
+              </a>
+            </li>
+            <li>
+              <button class="account-tab-btn active" data-tab="orders">
+                <span>📦</span> My Orders
+              </button>
+            </li>
+            <li>
+              <a href="wishlist.html" class="account-tab-btn" style="text-decoration: none;">
+                <span>❤️</span> Saved Wishlist
+              </a>
+            </li>
+            <li>
+              <button class="account-tab-btn" data-tab="addresses">
+                <span>📍</span> Address Book
+              </button>
+            </li>
+            <li>
+              <button class="account-tab-btn" data-tab="payments">
+                <span>💳</span> Payment Methods
+              </button>
+            </li>
+            <li>
+              <button class="account-tab-btn" data-tab="support">
+                <span>💬</span> Help & Concierge
+              </button>
+            </li>
+            <li>
+              <button class="account-tab-btn" data-tab="settings">
+                <span>⚙️</span> Profile Settings
+              </button>
+            </li>
+            <li>
+              <button class="account-tab-btn" id="btn-account-logout" style="color: var(--color-danger); background: transparent; border: none; width: 100%; text-align: left; cursor: pointer;">
+                <span>🚪</span> Logout
+              </button>
+            </li>
+          </ul>
+
+          <div class="card-glare"></div>
+        </aside>
+
+        <!-- Main Account Content Area -->
+        <div style="display: flex; flex-direction: column; gap: 28px;">
+          
+          <!-- TAB 1: ORDERS SECTION -->
+          <div class="account-tab-panel active" id="panel-orders">
+            <section class="card-3d" style="background: #ffffff; border-radius: var(--radius-lg); border: 1px solid var(--color-border); padding: 30px; box-shadow: var(--shadow-sm);">
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 22px; flex-wrap: wrap; gap: 10px;">
+                <div>
+                  <h2 style="font-family: var(--font-serif); font-size: 1.6rem; color: var(--color-primary-dark);">Recent Orders</h2>
+                  <p style="font-size: 0.84rem; color: var(--color-text-muted);">Track your active saree shipments and view past invoices</p>
+                </div>
+                <span class="product-badge-tag" style="position: static; background: var(--color-text-muted);" id="active-shipment-tag">0 Active Orders</span>
+              </div>
+
+              <!-- Container for dynamically placed orders from checkout -->
+              <div id="dynamic-orders-container">
+                <div style="text-align: center; padding: 48px 24px; border: 1.5px dashed var(--color-border); border-radius: var(--radius-md); background: var(--color-mint-bg);">
+                  <div style="font-size: 2.6rem; margin-bottom: 12px;">🛍️</div>
+                  <h3 style="font-family: var(--font-serif); font-size: 1.3rem; color: var(--color-primary-dark); margin-bottom: 6px;">No Orders Placed Yet</h3>
+                  <p style="font-size: 0.86rem; color: var(--color-text-muted); max-width: 440px; margin: 0 auto 20px auto; line-height: 1.5;">
+                    Your order history is empty. Once you place an order, live courier tracking and invoice downloads will appear here.
+                  </p>
+                  <a href="shop.html" class="btn btn-primary btn-sm hover-lift">Explore Collections →</a>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <!-- TAB 2: ADDRESS BOOK SECTION -->
+          <div class="account-tab-panel" id="panel-addresses">
+            <section class="card-3d" style="background: #ffffff; border-radius: var(--radius-lg); border: 1px solid var(--color-border); padding: 30px; box-shadow: var(--shadow-sm);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; flex-wrap: wrap; gap: 10px;">
+                <div>
+                  <h2 style="font-family: var(--font-serif); font-size: 1.6rem; color: var(--color-primary-dark);">Address Book</h2>
+                  <p style="font-size: 0.84rem; color: var(--color-text-muted);">Manage your delivery addresses for express boutique checkout</p>
+                </div>
+                <button class="btn btn-primary btn-sm" id="btn-account-add-addr">+ Add Address</button>
+              </div>
+
+              <div style="text-align: center; padding: 40px 20px; border: 1.5px dashed var(--color-border); border-radius: var(--radius-md); background: var(--color-mint-bg);">
+                <div style="font-size: 2.2rem; margin-bottom: 8px;">📍</div>
+                <h3 style="font-family: var(--font-serif); font-size: 1.2rem; color: var(--color-primary-dark); margin-bottom: 4px;">No Saved Addresses</h3>
+                <p style="font-size: 0.84rem; color: var(--color-text-muted); margin-bottom: 16px;">Save your delivery addresses for express checkout.</p>
+                <button class="btn btn-primary btn-sm" id="btn-add-first-addr">+ Add New Address</button>
+              </div>
+            </section>
+          </div>
+
+          <!-- TAB 3: PAYMENT METHODS SECTION -->
+          <div class="account-tab-panel" id="panel-payments">
+            <section class="card-3d" style="background: #ffffff; border-radius: var(--radius-lg); border: 1px solid var(--color-border); padding: 30px; box-shadow: var(--shadow-sm);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; flex-wrap: wrap; gap: 10px;">
+                <div>
+                  <h2 style="font-family: var(--font-serif); font-size: 1.6rem; color: var(--color-primary-dark);">Payment Methods</h2>
+                  <p style="font-size: 0.84rem; color: var(--color-text-muted);">Manage your saved UPI VPAs and credit/debit cards</p>
+                </div>
+                <button class="btn btn-primary btn-sm" id="btn-account-add-payment">+ Add Payment Method</button>
+              </div>
+
+              <div style="text-align: center; padding: 40px 20px; border: 1.5px dashed var(--color-border); border-radius: var(--radius-md); background: var(--color-mint-bg);">
+                <div style="font-size: 2.2rem; margin-bottom: 8px;">💳</div>
+                <h3 style="font-family: var(--font-serif); font-size: 1.2rem; color: var(--color-primary-dark); margin-bottom: 4px;">No Saved Payment Methods</h3>
+                <p style="font-size: 0.84rem; color: var(--color-text-muted); margin-bottom: 16px;">UPI VPAs and Cards can be securely saved during checkout.</p>
+                <a href="shop.html" class="btn btn-secondary btn-sm">Continue Shopping →</a>
+              </div>
+            </section>
+          </div>
+
+          <!-- TAB 4: HELP & CONCIERGE SUPPORT -->
+          <div class="account-tab-panel" id="panel-support">
+            <section class="card-3d" style="background: #ffffff; border-radius: var(--radius-lg); border: 1px solid var(--color-border); padding: 30px; box-shadow: var(--shadow-sm);">
+              <h2 style="font-family: var(--font-serif); font-size: 1.6rem; color: var(--color-primary-dark); margin-bottom: 6px;">Customer Care & Boutique Concierge</h2>
+              <p style="font-size: 0.84rem; color: var(--color-text-muted); margin-bottom: 24px;">We are delighted to assist you with order drapes, styling advice, or bridal trousseau consultations.</p>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 30px;">
+                <div style="padding: 20px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-mint-pale); text-align: center;">
+                  <div style="font-size: 2rem; margin-bottom: 8px;">💬</div>
+                  <h4 style="font-size: 1rem; color: var(--color-primary-dark); margin-bottom: 4px;">WhatsApp Concierge</h4>
+                  <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 12px;">Instant saree videos & styling consultation</p>
+                  <a href="https://wa.me/919876543210" target="_blank" class="btn btn-primary btn-sm">Chat on WhatsApp</a>
+                </div>
+
+                <div style="padding: 20px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: #ffffff; text-align: center;">
+                  <div style="font-size: 2rem; margin-bottom: 8px;">📞</div>
+                  <h4 style="font-size: 1rem; color: var(--color-primary-dark); margin-bottom: 4px;">Toll-Free Helpline</h4>
+                  <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 12px;">Available Mon - Sat (9 AM - 8 PM IST)</p>
+                  <a href="tel:+919876543210" class="btn btn-secondary btn-sm">+91 98765 43210</a>
+                </div>
+
+                <div style="padding: 20px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: #ffffff; text-align: center;">
+                  <div style="font-size: 2rem; margin-bottom: 8px;">✉️</div>
+                  <h4 style="font-size: 1rem; color: var(--color-primary-dark); margin-bottom: 4px;">Email Support</h4>
+                  <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 12px;">Average response time: 2 business hours</p>
+                  <a href="mailto:support@aruvicollections.com" class="btn btn-secondary btn-sm">Email Us</a>
+                </div>
+              </div>
+
+              <h3 style="font-family: var(--font-serif); font-size: 1.25rem; color: var(--color-primary-dark); margin-bottom: 14px;">Frequently Asked Questions</h3>
+              <div style="display: flex; flex-direction: column; gap: 10px;">
+                <details style="padding: 14px 18px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: #ffffff;">
+                  <summary style="font-weight: 700; color: var(--color-primary-dark); cursor: pointer;">How do I verify the authenticity of my Silk Mark Saree?</summary>
+                  <p style="font-size: 0.85rem; color: var(--color-text-muted); margin-top: 8px; line-height: 1.6;">
+                    Every pure silk saree from Aruvi Collections includes an authentic Silk Mark India QR certificate tag with a unique serial number that can be verified directly on the Silk Mark India portal.
+                  </p>
+                </details>
+                <details style="padding: 14px 18px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: #ffffff;">
+                  <summary style="font-weight: 700; color: var(--color-primary-dark); cursor: pointer;">What is the return and exchange policy?</summary>
+                  <p style="font-size: 0.85rem; color: var(--color-text-muted); margin-top: 8px; line-height: 1.6;">
+                    We offer a 7-day hassle-free return and exchange policy for unused items in original luxury packaging with seals intact. Reverse pickup is fully complimentary across India.
+                  </p>
+                </details>
+                <details style="padding: 14px 18px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: #ffffff;">
+                  <summary style="font-weight: 700; color: var(--color-primary-dark); cursor: pointer;">Can I request custom blouse stitching?</summary>
+                  <p style="font-size: 0.85rem; color: var(--color-text-muted); margin-top: 8px; line-height: 1.6;">
+                    Yes! You can contact our boutique master tailor via WhatsApp right after placing your order to customize measurements, necklines, and embroidery patterns.
+                  </p>
+                </details>
+              </div>
+            </section>
+          </div>
+
+          <!-- TAB 5: PROFILE SETTINGS -->
+          <div class="account-tab-panel" id="panel-settings">
+            <section class="card-3d" style="background: #ffffff; border-radius: var(--radius-lg); border: 1px solid var(--color-border); padding: 30px; box-shadow: var(--shadow-sm);">
+              <h2 style="font-family: var(--font-serif); font-size: 1.6rem; color: var(--color-primary-dark); margin-bottom: 6px;">Profile & Preferences</h2>
+              <p style="font-size: 0.84rem; color: var(--color-text-muted); margin-bottom: 24px;">Update personal details and notifications</p>
+
+              <form id="form-profile-settings" style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px; max-width: 600px;">
+                <div>
+                  <label style="font-size: 0.8rem; font-weight: 700; color: var(--color-charcoal); display: block; margin-bottom: 6px;">First Name</label>
+                  <input type="text" value="" placeholder="Enter your first name" style="width: 100%; padding: 10px 14px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: 0.88rem;" />
+                </div>
+                <div>
+                  <label style="font-size: 0.8rem; font-weight: 700; color: var(--color-charcoal); display: block; margin-bottom: 6px;">Last Name</label>
+                  <input type="text" value="" placeholder="Enter your last name" style="width: 100%; padding: 10px 14px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: 0.88rem;" />
+                </div>
+                <div style="grid-column: 1 / -1;">
+                  <label style="font-size: 0.8rem; font-weight: 700; color: var(--color-charcoal); display: block; margin-bottom: 6px;">Email Address</label>
+                  <input type="email" value="" placeholder="Enter your email" style="width: 100%; padding: 10px 14px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: 0.88rem;" />
+                </div>
+                <div style="grid-column: 1 / -1;">
+                  <label style="font-size: 0.8rem; font-weight: 700; color: var(--color-charcoal); display: block; margin-bottom: 6px;">Phone Number</label>
+                  <input type="tel" value="" placeholder="+91 98765 43210" style="width: 100%; padding: 10px 14px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: 0.88rem;" />
+                </div>
+                <div style="grid-column: 1 / -1; margin-top: 8px;">
+                  <button type="submit" class="btn btn-primary hover-shimmer">Save Changes</button>
+                </div>
+              </form>
+            </section>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+        </div>
+    </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom-row" style="border: none; padding-top: 0;">
+        <span>© 2026 Aruvi Collections. Tradition In Every Thread.</span>
+        <div class="payment-badges-row">
+          <span class="payment-badge">100% SECURE CHECKOUT</span>
+          <span class="payment-badge">SILK MARK CERTIFIED</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Mobile Slide Navigation Drawer -->
+  <div class="mobile-nav-drawer" id="mobile-nav-drawer">
+    <div class="mobile-nav-header">
+      <div class="brand-logo">
+        <img src="assets/icons/WhatsApp Image 2026-09-21 at 7.49.20 AM (1).jpeg" alt="Aruvi Collections" class="brand-logo-img" style="height: 44px; width: auto; max-height: 44px; object-fit: contain; border-radius: 6px;" />
+      </div>
+      <button class="mobile-nav-close" id="mobile-nav-close" aria-label="Close navigation menu">✕</button>
+    </div>
+    <ul class="mobile-nav-links">
+        <li><a href="index.html" class="mobile-nav-link"><span>🏠 Home</span> <span>›</span></a></li>
+        <li><a href="shop.html?category=sarees" class="mobile-nav-link"><span>🥻 Sarees</span> <span>›</span></a></li>
+        <li><a href="shop.html?category=salwar" class="mobile-nav-link"><span>👗 Salwar</span> <span>›</span></a></li>
+        <li><a href="shop.html?category=sharara" class="mobile-nav-link"><span>✨ Sharara</span> <span>›</span></a></li>
+        <li><a href="shop.html?category=ethnic-wears" class="mobile-nav-link"><span>🪡 Ethnic Wears</span> <span>›</span></a></li>
+        <li><a href="shop.html?category=co-ord-sets" class="mobile-nav-link"><span>👚 Co-ord Sets</span> <span>›</span></a></li>
+        <li><a href="shop.html?category=western-tops" class="mobile-nav-link"><span>🧥 Western Tops</span> <span>›</span></a></li>
+        <li><a href="shop.html?category=kids" class="mobile-nav-link"><span>👶 Kids</span> <span>›</span></a></li>
+        <li><a href="wishlist.html" class="mobile-nav-link"><span>❤️ My Saved Wishlist</span> <span class="action-badge wishlist-count-badge">0</span></a></li>
+        <li><a href="cart.html" class="mobile-nav-link"><span>👜 Shopping Bag</span> <span class="action-badge cart-count-badge">0</span></a></li>
+        <li><a href="account.html" class="mobile-nav-link active"><span>👤 My Account & Orders</span> <span>›</span></a></li>
+      </ul>
+    <div class="mobile-nav-footer">
+      <div style="font-size: 0.78rem; color: var(--color-text-muted); text-align: center;">
+        Handcrafted South Indian Heritage • Silk Mark Certified
+      </div>
+      <a href="shop.html" class="btn btn-primary btn-sm" style="width: 100%; text-align: center;">Explore Catalogue</a>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="scripts/effects.js"></script>
+    <!-- Firebase SDKs & Cloud Storage -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+  <script src="scripts/firebase-config.js"></script>
+  <script src="scripts/store-data.js"></script>
+  <script src="scripts/app-main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Tab Switching
+      const tabButtons = document.querySelectorAll('.account-tab-btn[data-tab]');
+      const tabPanels = document.querySelectorAll('.account-tab-panel');
+
+      function switchAccountTab(tabName) {
+        tabButtons.forEach(btn => {
+          if (btn.getAttribute('data-tab') === tabName) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        });
+
+        tabPanels.forEach(panel => {
+          if (panel.id === `panel-${tabName}`) {
+            panel.classList.add('active');
+          } else {
+            panel.classList.remove('active');
+          }
+        });
+      }
+
+      tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tab = btn.getAttribute('data-tab');
+          if (tab) {
+            switchAccountTab(tab);
+            window.location.hash = tab;
+          }
+        });
+      });
+
+      // Check URL Hash on load
+      const hash = window.location.hash.replace('#', '');
+      if (hash && document.getElementById(`panel-${hash}`)) {
+        switchAccountTab(hash);
+      }
+
+      // Load Recent Orders from LocalStorage
+      const dynamicOrdersContainer = document.getElementById('dynamic-orders-container');
+      try {
+        const savedOrders = JSON.parse(localStorage.getItem('aruvi_orders') || '[]');
+        if (savedOrders.length > 0) {
+          const countBadge = document.getElementById('active-shipment-tag');
+          if (countBadge) {
+            countBadge.textContent = `${savedOrders.length + 1} Active Shipments`;
+          }
+
+          dynamicOrdersContainer.innerHTML = savedOrders.map(order => {
+            const firstItem = order.items && order.items[0] ? order.items[0] : null;
+            const itemTitle = firstItem ? firstItem.product.title : 'Handcrafted Ensemble';
+            const itemImg = firstItem ? firstItem.product.image : 'assets/images/kanjivaram_green.jpg';
+            const extraCount = order.items && order.items.length > 1 ? ` + ${order.items.length - 1} more items` : '';
+
+            return `
+              <div class="order-card-box" style="border: 2px solid var(--color-primary); border-radius: var(--radius-md); padding: 22px; margin-bottom: 22px; background: #ffffff; box-shadow: var(--shadow-sm);">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid var(--color-border); margin-bottom: 18px; flex-wrap: wrap; gap: 12px;">
+                  <div>
+                    <span style="font-size: 0.88rem; font-weight: 700; color: var(--color-primary-dark);">Order #${order.id}</span>
+                    <div style="font-size: 0.76rem; color: var(--color-text-muted);">Placed on ${order.date} • Paid via ${order.paymentMethod}</div>
+                  </div>
+                  <div style="text-align: right;">
+                    <span class="product-badge-tag tag-green" style="position: static;">${order.status}</span>
+                    <div style="font-size: 0.95rem; font-weight: 800; color: var(--color-primary-dark); margin-top: 4px;">₹${order.total.toLocaleString('en-IN')}</div>
+                  </div>
+                </div>
+
+                <!-- Shipment Progress Steps -->
+                <div style="margin-bottom: 24px; padding: 0 10px;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; position: relative;">
+                    <div style="text-align: center;">
+                      <div style="width: 28px; height: 28px; border-radius: 50%; background: var(--color-primary); color: #fff; display: flex; align-items: center; justify-content: center; margin: 0 auto 6px auto; font-size: 0.75rem;">✓</div>
+                      <span style="font-size: 0.75rem; font-weight: 700; color: var(--color-primary-dark);">Confirmed</span>
+                    </div>
+                    <div style="flex: 1; height: 3px; background: var(--color-primary);"></div>
+                    <div style="text-align: center;">
+                      <div style="width: 28px; height: 28px; border-radius: 50%; background: var(--color-gold); color: #fff; display: flex; align-items: center; justify-content: center; margin: 0 auto 6px auto; font-size: 0.75rem;">🧵</div>
+                      <span style="font-size: 0.75rem; font-weight: 700; color: var(--color-gold-dark);">Weaving & QA</span>
+                    </div>
+                    <div style="flex: 1; height: 3px; background: var(--color-border);"></div>
+                    <div style="text-align: center;">
+                      <div style="width: 28px; height: 28px; border-radius: 50%; background: var(--color-mint-pale); color: var(--color-text-muted); display: flex; align-items: center; justify-content: center; margin: 0 auto 6px auto; font-size: 0.75rem;">📦</div>
+                      <span style="font-size: 0.75rem; font-weight: 600; color: var(--color-text-muted);">Dispatch</span>
+                    </div>
+                    <div style="flex: 1; height: 3px; background: var(--color-border);"></div>
+                    <div style="text-align: center;">
+                      <div style="width: 28px; height: 28px; border-radius: 50%; background: var(--color-mint-pale); color: var(--color-text-muted); display: flex; align-items: center; justify-content: center; margin: 0 auto 6px auto; font-size: 0.75rem;">🚚</div>
+                      <span style="font-size: 0.75rem; font-weight: 600; color: var(--color-text-muted);">Delivered</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Item Info -->
+                <div style="display: flex; gap: 16px; align-items: center; background: var(--color-mint-bg); padding: 14px; border-radius: var(--radius-sm); flex-wrap: wrap;">
+                  <img src="${itemImg}" alt="${itemTitle}" style="width: 60px; height: 75px; object-fit: cover; border-radius: 6px;" />
+                  <div style="flex: 1; min-width: 200px;">
+                    <h4 style="font-family: var(--font-serif); font-size: 0.98rem; color: var(--color-primary-dark);">${itemTitle}${extraCount}</h4>
+                    <p style="font-size: 0.78rem; color: var(--color-text-muted);">${order.estimatedDelivery}</p>
+                  </div>
+                  <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-primary btn-sm btn-track-courier">Track Live</button>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      } catch (e) {
+        console.error('Error loading orders', e);
+      }
+
+      // Track Courier Button Action
+      document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('btn-track-courier')) {
+          window.Aruvi.showToast('BlueDart Courier AWB #BLU-992014: Out for delivery in Coimbatore today! 🚚', 'info');
+        }
+      });
+
+      // Profile settings submit
+      const profileForm = document.getElementById('form-profile-settings');
+      if (profileForm) {
+        profileForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          window.Aruvi.showToast('Profile information successfully saved! ✨', 'success');
+        });
+      }
+
+      // Add address button trigger
+      const btnAddAddr = document.getElementById('btn-account-add-addr');
+      if (btnAddAddr) {
+        btnAddAddr.addEventListener('click', () => {
+          window.Aruvi.showToast('Address management active. You can also add addresses at Checkout.', 'info');
+        });
+      }
+
+      // Add payment method button trigger
+      const btnAddPay = document.getElementById('btn-account-add-payment');
+      if (btnAddPay) {
+        btnAddPay.addEventListener('click', () => {
+          window.Aruvi.showToast('Instant UPI & Card linking is available during Checkout.', 'info');
+        });
+      }
+    });
+  </script>
+
+  <script src="scripts/customer-auth.js"></script>
+</body>
+</html>

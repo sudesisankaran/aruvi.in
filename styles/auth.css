@@ -1,0 +1,387 @@
+/* ==========================================================================
+   ARUVI COLLECTIONS - CUSTOMER AUTHENTICATION (FIREBASE GOOGLE & EMAIL)
+   ========================================================================== */
+
+/* Auth Modal Overlay */
+.auth-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 26, 20, 0.82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.auth-modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Modal Card */
+.auth-modal-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 460px;
+  border-radius: 20px;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.35);
+  border: 1.5px solid rgba(200, 157, 56, 0.35);
+  overflow: hidden;
+  position: relative;
+  transform: translateY(20px) scale(0.97);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.auth-modal-overlay.active .auth-modal-card {
+  transform: translateY(0) scale(1);
+}
+
+/* Header */
+.auth-card-header {
+  background: linear-gradient(135deg, #0e2920 0%, #163e30 100%);
+  color: #ffffff;
+  padding: 26px 28px 20px 28px;
+  text-align: center;
+  position: relative;
+  border-bottom: 2px solid rgba(200, 157, 56, 0.4);
+}
+
+.auth-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.auth-close-btn:hover {
+  background: var(--color-gold);
+  color: #0e2920;
+}
+
+.auth-badge {
+  display: inline-block;
+  background: rgba(200, 157, 56, 0.2);
+  border: 1px solid var(--color-gold);
+  color: #f4db8e;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  padding: 3px 10px;
+  border-radius: 99px;
+  margin-bottom: 8px;
+}
+
+.auth-title {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  color: #ffffff;
+  margin: 0 0 4px 0;
+}
+
+.auth-subtitle {
+  color: #c4d6ce;
+  font-size: 0.82rem;
+  margin: 0;
+}
+
+/* Mode Switch Tabs (Sign In / Register) */
+.auth-tabs-row {
+  display: flex;
+  background: #f4f7f5;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.auth-tab-btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  background: transparent;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.auth-tab-btn.active {
+  color: var(--color-primary-dark);
+  background: #ffffff;
+}
+
+.auth-tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-primary);
+}
+
+/* Body Container */
+.auth-card-body {
+  padding: 26px 28px 30px 28px;
+}
+
+/* Official Google Sign-In Button */
+.btn-google-auth {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: #ffffff;
+  color: #3c4043;
+  border: 1px solid #dadce0;
+  border-radius: 10px;
+  padding: 12px 18px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(60, 64, 67, 0.08);
+  transition: all 0.2s ease;
+}
+
+.btn-google-auth:hover {
+  background: #f8fafd;
+  border-color: #c2e7ff;
+  box-shadow: 0 2px 8px rgba(60, 64, 67, 0.16);
+  transform: translateY(-1px);
+}
+
+.google-logo-svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Divider with text */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+  color: var(--color-text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.auth-divider span {
+  padding: 0 12px;
+}
+
+/* Form Groups */
+.auth-form-group {
+  margin-bottom: 16px;
+}
+
+.auth-form-label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-charcoal);
+  margin-bottom: 6px;
+}
+
+.auth-input-wrapper {
+  position: relative;
+}
+
+.auth-form-input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 0.88rem;
+  color: var(--color-charcoal);
+  background: #ffffff;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.auth-form-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(16, 50, 39, 0.12);
+}
+
+.auth-password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 4px;
+}
+
+.auth-password-toggle:hover {
+  color: var(--color-primary-dark);
+}
+
+/* Form Helper Row (Remember / Forgot) */
+.auth-helper-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+  margin-bottom: 20px;
+}
+
+.auth-remember-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.auth-forgot-link {
+  color: var(--color-gold-dark);
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Primary Submit Button */
+.btn-auth-submit {
+  width: 100%;
+  padding: 13px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  border-radius: 8px;
+}
+
+/* Error/Success Alert */
+.auth-alert-box {
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  margin-bottom: 16px;
+  display: none;
+}
+
+.auth-alert-box.error {
+  display: block;
+  background: #fdf2f2;
+  color: #c93b3b;
+  border: 1px solid rgba(201, 59, 59, 0.3);
+}
+
+.auth-alert-box.success {
+  display: block;
+  background: #f0fbf5;
+  color: #1a6d4b;
+  border: 1px solid rgba(26, 109, 75, 0.3);
+}
+
+/* Footer note */
+.auth-footer-note {
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  margin-top: 18px;
+  line-height: 1.4;
+}
+
+.auth-footer-note a {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+/* Standalone Auth Screen on account.html */
+.account-auth-container {
+  max-width: 480px;
+  margin: 30px auto 60px auto;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: var(--shadow-md);
+  border: 1.5px solid rgba(200, 157, 56, 0.35);
+  overflow: hidden;
+}
+
+/* Responsive Design for Auth Modal & Account Auth Card */
+@media (max-width: 480px) {
+  .auth-modal-overlay {
+    padding: 10px;
+  }
+
+  .auth-modal-card {
+    border-radius: 16px;
+    max-width: 100%;
+  }
+
+  .auth-card-header {
+    padding: 20px 18px 14px 18px;
+  }
+
+  .auth-title {
+    font-size: 1.3rem;
+  }
+
+  .auth-subtitle {
+    font-size: 0.78rem;
+  }
+
+  .auth-card-body {
+    padding: 18px 16px;
+  }
+
+  .auth-form-input {
+    font-size: 16px !important;
+    padding: 11px 12px;
+  }
+
+  .account-auth-container {
+    margin: 10px auto 40px auto;
+    border-radius: 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  .auth-modal-overlay {
+    padding: 6px;
+  }
+
+  .auth-card-header {
+    padding: 16px 14px 12px 14px;
+  }
+
+  .auth-card-body {
+    padding: 14px 12px;
+  }
+
+  .btn-google-auth {
+    font-size: 0.84rem;
+    padding: 10px 14px;
+  }
+}

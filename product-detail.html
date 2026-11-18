@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kanjivaram Silk Saree | Aruvi Collections</title>
+  <meta name="description" content="Handcrafted South Indian pure Kanjivaram silk saree with 2g gold zari temple border. Woven by master weavers.">
+  <link rel="icon" type="image/jpeg" href="assets/icons/WhatsApp Image 2026-09-21 at 7.49.20 AM (1).jpeg">
+  
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/animations.css">
+  <link rel="stylesheet" href="styles/fitting-room.css">
+  <link rel="stylesheet" href="styles/auth.css">
+</head>
+<body class="pdp-page">
+
+  
+
+  <!-- Background Animations -->
+  <canvas id="particles-bg-canvas"></canvas>
+  <div class="ambient-gradient-mesh" aria-hidden="true">
+    <div class="mesh-orb mesh-orb-1"></div>
+    <div class="mesh-orb mesh-orb-2"></div>
+    <div class="mesh-orb mesh-orb-3"></div>
+  </div>
+
+  <!-- Top Announcement Bar -->
+  <header class="announcement-bar">
+    <div class="announcement-inner">
+      <div class="announcement-promo">
+        <span class="announcement-tag">Special Offer</span>
+        <span>✨ Handcrafted Pure Silks • Use code <strong>ARUVI20</strong> for 20% Off ✨</span>
+      </div>
+      <div class="announcement-links">
+        <a href="account.html">My Orders</a>
+        <span>INR (₹)</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Site Header -->
+  <nav class="site-header" id="site-header">
+    <div class="container header-container">
+      <a href="index.html" class="brand-logo" aria-label="Aruvi Collections Home">
+        <img src="assets/icons/WhatsApp Image 2026-09-21 at 7.49.20 AM (1).jpeg" alt="Aruvi Collections" class="brand-logo-img" style="height: 52px; width: auto; max-height: 52px; object-fit: contain; border-radius: 8px;" />
+      </a>
+
+      <ul class="main-nav">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="shop.html?category=sarees" class="nav-link">Sarees</a></li>
+        <li><a href="shop.html?category=salwar" class="nav-link">Salwar</a></li>
+        <li><a href="shop.html?category=sharara" class="nav-link">Sharara</a></li>
+        <li><a href="shop.html?category=ethnic-wears" class="nav-link">Ethnic Wears</a></li>
+        <li><a href="shop.html?category=co-ord-sets" class="nav-link">Co-ord Sets</a></li>
+        <li><a href="shop.html?category=western-tops" class="nav-link">Western Tops</a></li>
+        <li><a href="shop.html?category=kids" class="nav-link">Kids <span class="badge-tag" style="background:var(--color-gold);color:#0e2920;font-size:0.62rem;padding:2px 6px;border-radius:99px;font-weight:700;">NEW</span></a></li>
+      </ul>
+
+      <div class="header-actions">
+        <button class="action-btn" id="header-wishlist-btn" title="View Wishlist">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+          <span class="action-badge wishlist-count-badge">2</span>
+        </button>
+
+        <button class="action-btn" id="header-cart-btn" title="View Bag">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          <span class="action-badge cart-count-badge">2</span>
+        </button>
+
+        <a href="account.html" class="action-btn" id="header-user-btn" title="My Account">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </a>
+
+        <!-- Mobile Menu Toggle -->
+        <button class="action-btn mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Open Mobile Menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ========================================================================
+       PRODUCT DETAILS HERO CONTAINER (from mockup right)
+       ======================================================================== -->
+  <main style="padding: 36px 0 60px 0;">
+    <div class="container">
+      
+      <!-- Breadcrumbs -->
+      <nav style="display: flex; gap: 8px; font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 24px;">
+        <a href="index.html" style="color: var(--color-primary);">Home</a>
+        <span>/</span>
+        <a href="shop.html" style="color: var(--color-primary);" id="pdp-breadcrumb-cat">Collections</a>
+        <span>/</span>
+        <span style="color: var(--color-charcoal); font-weight: 600;" id="pdp-breadcrumb-title">Kanjivaram Silk Saree</span>
+      </nav>
+
+      <!-- Main PDP Grid: Gallery (Left) & Buy Box (Right) -->
+      <div class="pdp-grid-layout" style="margin-bottom: 60px;">
+        
+        <!-- Gallery Column -->
+        <div style="display: flex; flex-direction: column; gap: 18px;">
+          <!-- Main Hero 3D Tilt Image -->
+          <div class="card-3d hover-gold-glow" style="border-radius: var(--radius-lg); overflow: hidden; background: #ffffff; border: 1px solid var(--color-border); box-shadow: var(--shadow-md); position: relative; height: 540px;">
+            <img src="assets/images/kanjivaram_green.jpg" alt="Product Image" id="pdp-main-image" style="width: 100%; height: 100%; object-fit: cover; transition: opacity 0.25s ease;" />
+            <div class="card-glare"></div>
+            <span class="product-badge-tag tag-gold" style="top: 20px; left: 20px;">Silk Mark Certified</span>
+          </div>
+
+          <!-- Thumbnails Row -->
+          <div id="pdp-thumbnails-container" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Buy Box Column (Right) -->
+        <div style="display: flex; flex-direction: column;">
+          <span style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--color-gold-dark); margin-bottom: 8px;" id="pdp-eyebrow">Authentic Heritage Silk</span>
+          
+          <h1 style="font-family: var(--font-serif); font-size: 2.5rem; font-weight: 700; color: var(--color-primary-dark); line-height: 1.18; margin-bottom: 12px;" id="pdp-title">
+            Kanjivaram Silk Saree
+          </h1>
+
+          <!-- Reviews & Stars -->
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 18px; font-size: 0.88rem;">
+            <span style="color: var(--color-gold); font-size: 1.1rem; letter-spacing: 2px;">★★★★★</span>
+            <span style="font-weight: 600; color: var(--color-primary-dark);" id="pdp-rating">4.9</span>
+            <span style="color: var(--color-text-muted);" id="pdp-reviews-count">(142 Customer Reviews)</span>
+            <span style="color: var(--color-border-dark);">•</span>
+            <span style="color: var(--color-success); font-weight: 600;">✓ In Stock</span>
+          </div>
+
+          <!-- Price Block -->
+          <div style="display: flex; align-items: baseline; gap: 14px; padding-bottom: 20px; border-bottom: 1px solid var(--color-border); margin-bottom: 22px;">
+            <span style="font-family: var(--font-sans); font-size: 2.2rem; font-weight: 800; color: var(--color-primary-dark);" id="pdp-price">₹4,999</span>
+            <span style="font-size: 1.15rem; color: var(--color-text-light); text-decoration: line-through;" id="pdp-orig-price">₹6,499</span>
+            <span class="product-badge-tag tag-discount" id="pdp-discount-tag" style="position: static; font-size: 0.8rem; padding: 4px 10px;">23% OFF</span>
+          </div>
+
+          <!-- Description Excerpt -->
+          <p style="font-size: 0.92rem; color: var(--color-text-muted); line-height: 1.7; margin-bottom: 26px;" id="pdp-description">
+            A timeless handcrafted saree crafted with premium quality silk and traditional 2g pure gold zari weaving. Designed with intricate peacock motifs across the pallu, ideal for weddings, temple festivals, and heirloom celebrations.
+          </p>
+
+          <!-- Color Swatches -->
+          <div style="margin-bottom: 24px;">
+            <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--color-charcoal); margin-bottom: 10px;">
+              Color: <span id="pdp-selected-color" style="font-weight: 500; color: var(--color-text-muted);">Royal Emerald Green</span>
+            </label>
+            <div id="pdp-colors-container" style="display: flex; gap: 12px;">
+              <!-- Dynamic Swatches -->
+            </div>
+          </div>
+
+          <!-- Size Selector -->
+          <div style="margin-bottom: 28px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <label style="font-size: 0.82rem; font-weight: 700; color: var(--color-charcoal);">Select Size</label>
+              <a href="#size-fit" class="pdp-scroll-tab" data-tab="pdp-tab-size" style="font-size: 0.78rem; font-weight: 600; color: var(--color-gold-dark); text-decoration: underline;">Size & Drape Guide</a>
+            </div>
+            <div id="pdp-sizes-container" style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <!-- Dynamic Sizes -->
+            </div>
+          </div>
+
+          <!-- Quantity & Action Buttons -->
+          <div style="display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap;">
+            <div class="qty-counter-group" style="padding: 4px 10px;">
+              <button class="qty-btn" id="pdp-qty-minus">-</button>
+              <span class="qty-num" id="pdp-qty-val" style="padding: 0 12px; font-weight: 700;">1</span>
+              <button class="qty-btn" id="pdp-qty-plus">+</button>
+            </div>
+
+            <button class="btn btn-primary hover-shimmer hover-lift" id="pdp-btn-add-cart" style="flex: 2; min-width: 160px;">
+              Add to Bag 🛍️
+            </button>
+
+            <button class="btn btn-gold hover-lift" id="pdp-btn-buy-now" style="flex: 1.5; min-width: 130px;">
+              Buy Now
+            </button>
+
+            <button class="btn-wishlist hover-lift" id="pdp-btn-wishlist" style="position: static; width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--color-border);" title="Save to Wishlist">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- AI Virtual Fitting Room Trigger -->
+          <div style="margin-bottom: 24px;">
+            <button class="btn hover-lift btn-ai-tryon" id="btn-open-fitting-room" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px; background: linear-gradient(135deg, #0e2920 0%, #163e30 100%); color: #ffffff; border: 1.5px solid var(--color-gold); padding: 14px 20px; border-radius: var(--radius-md); font-weight: 700; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 18px rgba(200, 157, 56, 0.28);">
+              <span style="font-size: 1.3rem;">🪞</span>
+              <span style="letter-spacing: 0.02em;">Try in AI Virtual Fitting Room</span>
+              <span class="badge-tag" style="background: var(--color-gold); color: #0e2920; font-size: 0.68rem; padding: 3px 8px; border-radius: 99px; margin-left: auto; font-weight: 800;">LIVE AI TRY-ON</span>
+            </button>
+          </div>
+
+          <!-- Trust Assurances Under Buy Box -->
+          <div style="background: var(--color-mint-pale); border-radius: var(--radius-md); padding: 18px 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; border: 1px solid var(--color-border);">
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 0.82rem; font-weight: 600; color: var(--color-primary-dark);">
+              <span>🛡️</span> 100% Pure Silk Mark
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 0.82rem; font-weight: 600; color: var(--color-primary-dark);">
+              <span>🚚</span> Free Express Delivery
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 0.82rem; font-weight: 600; color: var(--color-primary-dark);">
+              <span>🔄</span> 7-Day Easy Returns
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 0.82rem; font-weight: 600; color: var(--color-primary-dark);">
+              <span>💳</span> Cash on Delivery Eligible
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ====================================================================
+           DETAILS TABS SECTION (Details, Size & Fit, Shipping, Reviews)
+           ==================================================================== -->
+      <section style="background: #ffffff; border-radius: var(--radius-lg); border: 1px solid var(--color-border); padding: 36px; margin-bottom: 60px; box-shadow: var(--shadow-sm);" id="product-tabs-section">
+        
+        <!-- Tab Buttons Header -->
+        <div style="display: flex; gap: 24px; border-bottom: 2px solid var(--color-border); padding-bottom: 12px; margin-bottom: 28px; overflow-x: auto;">
+          <button class="nav-link active pdp-tab-btn" data-panel="pdp-panel-details" style="font-size: 1rem; font-weight: 700; cursor: pointer; white-space: nowrap;">Product Details</button>
+          <button class="nav-link pdp-tab-btn" data-panel="pdp-panel-size" style="font-size: 1rem; font-weight: 600; color: var(--color-text-muted); cursor: pointer; white-space: nowrap;">Size & Fit</button>
+          <button class="nav-link pdp-tab-btn" data-panel="pdp-panel-shipping" style="font-size: 1rem; font-weight: 600; color: var(--color-text-muted); cursor: pointer; white-space: nowrap;">Shipping & Returns</button>
+          <button class="nav-link pdp-tab-btn" data-panel="pdp-panel-reviews" style="font-size: 1rem; font-weight: 600; color: var(--color-text-muted); cursor: pointer; white-space: nowrap;">Customer Reviews</button>
+        </div>
+
+        <!-- Panel 1: Details -->
+        <div class="tab-panel active" id="pdp-panel-details">
+          <p style="font-size: 0.92rem; color: var(--color-charcoal); line-height: 1.8; margin-bottom: 26px;" id="pdp-full-desc">
+            Handcrafted with authentic South Indian mastery, each weave represents the sacred heritage of master artisans. Woven with pure mulberry silk yarns, antique metallic zari borders, and detailed peacock and temple motifs.
+          </p>
+
+          <!-- Specifications Table -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; background: var(--color-mint-bg); padding: 24px; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+            <div><span style="font-size: 0.72rem; text-transform: uppercase; color: var(--color-text-light); font-weight: 700;">Fabric</span><p style="font-weight: 700; color: var(--color-primary-dark); margin-top: 3px;" id="pdp-spec-fabric">Pure Mulberry Silk</p></div>
+            <div><span style="font-size: 0.72rem; text-transform: uppercase; color: var(--color-text-light); font-weight: 700;">Zari Work</span><p style="font-weight: 700; color: var(--color-primary-dark); margin-top: 3px;">2G Gold Metallic Zari</p></div>
+            <div><span style="font-size: 0.72rem; text-transform: uppercase; color: var(--color-text-light); font-weight: 700;">Occasion</span><p style="font-weight: 700; color: var(--color-primary-dark); margin-top: 3px;" id="pdp-spec-occasion">Wedding / Festive</p></div>
+            <div><span style="font-size: 0.72rem; text-transform: uppercase; color: var(--color-text-light); font-weight: 700;">Wash Care</span><p style="font-weight: 700; color: var(--color-primary-dark); margin-top: 3px;">Dry Clean Only</p></div>
+            <div><span style="font-size: 0.72rem; text-transform: uppercase; color: var(--color-text-light); font-weight: 700;">Blouse Piece</span><p style="font-weight: 700; color: var(--color-primary-dark); margin-top: 3px;">Included (0.8m Unstitched)</p></div>
+            <div><span style="font-size: 0.72rem; text-transform: uppercase; color: var(--color-text-light); font-weight: 700;">Certification</span><p style="font-weight: 700; color: var(--color-primary-dark); margin-top: 3px;">Silk Mark India Certified</p></div>
+          </div>
+        </div>
+
+        <!-- Panel 2: Size & Fit -->
+        <div class="tab-panel" id="pdp-panel-size">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; font-size: 0.88rem; line-height: 1.7;">
+            <div>
+              <h4 style="font-family: var(--font-serif); font-size: 1.15rem; color: var(--color-primary-dark); margin-bottom: 12px;">Drape & Saree Dimensions</h4>
+              <ul style="list-style: disc; padding-left: 20px; color: var(--color-charcoal); display: flex; flex-direction: column; gap: 8px;">
+                <li><strong>Saree Length:</strong> 5.5 meters standard drape</li>
+                <li><strong>Saree Width:</strong> 1.15 meters (45 inches)</li>
+                <li><strong>Blouse Piece:</strong> 0.8 meters attached at the inner end (unstitched)</li>
+                <li><strong>Fall & Pico:</strong> Recommended before wearing; fabric has structured body</li>
+              </ul>
+            </div>
+            <div>
+              <h4 style="font-family: var(--font-serif); font-size: 1.15rem; color: var(--color-primary-dark); margin-bottom: 12px;">Apparel Size Guide (Suits & Kurtis)</h4>
+              <div style="background: var(--color-mint-bg); border-radius: 8px; padding: 14px; border: 1px solid var(--color-border); font-size: 0.82rem;">
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); font-weight: 700; padding-bottom: 6px; border-bottom: 1px solid var(--color-border);">
+                  <span>Size</span><span>Bust</span><span>Waist</span><span>Hip</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); padding: 6px 0;"><span>S (36)</span><span>36"</span><span>32"</span><span>38"</span></div>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); padding: 6px 0;"><span>M (38)</span><span>38"</span><span>34"</span><span>40"</span></div>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); padding: 6px 0;"><span>L (40)</span><span>40"</span><span>36"</span><span>42"</span></div>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); padding: 6px 0;"><span>XL (42)</span><span>42"</span><span>38"</span><span>44"</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 3: Shipping & Returns -->
+        <div class="tab-panel" id="pdp-panel-shipping">
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; font-size: 0.88rem;">
+            <div style="background: var(--color-mint-pale); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+              <div style="font-size: 1.5rem; margin-bottom: 8px;">🚚</div>
+              <strong style="color: var(--color-primary-dark); font-size: 0.95rem; display: block; margin-bottom: 6px;">Express Delivery</strong>
+              <p style="color: var(--color-text-muted); font-size: 0.84rem; line-height: 1.5;">Orders are dispatched within 24 hours. Express PAN-India courier delivers in 2-4 business days.</p>
+            </div>
+            <div style="background: var(--color-mint-pale); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+              <div style="font-size: 1.5rem; margin-bottom: 8px;">🔄</div>
+              <strong style="color: var(--color-primary-dark); font-size: 0.95rem; display: block; margin-bottom: 6px;">7-Day Easy Returns</strong>
+              <p style="color: var(--color-text-muted); font-size: 0.84rem; line-height: 1.5;">Not fully enchanted? We offer doorstep pickup and instant refund or exchange within 7 days.</p>
+            </div>
+            <div style="background: var(--color-mint-pale); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+              <div style="font-size: 1.5rem; margin-bottom: 8px;">📦</div>
+              <strong style="color: var(--color-primary-dark); font-size: 0.95rem; display: block; margin-bottom: 6px;">Royal Heritage Box</strong>
+              <p style="color: var(--color-text-muted); font-size: 0.84rem; line-height: 1.5;">Each ensemble arrives in an eco-friendly gift box with a fabric protection pouch and Silk Mark tag.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 4: Reviews -->
+        <div class="tab-panel" id="pdp-panel-reviews">
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div style="padding: 16px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: #ffffff;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <strong style="color: var(--color-primary-dark);">Ananya Ramanathan, Chennai</strong>
+                <span style="color: var(--color-gold);">★★★★★</span>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--color-charcoal); line-height: 1.5;">"The Kanjivaram zari has such a royal, subtle glow! Received countless compliments at my brother's wedding. Absolutely authentic silk."</p>
+            </div>
+            <div style="padding: 16px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: #ffffff;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <strong style="color: var(--color-primary-dark);">Deepa K., Bengaluru</strong>
+                <span style="color: var(--color-gold);">★★★★★</span>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--color-charcoal); line-height: 1.5;">"Prompt 2-day delivery and beautiful packaging. The fall and weight of the drape is just exquisite. Truly tradition in every thread."</p>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ====================================================================
+           "YOU MAY ALSO LIKE" RECOMMENDATIONS (matching mockup right)
+           ==================================================================== -->
+      <section>
+        <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 28px;">
+          <div>
+            <span style="font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; color: var(--color-gold-dark);">Recommended For You</span>
+            <h2 style="font-family: var(--font-serif); font-size: 2rem; font-weight: 700; color: var(--color-primary-dark);">You May Also Like</h2>
+          </div>
+          <a href="shop.html" class="btn btn-secondary btn-sm">View All Sarees →</a>
+        </div>
+
+        <div class="products-grid" style="grid-template-columns: repeat(4, 1fr);">
+          <!-- Related Card 1 -->
+          <article class="product-card card-3d hover-gold-glow">
+            <div class="product-media-wrap" style="height: 320px;">
+              <a href="product-detail.html?id=p2"><img src="assets/images/banarasi_saree.jpg" alt="Banarasi Silk Saree" /></a>
+            </div>
+            <div class="product-content">
+              <span class="product-category-text">Silk • Handwoven</span>
+              <h3 class="product-title" style="font-size: 1rem;"><a href="product-detail.html?id=p2">Banarasi Brocade Silk</a></h3>
+              <div class="product-price-row">
+                <span class="price-current">₹3,499</span>
+                <span class="price-original">₹4,999</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- Related Card 2 -->
+          <article class="product-card card-3d hover-gold-glow">
+            <div class="product-media-wrap" style="height: 320px;">
+              <a href="product-detail.html?id=p3"><img src="assets/images/anarkali_suit.jpg" alt="Anarkali Suit" /></a>
+            </div>
+            <div class="product-content">
+              <span class="product-category-text">Salwar • Georgette</span>
+              <h3 class="product-title" style="font-size: 1rem;"><a href="product-detail.html?id=p3">Peacock Anarkali Suit</a></h3>
+              <div class="product-price-row">
+                <span class="price-current">₹2,999</span>
+                <span class="price-original">₹4,299</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- Related Card 3 -->
+          <article class="product-card card-3d hover-gold-glow">
+            <div class="product-media-wrap" style="height: 320px;">
+              <a href="product-detail.html?id=p4"><img src="assets/images/cotton_saree.jpg" alt="Handloom Cotton Saree" /></a>
+            </div>
+            <div class="product-content">
+              <span class="product-category-text">Cotton • Eco Pure</span>
+              <h3 class="product-title" style="font-size: 1rem;"><a href="product-detail.html?id=p4">Handloom Cotton Saree</a></h3>
+              <div class="product-price-row">
+                <span class="price-current">₹1,699</span>
+                <span class="price-original">₹2,299</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- Related Card 4 -->
+          <article class="product-card card-3d hover-gold-glow">
+            <div class="product-media-wrap" style="height: 320px;">
+              <a href="product-detail.html?id=p5"><img src="assets/images/lehenga_set.jpg" alt="Bridal Lehenga Set" /></a>
+            </div>
+            <div class="product-content">
+              <span class="product-category-text">Lehenga • Velvet</span>
+              <h3 class="product-title" style="font-size: 1rem;"><a href="product-detail.html?id=p5">Royal Velvet Lehenga</a></h3>
+              <div class="product-price-row">
+                <span class="price-current">₹8,999</span>
+                <span class="price-original">₹12,999</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ========================================================================
+       SLIDE-OVER CART & WISHLIST DRAWERS
+       ======================================================================== -->
+  <div class="drawer-backdrop" id="drawer-backdrop"></div>
+  
+  <aside class="cart-drawer" id="cart-drawer" aria-label="Shopping Bag">
+    <div class="cart-drawer-header">
+      <div class="cart-header-title-wrap">
+        <h3 class="cart-drawer-title">Your Cart</h3>
+        <span class="cart-item-count-badge cart-count-badge">0</span>
+      </div>
+      <button class="drawer-close-btn" id="close-cart-btn" aria-label="Close cart drawer">✕</button>
+    </div>
+    <div class="cart-free-shipping-bar">
+      <div class="shipping-bar-text" id="shipping-progress-text">
+        <span>Free Shipping above ₹999</span>
+        <span>Eligible</span>
+      </div>
+      <div class="shipping-progress-track">
+        <div class="shipping-progress-fill" id="shipping-progress-fill"></div>
+      </div>
+    </div>
+    <div class="cart-items-list" id="cart-items-list"></div>
+    <div class="cart-empty-state" id="cart-empty-state">
+      <h4 class="cart-empty-title">Your cart is empty</h4>
+      <p class="cart-empty-desc">Explore our handcrafted collections and drape yourself in elegance.</p>
+      <a href="shop.html" class="btn btn-primary btn-sm">Start Shopping</a>
+    </div>
+    <div class="cart-drawer-footer">
+      <div class="cart-coupon-row">
+        <input type="text" class="coupon-input" id="cart-coupon-input" placeholder="Promo code (ARUVI20)" />
+        <button class="btn-apply-coupon" id="btn-apply-coupon">Apply</button>
+      </div>
+      <div class="cart-totals-table">
+        <div class="totals-row"><span>Items Subtotal</span><span id="cart-subtotal">₹0</span></div>
+        <div class="totals-row"><span>Shipping (Express)</span><span id="cart-shipping" class="text-gold">FREE</span></div>
+        <div class="totals-row" id="cart-discount-row" style="display: none; color: var(--color-danger);"><span>Promo Discount</span><span id="cart-discount-amt">-₹0</span></div>
+        <div class="totals-row final-total"><span>Total Amount</span><span id="cart-total">₹0</span></div>
+      </div>
+      <a href="checkout.html" class="btn btn-primary checkout-action-btn hover-shimmer" id="btn-proceed-checkout">
+        Proceed to Checkout →
+      </a>
+    </div>
+  </aside>
+
+  <!-- Wishlist Drawer -->
+  <aside class="cart-drawer" id="wishlist-drawer" aria-label="My Wishlist">
+    <div class="cart-drawer-header">
+      <div class="cart-header-title-wrap">
+        <h3 class="cart-drawer-title">My Wishlist</h3>
+        <span class="cart-item-count-badge wishlist-count-badge">0</span>
+      </div>
+      <button class="drawer-close-btn" id="close-wishlist-btn" aria-label="Close wishlist drawer">✕</button>
+    </div>
+    <div class="cart-items-list" id="wishlist-items-list"></div>
+    <div class="cart-empty-state" id="wishlist-empty-state">
+      <h4 class="cart-empty-title">Your wishlist is empty</h4>
+      <p class="cart-empty-desc">Explore our sarees and tap the heart icon to save your favorites.</p>
+    </div>
+    <div class="cart-drawer-footer" id="wishlist-drawer-footer">
+      <button class="btn btn-primary checkout-action-btn hover-shimmer" id="btn-move-all-cart">Move All to Bag 🛍️</button>
+    </div>
+  </aside>
+
+  <!-- Quick View Modal Placeholder -->
+  <div class="modal-overlay" id="quick-view-modal">
+    <div class="modal-container scene-3d"></div>
+  </div>
+
+  <!-- ========================================================================
+       MOBILE NAVIGATION DRAWER
+       ======================================================================== -->
+  <div class="mobile-nav-drawer" id="mobile-nav-drawer" aria-label="Mobile Navigation">
+    <div class="mobile-nav-header">
+      <div class="brand-logo">
+        <img src="assets/icons/WhatsApp Image 2026-09-21 at 7.49.20 AM (1).jpeg" alt="Aruvi Collections" class="brand-logo-img" style="height: 42px; width: auto; max-height: 42px; object-fit: contain; border-radius: 6px;" />
+      </div>
+      <button class="drawer-close-btn" id="close-mobile-nav" aria-label="Close Navigation" style="color: #ffffff;">✕</button>
+    </div>
+    <div class="mobile-nav-body">
+      <ul class="mobile-nav-links">
+        <li><a href="index.html" class="mobile-nav-link"><span>🏠 Home</span> <span>›</span></a></li>
+        <li><a href="shop.html?category=sarees" class="mobile-nav-link"><span>🥻 Sarees</span> <span>›</span></a></li>
+        <li><a href="shop.html?category=salwar" class="mobile-nav-link"><span>👗 Salwar</span> <span>›</span></a></li>
+        <li><a href="shop.html?category=sharara" class="mobile-nav-link"><span>✨ Sharara</span> <span>›</span></a></li>
+        <li><a href="shop.html?category=ethnic-wears" class="mobile-nav-link"><span>🪡 Ethnic Wears</span> <span>›</span></a></li>
+        <li><a href="shop.html?category=co-ord-sets" class="mobile-nav-link"><span>👚 Co-ord Sets</span> <span>›</span></a></li>
+        <li><a href="shop.html?category=western-tops" class="mobile-nav-link"><span>🧥 Western Tops</span> <span>›</span></a></li>
+        <li><a href="shop.html?category=kids" class="mobile-nav-link"><span>👶 Kids</span> <span>›</span></a></li>
+        <li><a href="wishlist.html" class="mobile-nav-link"><span>❤️ My Saved Wishlist</span> <span class="action-badge wishlist-count-badge">0</span></a></li>
+        <li><a href="cart.html" class="mobile-nav-link"><span>👜 Shopping Bag</span> <span class="action-badge cart-count-badge">0</span></a></li>
+        <li><a href="account.html" class="mobile-nav-link"><span>👤 My Account & Orders</span> <span>›</span></a></li>
+      </ul>
+    </div>
+    <div class="mobile-nav-footer">
+      <div style="font-size: 0.8rem; color: var(--color-primary-dark); font-weight: 700;">✨ Festive Sale Code: ARUVI20 (20% Off)</div>
+      <a href="account.html#support" style="font-size: 0.78rem; color: var(--color-text-muted);">Need Help? Contact 24/7 Concierge</a>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="scripts/effects.js"></script>
+    <!-- Firebase SDKs & Cloud Storage -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+  <script src="scripts/firebase-config.js"></script>
+  <script src="scripts/store-data.js"></script>
+  <script src="scripts/app-main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const productId = urlParams.get('id') || 'p1';
+      const product = (window.AruviStore ? window.AruviStore.getProductById(productId) : null) ||
+                      (window.Aruvi && window.Aruvi.PRODUCTS ? window.Aruvi.PRODUCTS.find(p => p.id === productId) : null);
+
+      if (!product) {
+        const pdpContainer = document.querySelector('main') || document.body;
+        pdpContainer.innerHTML = `
+          <div class="container" style="padding: 80px 20px; text-align: center; min-height: 50vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <div style="font-size: 3.5rem; margin-bottom: 14px;">🥻</div>
+            <h2 style="font-family: var(--font-serif); font-size: 1.8rem; color: var(--color-primary-dark); margin-bottom: 8px;">Product Not Found</h2>
+            <p style="color: var(--color-text-muted); font-size: 0.95rem; max-width: 480px; margin-bottom: 24px;">This product may have been modified or removed from our catalog by the store manager.</p>
+            <div style="display: flex; gap: 12px;">
+              <a href="shop.html" class="btn btn-primary" style="padding: 10px 24px; border-radius: 9999px; text-decoration: none;">Explore Collections</a>
+              <a href="index.html" class="btn btn-secondary" style="padding: 10px 24px; border-radius: 9999px; text-decoration: none;">Return Home</a>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      let selectedSize = product.sizes ? product.sizes[0] : 'Free Size';
+      let selectedColor = 'Standard';
+
+      // Update product texts
+      document.title = product.title + ' | Aruvi Collections';
+      const bTitle = document.getElementById('pdp-breadcrumb-title');
+      const bCat = document.getElementById('pdp-breadcrumb-cat');
+      const title = document.getElementById('pdp-title');
+      const price = document.getElementById('pdp-price');
+      const origPrice = document.getElementById('pdp-orig-price');
+      const discTag = document.getElementById('pdp-discount-tag');
+      const desc = document.getElementById('pdp-description');
+      const fullDesc = document.getElementById('pdp-full-desc');
+      const mainImg = document.getElementById('pdp-main-image');
+      const rating = document.getElementById('pdp-rating');
+      const reviews = document.getElementById('pdp-reviews-count');
+      const eyebrow = document.getElementById('pdp-eyebrow');
+      const specFabric = document.getElementById('pdp-spec-fabric');
+      const specOccasion = document.getElementById('pdp-spec-occasion');
+
+      if (bTitle) bTitle.textContent = product.title;
+      if (bCat) {
+        bCat.textContent = product.category.charAt(0).toUpperCase() + product.category.slice(1);
+        bCat.href = `shop.html?category=${product.category}`;
+      }
+      if (title) title.textContent = product.title;
+      if (price) price.textContent = '₹' + product.price.toLocaleString('en-IN');
+      if (origPrice) origPrice.textContent = '₹' + product.originalPrice.toLocaleString('en-IN');
+      if (discTag) {
+        const discountPercent = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
+        discTag.textContent = discountPercent + '% OFF';
+      }
+      if (desc) desc.textContent = product.tagline;
+      if (fullDesc) fullDesc.textContent = product.tagline + ' Exclusively woven with premium South Indian yarns and verified Silk Mark authentication.';
+      if (mainImg) mainImg.src = product.image;
+      if (rating) rating.textContent = product.rating;
+      if (reviews) reviews.textContent = `(${product.reviews} Customer Reviews)`;
+      if (eyebrow) eyebrow.textContent = `${product.fabric.toUpperCase()} • ${product.category.toUpperCase()}`;
+      if (specFabric) specFabric.textContent = product.fabric.charAt(0).toUpperCase() + product.fabric.slice(1);
+      if (specOccasion) specOccasion.textContent = product.occasion.charAt(0).toUpperCase() + product.occasion.slice(1);
+
+      // Thumbnails setup
+      const thumbsContainer = document.getElementById('pdp-thumbnails-container');
+      if (thumbsContainer) {
+        // High quality angles including product's own image and artisan weaves
+        const angleImages = [
+          product.image,
+          'assets/images/hero_saree_model.jpg',
+          'assets/images/premium_fabrics.jpg',
+          'assets/images/festive_promo.jpg'
+        ];
+        thumbsContainer.innerHTML = angleImages.map((imgSrc, i) => `
+          <div class="pdp-thumb-card ${i === 0 ? 'active' : ''}" style="border-radius: var(--radius-sm); overflow: hidden; border: 2px solid ${i === 0 ? 'var(--color-primary)' : 'var(--color-border)'}; cursor: pointer; height: 100px;">
+            <img src="${imgSrc}" alt="View ${i + 1}" style="width: 100%; height: 100%; object-fit: cover;" />
+          </div>
+        `).join('');
+
+        thumbsContainer.addEventListener('click', (e) => {
+          const thumb = e.target.closest('.pdp-thumb-card');
+          if (!thumb) return;
+          thumbsContainer.querySelectorAll('.pdp-thumb-card').forEach(t => {
+            t.classList.remove('active');
+            t.style.borderColor = 'var(--color-border)';
+          });
+          thumb.classList.add('active');
+          thumb.style.borderColor = 'var(--color-primary)';
+          const img = thumb.querySelector('img');
+          if (img && mainImg) {
+            mainImg.style.opacity = '0.4';
+            setTimeout(() => {
+              mainImg.src = img.src;
+              mainImg.style.opacity = '1';
+            }, 150);
+          }
+        });
+      }
+
+      // Color Swatches
+      const colorsContainer = document.getElementById('pdp-colors-container');
+      const selectedColorText = document.getElementById('pdp-selected-color');
+      if (colorsContainer && product.availableColors) {
+        const colorNames = {
+          '#153c30': 'Emerald Green',
+          '#c93b3b': 'Crimson Red',
+          '#c89d38': 'Antique Gold',
+          '#7c1f43': 'Ruby Wine',
+          '#1c4a5e': 'Peacock Teal',
+          '#a9cdbd': 'Mint Pastel',
+          '#fcf9f2': 'Ivory Silk',
+          '#eaf3ee': 'Sage Frost',
+          '#5a1846': 'Royal Magenta',
+          '#801336': 'Deep Wine',
+          '#d8ac44': 'Mustard Gold',
+          '#f4c2b2': 'Peach Blossom',
+          '#0e2920': 'Midnight Forest'
+        };
+
+        colorsContainer.innerHTML = product.availableColors.map((hex, i) => {
+          const name = colorNames[hex] || 'Heritage Hue';
+          if (i === 0) selectedColor = name;
+          return `
+            <button class="color-swatch-btn ${i === 0 ? 'active' : ''}" style="background: ${hex}; width: 34px; height: 34px;" title="${name}" data-color-name="${name}"></button>
+          `;
+        }).join('');
+
+        if (selectedColorText) selectedColorText.textContent = selectedColor;
+
+        colorsContainer.addEventListener('click', (e) => {
+          const btn = e.target.closest('.color-swatch-btn');
+          if (!btn) return;
+          colorsContainer.querySelectorAll('.color-swatch-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          selectedColor = btn.dataset.colorName || 'Custom';
+          if (selectedColorText) selectedColorText.textContent = selectedColor;
+        });
+      }
+
+      // Sizes Selector
+      const sizesContainer = document.getElementById('pdp-sizes-container');
+      if (sizesContainer && product.sizes) {
+        sizesContainer.innerHTML = product.sizes.map((s, i) => `
+          <button class="btn btn-secondary btn-sm pdp-size-btn ${i === 0 ? 'active' : ''}" style="padding: 7px 16px; font-size: 0.8rem; font-weight: 700; ${i === 0 ? 'border-color: var(--color-primary); background: var(--color-mint-pale);' : ''}">${s}</button>
+        `).join('');
+
+        sizesContainer.addEventListener('click', (e) => {
+          const btn = e.target.closest('.pdp-size-btn');
+          if (!btn) return;
+          sizesContainer.querySelectorAll('.pdp-size-btn').forEach(b => {
+            b.classList.remove('active');
+            b.style.borderColor = 'var(--color-border)';
+            b.style.background = '#ffffff';
+          });
+          btn.classList.add('active');
+          btn.style.borderColor = 'var(--color-primary)';
+          btn.style.background = 'var(--color-mint-pale)';
+          selectedSize = btn.textContent.trim();
+        });
+      }
+
+      // Quantity adjustments
+      let qty = 1;
+      const qtyVal = document.getElementById('pdp-qty-val');
+      const plusBtn = document.getElementById('pdp-qty-plus');
+      const minusBtn = document.getElementById('pdp-qty-minus');
+
+      if (plusBtn && qtyVal) {
+        plusBtn.addEventListener('click', () => {
+          qty++;
+          qtyVal.textContent = qty;
+        });
+      }
+      if (minusBtn && qtyVal) {
+        minusBtn.addEventListener('click', () => {
+          if (qty > 1) qty--;
+          qtyVal.textContent = qty;
+        });
+      }
+
+      // Add to bag
+      const addCartBtn = document.getElementById('pdp-btn-add-cart');
+      if (addCartBtn) {
+        addCartBtn.addEventListener('click', () => {
+          for (let i = 0; i < qty; i++) {
+            window.Aruvi.addToCart(product.id, selectedSize, selectedColor);
+          }
+          window.Aruvi.openCartDrawer();
+        });
+      }
+
+      // Buy Now button
+      const buyNowBtn = document.getElementById('pdp-btn-buy-now');
+      if (buyNowBtn) {
+        buyNowBtn.addEventListener('click', () => {
+          for (let i = 0; i < qty; i++) {
+            window.Aruvi.addToCart(product.id, selectedSize, selectedColor);
+          }
+          window.location.href = 'checkout.html';
+        });
+      }
+
+      // Wishlist toggle
+      const wishBtn = document.getElementById('pdp-btn-wishlist');
+      if (wishBtn) {
+        const isWish = window.Aruvi.AppState.wishlist.includes(product.id);
+        if (isWish) {
+          wishBtn.classList.add('active');
+          const svg = wishBtn.querySelector('svg');
+          if (svg) svg.setAttribute('fill', 'currentColor');
+        }
+        wishBtn.addEventListener('click', function() {
+          window.Aruvi.toggleWishlist(product.id, this);
+        });
+      }
+
+      // Tab switching
+      document.querySelectorAll('.pdp-tab-btn').forEach(tabBtn => {
+        tabBtn.addEventListener('click', () => {
+          document.querySelectorAll('.pdp-tab-btn').forEach(b => {
+            b.classList.remove('active');
+            b.style.fontWeight = '600';
+            b.style.color = 'var(--color-text-muted)';
+          });
+          tabBtn.classList.add('active');
+          tabBtn.style.fontWeight = '700';
+          tabBtn.style.color = 'var(--color-primary-dark)';
+
+          const panelId = tabBtn.dataset.panel;
+          document.querySelectorAll('#product-tabs-section .tab-panel').forEach(p => p.classList.remove('active'));
+          const targetPanel = document.getElementById(panelId);
+          if (targetPanel) targetPanel.classList.add('active');
+        });
+      });
+      // Mobile sticky purchase bar sync
+      const mobPrice = document.getElementById('mobile-bar-price');
+      if (mobPrice) mobPrice.textContent = '₹' + (product.price || 4999).toLocaleString('en-IN');
+      const mobBagBtn = document.getElementById('mobile-bar-btn-bag');
+      if (mobBagBtn) {
+        mobBagBtn.onclick = function() {
+          const mainAddBtn = document.getElementById('pdp-btn-add-cart');
+          if (mainAddBtn) mainAddBtn.click();
+        };
+      }
+      const mobTryBtn = document.getElementById('mobile-bar-btn-tryon');
+      if (mobTryBtn) {
+        mobTryBtn.onclick = function() {
+          const mainTryBtn = document.getElementById('btn-open-fitting-room');
+          if (mainTryBtn) mainTryBtn.click();
+        };
+      }
+    });
+  </script>
+
+  <!-- Mobile Sticky Bottom Buy / AI Try-On Action Bar -->
+  <aside class="mobile-sticky-pdp-bar" aria-label="Mobile Quick Purchase Bar">
+    <div>
+      <div class="mobile-sticky-price" id="mobile-bar-price">₹4,999</div>
+      <div class="mobile-sticky-sub">✓ In Stock • Silk Mark</div>
+    </div>
+    <button class="mobile-sticky-btn-tryon btn-ai-tryon" id="mobile-bar-btn-tryon" title="AI Try-On">
+      <span>🪞</span>
+      <span>AI Try-On</span>
+    </button>
+    <button class="mobile-sticky-btn-bag" id="mobile-bar-btn-bag">
+      Add to Bag 🛍️
+    </button>
+  </aside>
+
+  <script src="scripts/fitting-room.js"></script>
+  <script src="scripts/customer-auth.js"></script>
+</body>
+</html>
