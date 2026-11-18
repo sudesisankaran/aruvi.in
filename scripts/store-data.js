@@ -418,10 +418,6 @@
       };
     },
 
-    loginWithGoogle: function (email) {
-      return this.loginAdmin(email);
-    },
-
     login: function (identifier) {
       return this.loginAdmin(identifier);
     },
@@ -438,7 +434,7 @@
       window.dispatchEvent(new CustomEvent('aruvi:data_updated', { detail: { key: 'aruvi_admin_logged_in', val: 'false' } }));
     },
 
-    // Customer Authentication (Firebase Google & Email/Password)
+    // Customer Authentication (Email & Password)
     getCustomerAuth: function () {
       try {
         const logged = localStorage.getItem('aruvi_customer_logged_in') === 'true';
@@ -448,31 +444,6 @@
       } catch (e) {
         return { loggedIn: false, user: null };
       }
-    },
-
-    loginCustomerWithGoogle: function (googleUserData) {
-      const user = {
-        uid: (googleUserData && googleUserData.uid) || 'goog_' + Date.now(),
-        name: (googleUserData && (googleUserData.name || googleUserData.displayName)) || 'Google Patron',
-        email: ((googleUserData && googleUserData.email) || 'shopper@gmail.com').trim().toLowerCase(),
-        photoURL: (googleUserData && googleUserData.photoURL) || '',
-        provider: 'google.com',
-        loginTime: new Date().toISOString()
-      };
-      try {
-        localStorage.setItem('aruvi_customer_logged_in', 'true');
-        localStorage.setItem('aruvi_customer_user', JSON.stringify(user));
-      } catch (e) {}
-
-      // If authorized admin email, automatically activate Admin Mode
-      if (user.email === 'aruvicollections.25@gmail.com') {
-        this.loginWithGoogle('aruvicollections.25@gmail.com');
-      }
-
-      window.dispatchEvent(new CustomEvent('aruvi:customer_auth_changed', {
-        detail: { loggedIn: true, user: user, provider: 'google' }
-      }));
-      return { success: true, user: user };
     },
 
     loginCustomerWithEmail: function (email, password) {

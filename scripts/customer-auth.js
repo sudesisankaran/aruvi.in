@@ -1,6 +1,6 @@
 /**
- * ARUVI COLLECTIONS - CUSTOMER FIREBASE AUTHENTICATION ENGINE
- * Handles Google Sign-In & Email/Password Sign-In & Registration.
+ * ARUVI COLLECTIONS - CUSTOMER AUTHENTICATION ENGINE
+ * Handles Email/Password Sign-In & Registration.
  * Powers the "My Account" modal and account.html views.
  */
 
@@ -146,7 +146,7 @@
     },
 
     /**
-     * Binds modal internal actions (tabs, forms, google button)
+     * Binds modal internal actions (tabs, forms, inputs)
      */
     bindModalEvents: function () {
       const modal = document.getElementById(this.modalId);
