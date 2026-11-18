@@ -38,17 +38,12 @@
      DOM ELEMENTS
      ========================================================================== */
   const DOM = {
-    // Auth (Strictly Google Login for aruvicollections.25@gmail.com)
+    // Auth (Strictly for aruvicollections.25@gmail.com)
     authOverlay: document.getElementById('admin-auth-overlay'),
-    btnGoogleLogin: document.getElementById('btn-google-login'),
-    googleOauthModal: document.getElementById('google-oauth-modal'),
-    googleAccAuthorized: document.getElementById('google-acc-authorized'),
-    googleAccOther: document.getElementById('google-acc-other'),
-    googleOtherEmailBox: document.getElementById('google-other-email-box'),
-    googleCustomEmailInput: document.getElementById('google-custom-email-input'),
-    btnSubmitOtherGoogle: document.getElementById('btn-submit-other-google'),
-    googleOauthError: document.getElementById('google-oauth-error'),
-    btnCancelGoogleOauth: document.getElementById('btn-cancel-google-oauth'),
+    formAdminLogin: document.getElementById('form-admin-direct-login'),
+    adminInputEmail: document.getElementById('admin-input-email'),
+    adminInputPassword: document.getElementById('admin-input-password'),
+    authStatusAlert: document.getElementById('auth-status-alert'),
     btnLogout: document.getElementById('btn-admin-logout'),
 
     // Navigation & Layout
@@ -155,18 +150,20 @@
     }
   }
 
-  function handleGoogleLogin(email) {
-    const targetEmail = (email || 'aruvicollections.25@gmail.com').trim();
-    const result = Store.loginWithGoogle(targetEmail);
+  function handleAdminLogin(email, password) {
+    const targetEmail = (email || '').trim().toLowerCase();
+    const result = Store.loginAdmin(targetEmail, password);
     if (result.success) {
-      if (DOM.googleOauthModal) DOM.googleOauthModal.classList.remove('active');
       if (DOM.authOverlay) DOM.authOverlay.classList.remove('active');
-      showToast('Google Verified: Signed in as aruvicollections.25@gmail.com 🌿', 'success');
+      showToast('Verified: Signed in as aruvicollections.25@gmail.com 🌿', 'success');
       initDashboard();
     } else {
-      if (DOM.googleOauthError) {
-        DOM.googleOauthError.textContent = result.message;
-        DOM.googleOauthError.style.display = 'block';
+      if (DOM.authStatusAlert) {
+        DOM.authStatusAlert.textContent = result.message;
+        DOM.authStatusAlert.style.display = 'block';
+        DOM.authStatusAlert.style.background = '#fce8e6';
+        DOM.authStatusAlert.style.color = '#c5221f';
+        DOM.authStatusAlert.style.border = '1px solid #fad2cf';
       }
       showToast(result.message, 'error');
     }
@@ -1384,50 +1381,13 @@
      EVENT LISTENERS & BINDING
      ========================================================================== */
   function bindEvents() {
-    // Google Auth Triggers
-    if (DOM.btnGoogleLogin) {
-      DOM.btnGoogleLogin.addEventListener('click', function () {
-        if (DOM.googleOauthError) DOM.googleOauthError.style.display = 'none';
-        if (DOM.googleOtherEmailBox) DOM.googleOtherEmailBox.style.display = 'none';
-        if (DOM.googleOauthModal) DOM.googleOauthModal.classList.add('active');
-      });
-    }
-
-    if (DOM.googleAccAuthorized) {
-      DOM.googleAccAuthorized.addEventListener('click', function () {
-        handleGoogleLogin('aruvicollections.25@gmail.com');
-      });
-    }
-
-    if (DOM.googleAccOther) {
-      DOM.googleAccOther.addEventListener('click', function () {
-        if (DOM.googleOtherEmailBox) {
-          DOM.googleOtherEmailBox.style.display = 'block';
-          if (DOM.googleCustomEmailInput) DOM.googleCustomEmailInput.focus();
-        }
-      });
-    }
-
-    if (DOM.btnSubmitOtherGoogle) {
-      DOM.btnSubmitOtherGoogle.addEventListener('click', function () {
-        const customEmail = DOM.googleCustomEmailInput ? DOM.googleCustomEmailInput.value.trim() : '';
-        if (!customEmail) return;
-        handleGoogleLogin(customEmail);
-      });
-    }
-
-    if (DOM.googleCustomEmailInput) {
-      DOM.googleCustomEmailInput.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          if (DOM.btnSubmitOtherGoogle) DOM.btnSubmitOtherGoogle.click();
-        }
-      });
-    }
-
-    if (DOM.btnCancelGoogleOauth) {
-      DOM.btnCancelGoogleOauth.addEventListener('click', function () {
-        if (DOM.googleOauthModal) DOM.googleOauthModal.classList.remove('active');
+    // Admin Direct Login Form
+    if (DOM.formAdminLogin) {
+      DOM.formAdminLogin.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const email = DOM.adminInputEmail ? DOM.adminInputEmail.value.trim() : '';
+        const password = DOM.adminInputPassword ? DOM.adminInputPassword.value : '';
+        handleAdminLogin(email, password);
       });
     }
 

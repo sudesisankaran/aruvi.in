@@ -54,21 +54,6 @@
               <!-- Error/Success Alert Box -->
               <div class="auth-alert-box" id="auth-alert-box"></div>
 
-              <!-- 1. Google Sign-In Button (Firebase Provider) -->
-              <button class="btn-google-auth" id="btn-firebase-google-login" type="button">
-                <svg class="google-logo-svg" viewBox="0 0 24 24">
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-                </svg>
-                <span>Continue with Google</span>
-              </button>
-
-              <div class="auth-divider">
-                <span>OR with email</span>
-              </div>
-
               <!-- Form 1: Sign In with Email & Password -->
               <form id="form-auth-login" style="display: block;">
                 <div class="auth-form-group">
@@ -220,10 +205,6 @@
         });
       });
 
-      // Google Sign-In Click
-      const googleBtn = document.getElementById('btn-firebase-google-login');
-      googleBtn.addEventListener('click', () => this.handleGoogleLogin());
-
       // Email Login Submit
       formLogin.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -250,94 +231,9 @@
             this.showAlert('Please enter your email address to receive password reset instructions.', 'error');
             return;
           }
-          this.showAlert(`Password reset link sent to ${email} via Firebase Auth! 📨`, 'success');
+          this.showAlert(`Password reset link sent to ${email}! 📨`, 'success');
         });
       }
-    },
-
-    /**
-     * Firebase Google Login Integration
-     */
-    handleGoogleLogin: function () {
-      const googleBtn = document.getElementById('btn-firebase-google-login');
-      if (googleBtn) {
-        googleBtn.innerHTML = '<span class="btn-spinner" style="display:inline-block;width:16px;height:16px;border:2px solid #ccc;border-top-color:#4285f4;border-radius:50%;animation:spin 0.8s linear infinite;"></span> Connecting with Google...';
-        googleBtn.disabled = true;
-      }
-
-      const self = this;
-
-      function onLoginSuccess(userObj) {
-        if (window.AruviStore && typeof window.AruviStore.loginCustomerWithGoogle === 'function') {
-          window.AruviStore.loginCustomerWithGoogle(userObj);
-        } else {
-          localStorage.setItem('aruvi_customer_logged_in', 'true');
-          localStorage.setItem('aruvi_customer_user', JSON.stringify(userObj));
-          window.dispatchEvent(new CustomEvent('aruvi:customer_auth_changed', { detail: { loggedIn: true, user: userObj } }));
-        }
-
-        // If authorized admin email, automatically activate Admin Mode
-        if (userObj.email && userObj.email.toLowerCase() === 'aruvicollections.25@gmail.com') {
-          if (window.AruviStore && typeof window.AruviStore.loginWithGoogle === 'function') {
-            window.AruviStore.loginWithGoogle('aruvicollections.25@gmail.com');
-          }
-        }
-
-        self.showAlert(`✓ Successfully signed in as ${userObj.name} (${userObj.email})!`, 'success');
-
-        setTimeout(() => {
-          self.closeModal();
-          if (window.location.pathname.endsWith('account.html')) {
-            window.location.reload();
-          } else {
-            if (window.Aruvi && window.Aruvi.showToast) {
-              window.Aruvi.showToast(`Welcome back, ${userObj.name}! 🌿`, 'success');
-            }
-          }
-        }, 600);
-      }
-
-      function promptFallback() {
-        let userEmail = prompt('Sign in with Google Account:\nEnter your Google Email (or leave as default):', 'shopper.aruvi@gmail.com');
-        if (!userEmail) userEmail = 'shopper.aruvi@gmail.com';
-        userEmail = userEmail.trim().toLowerCase();
-        const userName = userEmail.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-
-        onLoginSuccess({
-          uid: 'goog_' + Date.now(),
-          name: userName,
-          email: userEmail,
-          photoURL: '',
-          provider: 'google.com'
-        });
-      }
-
-      // Try official Firebase Auth signInWithPopup if supported by environment
-      if (typeof firebase !== 'undefined' && firebase.auth && typeof firebase.auth.GoogleAuthProvider === 'function') {
-        try {
-          const provider = new firebase.auth.GoogleAuthProvider();
-          firebase.auth().signInWithPopup(provider)
-            .then(function (result) {
-              const u = result.user;
-              onLoginSuccess({
-                uid: u.uid,
-                name: u.displayName || u.email.split('@')[0],
-                email: u.email,
-                photoURL: u.photoURL || '',
-                provider: 'google.com'
-              });
-            })
-            .catch(function (error) {
-              console.warn('Firebase popup note, using prompt fallback:', error.message);
-              promptFallback();
-            });
-          return;
-        } catch (e) {
-          console.warn('Firebase auth invocation note:', e);
-        }
-      }
-
-      promptFallback();
     },
 
     /**
@@ -541,11 +437,6 @@
           accFormReg.style.display = 'block';
           if (accAlert) accAlert.className = 'auth-alert-box';
         });
-
-        const btnAccGoogle = document.getElementById('btn-acc-page-google-login');
-        if (btnAccGoogle) {
-          btnAccGoogle.addEventListener('click', () => this.handleGoogleLogin());
-        }
 
         if (accFormLogin) {
           accFormLogin.addEventListener('submit', (e) => {

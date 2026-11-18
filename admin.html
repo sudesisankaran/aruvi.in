@@ -21,78 +21,32 @@
         <img src="assets/icons/WhatsApp Image 2026-09-21 at 7.49.20 AM (1).jpeg" alt="Aruvi Collections Logo">
       </div>
       <h2>Administrator Security Gate</h2>
-      <p style="font-size: 0.86rem; color: var(--admin-text-muted); line-height: 1.6; margin-bottom: 24px;">
-        Restricted boutique control portal. Access is strictly limited to the verified owner Google account: <br>
-        <strong style="color: var(--admin-primary-dark); font-weight: 700; word-break: break-all;">aruvicollections.25@gmail.com</strong>
+      <p style="font-size: 0.86rem; color: var(--admin-text-muted); line-height: 1.6; margin-bottom: 20px;">
+        Restricted boutique control portal. Access is strictly authorized for verified owner email:<br>
+        <strong style="color: var(--admin-primary-dark); font-weight: 700;">aruvicollections.25@gmail.com</strong>
       </p>
 
-      <!-- Google Sign In Button -->
-      <button type="button" class="btn-google-signin" id="btn-google-login">
-        <svg class="google-icon" viewBox="0 0 24 24" width="22" height="22">
-          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-        </svg>
-        <span>Sign in with Google</span>
-      </button>
+      <form id="form-admin-direct-login" style="text-align: left;">
+        <div style="margin-bottom: 14px;">
+          <label style="display: block; font-size: 0.78rem; font-weight: 700; color: #202124; margin-bottom: 6px;">Admin Email Address *</label>
+          <input type="email" id="admin-input-email" required value="aruvicollections.25@gmail.com" class="form-input" style="width: 100%; padding: 11px 14px; border: 1.5px solid var(--admin-border); border-radius: 8px; font-size: 0.9rem;" autocomplete="email" />
+        </div>
 
-      <div id="auth-status-alert" style="display: none; margin-top: 18px; padding: 12px 14px; border-radius: 8px; font-size: 0.82rem; text-align: left;"></div>
+        <div style="margin-bottom: 18px;">
+          <label style="display: block; font-size: 0.78rem; font-weight: 700; color: #202124; margin-bottom: 6px;">Password *</label>
+          <input type="password" id="admin-input-password" required placeholder="Enter your password" class="form-input" style="width: 100%; padding: 11px 14px; border: 1.5px solid var(--admin-border); border-radius: 8px; font-size: 0.9rem;" autocomplete="current-password" />
+        </div>
 
-      <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--admin-border-subtle); display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem;">
-        <span style="color: var(--admin-text-muted);">🔒 Google OAuth 2.0 Protected</span>
+        <button type="submit" class="btn-admin btn-admin-primary" style="width: 100%; padding: 12px; font-size: 0.95rem; font-weight: 700; border-radius: 8px; justify-content: center;">
+          Sign In to Admin Portal →
+        </button>
+      </form>
+
+      <div id="auth-status-alert" style="display: none; margin-top: 16px; padding: 12px 14px; border-radius: 8px; font-size: 0.82rem; text-align: left;"></div>
+
+      <div style="margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--admin-border-subtle); display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem;">
+        <span style="color: var(--admin-text-muted);">🔒 Verified Owner Access</span>
         <a href="index.html" style="color: var(--admin-primary); text-decoration: none; font-weight: 600;">← Back to Store</a>
-      </div>
-    </div>
-  </div>
-
-  <!-- Google Account Chooser Modal (Official Google Dialog Style) -->
-  <div class="google-oauth-modal" id="google-oauth-modal">
-    <div class="google-oauth-box">
-      <div class="google-oauth-header">
-        <svg viewBox="0 0 24 24" width="28" height="28">
-          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-        </svg>
-        <div style="font-family: 'Roboto', sans-serif; font-size: 1.15rem; font-weight: 500; color: #202124; margin-top: 8px;">Choose an account</div>
-        <div style="font-size: 0.85rem; color: #5f6368;">to continue to Aruvi Collections Admin Portal</div>
-      </div>
-
-      <div class="google-account-list">
-        <!-- Authorized Owner Account Item -->
-        <div class="google-account-item" id="google-acc-authorized">
-          <div class="google-avatar" style="background: #153c30; color: #ffffff;">A</div>
-          <div class="google-acc-meta">
-            <div class="google-acc-name">Aruvi Collections</div>
-            <div class="google-acc-email">aruvicollections.25@gmail.com</div>
-            <div class="google-acc-badge">✓ Authorized Administrator</div>
-          </div>
-        </div>
-
-        <!-- Another Account Option -->
-        <div class="google-account-item" id="google-acc-other">
-          <div class="google-avatar" style="background: #f1f3f4; color: #5f6368; font-size: 1.2rem;">+</div>
-          <div class="google-acc-meta">
-            <div class="google-acc-name" style="font-weight: 500;">Use another Google account</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Custom Email Prompt Input Box -->
-      <div id="google-other-email-box" style="display: none; padding: 16px 20px; border-top: 1px solid #dadce0;">
-        <label style="display: block; font-size: 0.78rem; font-weight: 600; color: #3c4043; margin-bottom: 6px;">Enter Google Email Address:</label>
-        <div style="display: flex; gap: 8px;">
-          <input type="email" id="google-custom-email-input" class="form-input" placeholder="e.g. user@gmail.com" style="flex: 1; padding: 8px 12px; font-size: 0.88rem;">
-          <button type="button" id="btn-submit-other-google" class="btn-admin btn-admin-primary btn-admin-sm">Sign In</button>
-        </div>
-      </div>
-
-      <div id="google-oauth-error" style="display: none; margin: 12px 20px; padding: 10px 14px; background: #fce8e6; border: 1px solid #fad2cf; border-radius: 8px; font-size: 0.82rem; color: #c5221f; line-height: 1.5;"></div>
-
-      <div class="google-oauth-footer">
-        <button type="button" id="btn-cancel-google-oauth" class="btn-admin btn-admin-secondary btn-admin-sm" style="background: transparent; border: none; color: #1a73e8; font-weight: 600; cursor: pointer;">Cancel</button>
       </div>
     </div>
   </div>
