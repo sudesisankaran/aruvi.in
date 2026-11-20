@@ -18,6 +18,9 @@ export default function AdminPage() {
     addProduct, 
     updateProduct, 
     deleteProduct, 
+    banners,
+    addBanner,
+    deleteBanner,
     updateOrderStatus,
     addToast 
   } = useStore();
@@ -49,25 +52,7 @@ export default function AdminPage() {
   const [isPurgingRetention, setIsPurgingRetention] = useState(false);
   const [retentionMessage, setRetentionMessage] = useState(null);
 
-  // Promotional Banners state
-  const [banners, setBanners] = useState([
-    {
-      id: 1,
-      title: 'Festive Royal Heritage Drop',
-      subtitle: 'Handloom Kanchipurams & Chanderi Silks',
-      tag: 'FESTIVE SALE',
-      image_url: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1600&q=85',
-      storage_path: 'banners/banner_festive_heritage.webp'
-    },
-    {
-      id: 2,
-      title: 'Next-Gen AI Virtual Fitting Room',
-      subtitle: 'Try On Any Boutique Ensemble Realtime',
-      tag: 'AI POWERED',
-      image_url: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=1600&q=85',
-      storage_path: 'banners/banner_ai_fitting.webp'
-    }
-  ]);
+  // Promotional Banners state (Synced with useStore)
   const [newBannerTitle, setNewBannerTitle] = useState('');
   const [newBannerSubtitle, setNewBannerSubtitle] = useState('');
   const [newBannerTag, setNewBannerTag] = useState('NEW DROP');
@@ -225,10 +210,9 @@ export default function AdminPage() {
       image_url: result.url,
       storage_path: result.path,
     };
-    setBanners([newBanner, ...banners]);
+    addBanner(newBanner);
     setNewBannerTitle('');
     setNewBannerSubtitle('');
-    addToast('Promotional banner uploaded to Firebase Cloud Storage!', 'success');
   };
 
   // Security Gate: Not an Admin
@@ -583,7 +567,20 @@ export default function AdminPage() {
               {banners.map((b) => (
                 <div key={b.id} className="relative rounded-2xl overflow-hidden shadow-md group">
                   <img src={b.image_url} alt={b.title} className="w-full h-48 object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-primary-dark/90 via-primary-dark/40 to-transparent p-4 flex flex-col justify-end text-white">
+                  <button 
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (window.confirm(`Delete banner "${b.title}"?`)) {
+                        deleteBanner(b.id);
+                      }
+                    }}
+                    className="absolute top-3 right-3 bg-red-600 hover:bg-red-700 text-white p-1.5 rounded-full shadow-lg text-xs opacity-80 group-hover:opacity-100 transition cursor-pointer"
+                    title="Delete Banner"
+                  >
+                    🗑️
+                  </button>
+                  <div className="absolute inset-0 bg-gradient-to-t from-primary-dark/90 via-primary-dark/40 to-transparent p-4 flex flex-col justify-end text-white pointer-events-none">
                     <span className="text-[10px] font-extrabold text-gold uppercase tracking-wider">{b.tag}</span>
                     <h4 className="font-serif text-lg font-bold">{b.title}</h4>
                     <p className="text-xs text-white/80">{b.subtitle}</p>

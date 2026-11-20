@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
+import ProductCard from '../components/ProductCard';
 
-const FEATURED_LOOKS = [
+const DEFAULT_FEATURED_LOOKS = [
   {
     id: 'look-1',
     tag: 'BRIDAL HERITAGE',
@@ -51,18 +52,55 @@ const FEATURED_LOOKS = [
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { categories } = useStore();
+  const { products, categories, banners } = useStore();
   const [activeLookIndex, setActiveLookIndex] = useState(0);
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('all');
+
+  // Dynamic Featured Looks: Automatically reflects uploaded products from Admin Dashboard
+  const featuredLooks = useMemo(() => {
+    if (products && products.length > 0) {
+      return products.slice(0, 5).map((p, idx) => {
+        const currPrice = Number(p.price) || 0;
+        const origPrice = Number(p.originalPrice) || Math.round(currPrice * 1.25);
+        return {
+          id: p.id,
+          tag: (p.badge || p.category || 'FEATURED').toUpperCase().replace('-', ' '),
+          title: p.title,
+          subtitle: p.fabric ? `${p.fabric} • Handcrafted Luxury` : (p.description || 'Artisanal Handloom Silk'),
+          price: `₹${currPrice.toLocaleString('en-IN')}`,
+          origPrice: origPrice > currPrice ? `₹${origPrice.toLocaleString('en-IN')}` : '',
+          category: p.category,
+          image: p.image || 'assets/images/kanjivaram_green.jpg',
+          badge: p.badge || `👑 Featured ${idx + 1}`,
+          productId: p.id
+        };
+      });
+    }
+    return DEFAULT_FEATURED_LOOKS;
+  }, [products]);
+
+  // Safe index in case products count changes
+  const safeIndex = activeLookIndex < featuredLooks.length ? activeLookIndex : 0;
+  const currentLook = featuredLooks[safeIndex] || featuredLooks[0];
 
   // Auto-rotate featured looks every 5 seconds
   useEffect(() => {
+    if (featuredLooks.length <= 1) return;
     const timer = setInterval(() => {
-      setActiveLookIndex((prev) => (prev + 1) % FEATURED_LOOKS.length);
+      setActiveLookIndex((prev) => (prev + 1) % featuredLooks.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [featuredLooks.length]);
 
-  const currentLook = FEATURED_LOOKS[activeLookIndex];
+  // Filtered products for homepage grid
+  const displayedProducts = useMemo(() => {
+    if (selectedCategoryFilter === 'all') {
+      return products.slice(0, 8);
+    }
+    return products
+      .filter((p) => (p.category || '').toLowerCase() === selectedCategoryFilter.toLowerCase())
+      .slice(0, 8);
+  }, [products, selectedCategoryFilter]);
 
   return (
     <div className="home-page-view">
@@ -192,23 +230,25 @@ export default function HomePage() {
 
               {/* Discount Tag */}
               <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 3, background: 'rgba(201,59,59,0.9)', color: '#fff', padding: '6px 12px', borderRadius: '99px', fontSize: '0.75rem', fontWeight: 700 }}>
-                FESTIVE DROP
+                LATEST DROP
               </div>
 
               {/* Garment Image */}
               <div style={{ position: 'relative', height: '440px', overflow: 'hidden', background: '#0e2920' }}>
-                <img 
-                  key={currentLook.id}
-                  src={currentLook.image} 
-                  alt={currentLook.title} 
-                  style={{ 
-                    width: '100%', 
-                    height: '100%', 
-                    objectFit: 'cover',
-                    animation: 'fadeIn 0.6s ease'
-                  }} 
-                  onError={(e) => { e.currentTarget.src = 'assets/images/kanjivaram_green.jpg'; }}
-                />
+                <Link to={currentLook.productId ? `/product/${currentLook.productId}` : `/shop?category=${currentLook.category}`}>
+                  <img 
+                    key={currentLook.id}
+                    src={currentLook.image} 
+                    alt={currentLook.title} 
+                    style={{ 
+                      width: '100%', 
+                      height: '100%', 
+                      objectFit: 'cover',
+                      animation: 'fadeIn 0.6s ease'
+                    }} 
+                    onError={(e) => { e.currentTarget.src = 'assets/images/kanjivaram_green.jpg'; }}
+                  />
+                </Link>
               </div>
 
               {/* Card Footer Banner */}
@@ -218,7 +258,7 @@ export default function HomePage() {
                     {currentLook.tag}
                   </span>
                   <span style={{ fontSize: '0.8rem', color: '#e0d8cc' }}>
-                    Look {activeLookIndex + 1} of {FEATURED_LOOKS.length}
+                    Look {safeIndex + 1} of {featuredLooks.length}
                   </span>
                 </div>
 
@@ -234,13 +274,15 @@ export default function HomePage() {
                     <span style={{ fontSize: '1.3rem', fontWeight: 'bold', color: 'var(--color-gold)', fontFamily: 'var(--font-serif)' }}>
                       {currentLook.price}
                     </span>
-                    <span style={{ fontSize: '0.85rem', textDecoration: 'line-through', color: 'rgba(255,255,255,0.5)' }}>
-                      {currentLook.origPrice}
-                    </span>
+                    {currentLook.origPrice && (
+                      <span style={{ fontSize: '0.85rem', textDecoration: 'line-through', color: 'rgba(255,255,255,0.5)' }}>
+                        {currentLook.origPrice}
+                      </span>
+                    )}
                   </div>
 
                   <Link 
-                    to={`/shop?category=${currentLook.category}`} 
+                    to={currentLook.productId ? `/product/${currentLook.productId}` : `/shop?category=${currentLook.category}`} 
                     className="hover-gold-text"
                     style={{ 
                       color: '#ffffff', 
@@ -265,8 +307,8 @@ export default function HomePage() {
 
             {/* Interactive Look Switcher Pills */}
             <div style={{ display: 'flex', gap: '8px', marginTop: '18px', flexWrap: 'wrap', justifyContent: 'center' }}>
-              {FEATURED_LOOKS.map((look, idx) => {
-                const isActive = activeLookIndex === idx;
+              {featuredLooks.map((look, idx) => {
+                const isActive = safeIndex === idx;
                 return (
                   <button
                     key={look.id}
@@ -295,6 +337,52 @@ export default function HomePage() {
 
         </div>
       </section>
+
+      {/* Promotional Banners Showcase (Uploaded from Admin) */}
+      {banners && banners.length > 0 && (
+        <section className="admin-banners-showcase" style={{ padding: '36px 0', background: '#faf8f5', borderBottom: '1px solid rgba(200,157,56,0.15)' }}>
+          <div className="container">
+            <div style={{ display: 'grid', gridTemplateColumns: banners.length === 1 ? '1fr' : 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
+              {banners.map((b) => (
+                <div 
+                  key={b.id} 
+                  style={{ 
+                    position: 'relative', 
+                    borderRadius: '20px', 
+                    overflow: 'hidden', 
+                    minHeight: '230px', 
+                    boxShadow: '0 12px 30px rgba(14,41,32,0.08)',
+                    border: '1.5px solid rgba(200,157,56,0.3)',
+                    display: 'flex',
+                    alignItems: 'flex-end'
+                  }}
+                >
+                  <img 
+                    src={b.image_url} 
+                    alt={b.title} 
+                    style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                    onError={(e) => { e.currentTarget.src = 'assets/images/festive_promo.jpg'; }}
+                  />
+                  <div style={{ position: 'relative', zIndex: 2, padding: '26px', background: 'linear-gradient(to top, rgba(14,41,32,0.92) 0%, rgba(14,41,32,0.4) 65%, transparent 100%)', width: '100%', color: '#fff' }}>
+                    <span style={{ background: 'var(--color-gold)', color: '#0e2920', fontSize: '0.72rem', fontWeight: 800, padding: '3px 10px', borderRadius: '99px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                      {b.tag || 'EXCLUSIVE DROP'}
+                    </span>
+                    <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.55rem', margin: '8px 0 4px', color: '#fff' }}>
+                      {b.title}
+                    </h3>
+                    <p style={{ fontSize: '0.86rem', color: 'rgba(255,255,255,0.85)', margin: '0 0 14px' }}>
+                      {b.subtitle}
+                    </p>
+                    <Link to="/shop" className="btn btn-sm btn-primary hover-shimmer" style={{ padding: '8px 18px', fontSize: '0.82rem' }}>
+                      Explore Collection →
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* 9 Boutique Categories Auto-Scroll Showcase */}
       <section 
@@ -375,6 +463,91 @@ export default function HomePage() {
               </Link>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Dynamic Products Grid: Latest Drops uploaded by Admin */}
+      <section className="featured-products-section" style={{ padding: '64px 0 76px', background: '#fdfbf7', borderBottom: '1px solid rgba(200,157,56,0.15)' }}>
+        <div className="container">
+          
+          {/* Section Header */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
+            <div>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(200,157,56,0.12)', border: '1px solid rgba(200,157,56,0.4)', padding: '4px 14px', borderRadius: '99px', marginBottom: '8px' }}>
+                <span style={{ color: 'var(--color-gold)', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>
+                  ✨ Fresh Boutique Creations
+                </span>
+              </div>
+              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.3rem', color: '#0e2920', margin: '4px 0 6px' }}>
+                Latest Arrivals In Loom & Store
+              </h2>
+              <p style={{ color: '#667770', fontSize: '0.95rem', margin: 0, maxWidth: '580px' }}>
+                Handcrafted Salwars, royal Shararas, rich Kanchipurams, and contemporary silhouettes curated live for you.
+              </p>
+            </div>
+
+            <Link 
+              to="/shop" 
+              className="btn btn-secondary hover-shimmer"
+              style={{ padding: '10px 22px', fontSize: '0.9rem', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#fff', border: '1.5px solid rgba(200,157,56,0.5)' }}
+            >
+              <span>View All Collection ({products.length})</span>
+              <span>→</span>
+            </Link>
+          </div>
+
+          {/* Quick Category Filter Pills */}
+          <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '14px', marginBottom: '24px' }}>
+            {['all', 'salwar', 'sharara', 'ethnic-wear', 'maxis', 'co-ordsets', 'casual-tops', 'western-wear', 'kids-wear'].map((catKey) => {
+              const isSelected = selectedCategoryFilter === catKey;
+              const catObj = categories.find(c => c.id === catKey);
+              const label = catKey === 'all' ? 'All Ensembles' : (catObj ? catObj.name : catKey);
+              return (
+                <button
+                  key={catKey}
+                  type="button"
+                  onClick={() => setSelectedCategoryFilter(catKey)}
+                  style={{
+                    padding: '8px 18px',
+                    borderRadius: '99px',
+                    fontSize: '0.84rem',
+                    fontWeight: isSelected ? 700 : 500,
+                    border: isSelected ? '1.5px solid var(--color-primary)' : '1px solid #d8cfc4',
+                    background: isSelected ? 'var(--color-primary)' : '#ffffff',
+                    color: isSelected ? '#ffffff' : '#0e2920',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    transition: 'all 0.2s ease',
+                    boxShadow: isSelected ? '0 4px 12px rgba(14,41,32,0.12)' : 'none'
+                  }}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Products Grid */}
+          <div className="products-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))', gap: '28px' }}>
+            {displayedProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+
+          {displayedProducts.length === 0 && (
+            <div style={{ textAlign: 'center', padding: '50px 20px', background: '#fff', borderRadius: '16px', border: '1px dashed #d8cfc4' }}>
+              <p style={{ color: '#667770', fontSize: '1rem' }}>No outfits found in this category yet.</p>
+              <button 
+                type="button" 
+                onClick={() => setSelectedCategoryFilter('all')} 
+                className="btn btn-sm btn-primary"
+                style={{ marginTop: '12px' }}
+              >
+                View All Ensembles
+              </button>
+            </div>
+          )}
+
         </div>
       </section>
 

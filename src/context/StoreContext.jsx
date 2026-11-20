@@ -153,6 +153,25 @@ export const INITIAL_PRODUCTS = [
   }
 ];
 
+export const DEFAULT_BANNERS = [
+  {
+    id: 1,
+    title: 'Festive Royal Heritage Drop',
+    subtitle: 'Handloom Kanchipurams & Chanderi Silks',
+    tag: 'FESTIVE SALE',
+    image_url: 'assets/images/festive_promo.jpg',
+    storage_path: 'banners/banner_festive_heritage.webp'
+  },
+  {
+    id: 2,
+    title: 'Next-Gen AI Virtual Fitting Room',
+    subtitle: 'Try On Any Boutique Ensemble Realtime',
+    tag: 'AI POWERED',
+    image_url: 'assets/images/hero_saree_model.jpg',
+    storage_path: 'banners/banner_ai_fitting.webp'
+  }
+];
+
 export const DEFAULT_COUPONS = [
   { code: 'ARUVI20', type: 'percentage', value: 20, minOrder: 999 },
   { code: 'FESTIVE10', type: 'percentage', value: 10, minOrder: 499 },
@@ -195,6 +214,16 @@ export function StoreProvider({ children }) {
       return saved ? JSON.parse(saved) : DEFAULT_CATEGORIES;
     } catch (e) {
       return DEFAULT_CATEGORIES;
+    }
+  });
+
+  // Promotional Banners (Synced with Admin Dashboard)
+  const [banners, setBanners] = useState(() => {
+    try {
+      const saved = localStorage.getItem('aruvi_banners');
+      return saved ? JSON.parse(saved) : DEFAULT_BANNERS;
+    } catch (e) {
+      return DEFAULT_BANNERS;
     }
   });
 
@@ -274,6 +303,12 @@ export function StoreProvider({ children }) {
       localStorage.setItem('aruvi_categories', JSON.stringify(categories));
     } catch (e) {}
   }, [categories]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('aruvi_banners', JSON.stringify(banners));
+    } catch (e) {}
+  }, [banners]);
 
   useEffect(() => {
     try {
@@ -538,6 +573,22 @@ export function StoreProvider({ children }) {
     addToast('Product removed from catalog.', 'info');
   };
 
+  // Banner CRUD (Admin)
+  const addBanner = (newBanner) => {
+    const bannerObj = {
+      ...newBanner,
+      id: newBanner.id || Date.now()
+    };
+    setBanners((prev) => [bannerObj, ...prev]);
+    addToast('Promotional banner added to Home Page!', 'success');
+    return bannerObj;
+  };
+
+  const deleteBanner = (bannerId) => {
+    setBanners((prev) => prev.filter((b) => b.id !== bannerId));
+    addToast('Banner removed from website.', 'info');
+  };
+
   // True if logged in as aruvicollections.25@gmail.com
   const isAdmin = adminLoggedIn || user?.email?.toLowerCase() === 'aruvicollections.25@gmail.com';
 
@@ -553,6 +604,11 @@ export function StoreProvider({ children }) {
     addProduct,
     updateProduct,
     deleteProduct,
+
+    // Promotional Banners
+    banners,
+    addBanner,
+    deleteBanner,
 
     // Search
     searchQuery,
