@@ -1,15 +1,16 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.permissions import AllowAny
 from .models import WebsiteSettings
 from .serializers import WebsiteSettingsSerializer
+from apps.accounts.permissions import IsStrictAdminUser
 
 class WebsiteSettingsView(APIView):
     def get_permissions(self):
         if self.request.method == 'GET':
             return [AllowAny()]
-        return [AllowAny()] # Or [IsAdminUser()]
+        return [IsStrictAdminUser()]
 
     def get(self, request):
         settings = WebsiteSettings.get_settings()

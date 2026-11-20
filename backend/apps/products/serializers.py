@@ -17,11 +17,19 @@ class CategorySerializer(serializers.ModelSerializer):
         return obj.products.count()
 
 class ProductSerializer(serializers.ModelSerializer):
+    category = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Category.objects.all(),
+        required=False
+    )
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.all(),
+        source='category',
+        write_only=True,
+        required=False
+    )
     category_slug = serializers.CharField(source='category.slug', read_only=True)
     category_name = serializers.CharField(source='category.name', read_only=True)
-    category_id = serializers.PrimaryKeyRelatedField(
-        queryset=Category.objects.all(), source='category', write_only=True
-    )
     images = ProductImageSerializer(many=True, required=False)
 
     class Meta:
@@ -32,10 +40,12 @@ class ProductSerializer(serializers.ModelSerializer):
             'status', 'is_featured', 'image', 'rating', 'reviews_count', 'images',
             'created_at', 'updated_at'
         ]
-        read_only_fields = ['category']
 
     def create(self, validated_data):
         images_data = validated_data.pop('images', [])
+        # If category wasn't provided, default to first category
+        if 'category' not in validated_data:
+            validated_data['category'] = Category.objects.first()
         product = Product.objects.create(**validated_data)
         for img_data in images_data:
             ProductImage.objects.create(product=product, **img_data)

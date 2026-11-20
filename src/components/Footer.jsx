@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 
 export default function Footer() {
-  const { addToast } = useStore();
+  const { addToast, isAdmin } = useStore();
   const [email, setEmail] = useState('');
 
   const handleSubscribe = (e) => {
@@ -61,7 +61,9 @@ export default function Footer() {
               <li><Link to="/wishlist" className="footer-link">Saved Wishlist</Link></li>
               <li><Link to="/cart" className="footer-link">Shopping Bag</Link></li>
               <li><Link to="/account" className="footer-link">My Account</Link></li>
-              <li><Link to="/admin" className="footer-link">Owner Admin Dashboard</Link></li>
+              {isAdmin && (
+                <li><Link to="/admin" className="footer-link">Owner Admin Dashboard</Link></li>
+              )}
             </ul>
           </div>
 

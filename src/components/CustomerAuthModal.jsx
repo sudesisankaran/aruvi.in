@@ -28,17 +28,16 @@ export default function CustomerAuthModal({ isOpen = true, onClose }) {
     try {
       const res = await loginWithGoogle();
       if (res && res.email) {
-        addToast(`Welcome back, ${res.name || res.email}!`, 'success');
-        if (res.isAdmin) {
-          addToast('👑 Owner Admin privileges active!', 'success');
-        }
+        addToast(`Welcome, ${res.name || res.email}!`, 'success');
         onClose();
+        if (res.redirectTo) {
+          navigate(res.redirectTo);
+        }
       }
     } catch (err) {
       console.warn('Google Auth Error:', err);
-      // Helpful fallback for unauthorized domain or popup block
       if (err.code === 'auth/unauthorized-domain') {
-        setErrorMsg('Domain not authorized in Firebase Console. Please whitelist your hostname in Firebase Authentication Settings.');
+        setErrorMsg('Domain not authorized in Firebase Console. Please sign in using email.');
       } else {
         setErrorMsg(err.message || 'Failed to authenticate with Google. You can sign in using email.');
       }
@@ -47,7 +46,7 @@ export default function CustomerAuthModal({ isOpen = true, onClose }) {
     }
   };
 
-  const handleEmailLogin = (e) => {
+  const handleEmailLogin = async (e) => {
     e.preventDefault();
     setErrorMsg('');
     if (!loginEmail || !loginPassword) {
@@ -56,18 +55,20 @@ export default function CustomerAuthModal({ isOpen = true, onClose }) {
     }
 
     try {
-      const loggedUser = loginWithEmail(loginEmail, loginPassword);
-      addToast(`Signed in as ${loggedUser.name || loggedUser.email}`, 'success');
-      if (loggedUser.isAdmin) {
-        addToast('👑 Welcome Admin (aruvicollections.25@gmail.com)!', 'success');
-      }
+      setLoading(true);
+      const res = await loginWithEmail(loginEmail, loginPassword);
       onClose();
+      if (res && res.redirectTo) {
+        navigate(res.redirectTo);
+      }
     } catch (err) {
       setErrorMsg(err.message || 'Login failed');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleEmailRegister = (e) => {
+  const handleEmailRegister = async (e) => {
     e.preventDefault();
     setErrorMsg('');
     if (!regEmail || !regPassword) {
@@ -76,14 +77,16 @@ export default function CustomerAuthModal({ isOpen = true, onClose }) {
     }
 
     try {
-      const newUser = registerWithEmail(regEmail, regPassword, regName, regPhone);
-      addToast(`Account created for ${newUser.name || newUser.email}!`, 'success');
-      if (newUser.isAdmin) {
-        addToast('👑 Welcome Admin!', 'success');
-      }
+      setLoading(true);
+      const res = await registerWithEmail(regEmail, regPassword, regName, regPhone);
       onClose();
+      if (res && res.redirectTo) {
+        navigate(res.redirectTo);
+      }
     } catch (err) {
       setErrorMsg(err.message || 'Registration failed');
+    } finally {
+      setLoading(false);
     }
   };
 

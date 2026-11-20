@@ -4,6 +4,7 @@ import { StoreProvider } from './context/StoreContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Toast from './components/Toast';
+import AdminRoute from './components/AdminRoute';
 
 // Pages
 import HomePage from './pages/HomePage';
@@ -50,7 +51,10 @@ export default function App() {
               <Route path="/wishlist" element={<WishlistPage />} />
               <Route path="/fitting-room" element={<VirtualFittingRoomPage />} />
               <Route path="/account" element={<AccountPage />} />
-              <Route path="/admin" element={<AdminPage />} />
+              <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
+              <Route path="/admin/dashboard" element={<AdminRoute><AdminPage initialTab="dashboard" /></AdminRoute>} />
+              <Route path="/admin/products" element={<AdminRoute><AdminPage initialTab="products" /></AdminRoute>} />
+              <Route path="/admin/orders" element={<AdminRoute><AdminPage initialTab="orders" /></AdminRoute>} />
               <Route path="*" element={<HomePage />} />
             </Routes>
           </main>

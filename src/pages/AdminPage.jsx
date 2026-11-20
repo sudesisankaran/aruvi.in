@@ -44,7 +44,7 @@ import {
   Send
 } from 'lucide-react';
 
-export default function AdminPage() {
+export default function AdminPage({ initialTab = 'dashboard' }) {
   const { 
     user, 
     isAdmin, 
@@ -76,7 +76,7 @@ export default function AdminPage() {
   const navigate = useNavigate();
 
   // Navigation & UI State
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   // Auth State
@@ -159,15 +159,18 @@ export default function AdminPage() {
   }, [orders, products, customers]);
 
   // Auth Handlers
-  const handleEmailLogin = (e) => {
+  const handleEmailLogin = async (e) => {
     e.preventDefault();
     setAuthError('');
     try {
-      const loggedUser = loginWithEmail(emailInput, passwordInput);
-      if (loggedUser && loggedUser.isAdmin) {
+      const res = await loginWithEmail(emailInput, passwordInput);
+      if (res && res.user && res.user.isAdmin) {
         addToast('👑 Welcome Owner Admin! Dashboard unlocked.', 'success');
+        setActiveTab('dashboard');
+        navigate('/admin/dashboard');
       } else {
         setAuthError('Access denied. Administrator privileges require aruvicollections.25@gmail.com.');
+        navigate('/');
       }
     } catch (err) {
       setAuthError(err.message || 'Login failed.');

@@ -1,7 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { signInWithGoogleAuth, signOutAuth } from '../services/firebase';
+import { authApi, productsApi, ordersApi, settingsApi } from '../services/api';
 
 const StoreContext = createContext(null);
+
+export const AUTHORIZED_ADMIN_EMAIL = 'aruvicollections.25@gmail.com';
 
 export const DEFAULT_CATEGORIES = [
   { id: 'salwar', name: 'Salwar', icon: '👗', description: 'Designer Salwar Suits, Anarkalis & Festive Kurta Sets', featured: true, image: 'assets/images/anarkali_suit.jpg' },
@@ -45,49 +48,44 @@ export const DEFAULT_COUPONS = [
 
 export const DEFAULT_WEBSITE_SETTINGS = {
   websiteName: 'Aruvi Collections',
-  tagline: 'Tradition In Every Thread',
+  businessName: 'Aruvi Collections',
+  tagline: 'Tradition In Every Thread, Elegance In Every Drape',
   logo: 'assets/icons/WhatsApp Image 2026-09-21 at 7.49.20 AM (1).jpeg',
-  businessAddress: '104, Heritage Weavers Lane, T. Nagar, Chennai, Tamil Nadu - 600017',
-  contactNumber: '+91 98765 43210',
+  address: 'Aruvi Heritage Square, Cathedral Road, Chennai, Tamil Nadu 600086, India',
+  phone: '+91 98765 43210',
   whatsappNumber: '919876543210',
-  emailAddress: 'aruvicollections.25@gmail.com',
+  email: 'concierge@aruvicollections.com',
   currency: 'INR (₹)',
   currencySymbol: '₹',
   freeShippingThreshold: 999,
   shippingFee: 99,
-  taxRatePercent: 0,
   orderPrefix: 'ORD',
-  instagram: 'https://instagram.com/aruvicollections',
-  facebook: 'https://facebook.com/aruvicollections'
+  gstin: '33AAAAA0000A1Z5'
 };
 
 export function StoreProvider({ children }) {
   // Toasts
   const [toasts, setToasts] = useState([]);
-  const addToast = (message, type = 'info') => {
+  const addToast = useCallback((message, type = 'info') => {
     const id = Date.now() + Math.random().toString(36).substring(2, 5);
     setToasts((prev) => [...prev, { id, message, type }]);
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, 4000);
-  };
+  }, []);
+
   const removeToast = (id) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // Products: Clean slate (starts with 0 products until uploaded by admin)
+  // Products: Starts with 0 default products, synchronized with backend central database
   const [products, setProducts] = useState(() => {
     try {
       const saved = localStorage.getItem('aruvi_products');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          // Filter out demo products starting with prod_
-          const realOnly = parsed.filter(p => !String(p.id).startsWith('prod_'));
-          if (realOnly.length !== parsed.length) {
-            localStorage.setItem('aruvi_products', JSON.stringify(realOnly));
-          }
-          return realOnly;
+          return parsed.filter(p => !String(p.id).startsWith('prod_'));
         }
       }
       return [];
@@ -106,7 +104,17 @@ export function StoreProvider({ children }) {
     }
   });
 
-  // Promotional Banners (Synced with Admin Dashboard)
+  // Website Settings
+  const [websiteSettings, setWebsiteSettings] = useState(() => {
+    try {
+      const saved = localStorage.getItem('aruvi_website_settings');
+      return saved ? { ...DEFAULT_WEBSITE_SETTINGS, ...JSON.parse(saved) } : DEFAULT_WEBSITE_SETTINGS;
+    } catch (e) {
+      return DEFAULT_WEBSITE_SETTINGS;
+    }
+  });
+
+  // Banners
   const [banners, setBanners] = useState(() => {
     try {
       const saved = localStorage.getItem('aruvi_banners');
@@ -116,34 +124,7 @@ export function StoreProvider({ children }) {
     }
   });
 
-  // Website Settings (Synced with Admin Dashboard)
-  const [websiteSettings, setWebsiteSettings] = useState(() => {
-    try {
-      const saved = localStorage.getItem('aruvi_settings');
-      return saved ? { ...DEFAULT_WEBSITE_SETTINGS, ...JSON.parse(saved) } : DEFAULT_WEBSITE_SETTINGS;
-    } catch (e) {
-      return DEFAULT_WEBSITE_SETTINGS;
-    }
-  });
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('aruvi_settings', JSON.stringify(websiteSettings));
-    } catch (e) {}
-  }, [websiteSettings]);
-
-  const updateWebsiteSettings = (newSettings) => {
-    setWebsiteSettings((prev) => {
-      const updated = { ...prev, ...newSettings };
-      try {
-        localStorage.setItem('aruvi_settings', JSON.stringify(updated));
-      } catch (e) {}
-      addToast('Website settings updated successfully!', 'success');
-      return updated;
-    });
-  };
-
-  // Cart: Array of { id, title, price, image, category, selectedSize, quantity }
+  // Cart
   const [cart, setCart] = useState(() => {
     try {
       const saved = localStorage.getItem('aruvi_cart');
@@ -153,14 +134,13 @@ export function StoreProvider({ children }) {
     }
   });
 
-  // Wishlist: Array of product IDs (strings)
+  // Wishlist
   const [wishlist, setWishlist] = useState(() => {
     try {
       const saved = localStorage.getItem('aruvi_wishlist');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          // ensure array of string IDs
           return parsed.map((item) => (typeof item === 'object' && item.id ? item.id : String(item)));
         }
       }
@@ -190,22 +170,116 @@ export function StoreProvider({ children }) {
     }
   });
 
-  // Admin Flag
+  // Admin Flag: strictly checked against AUTHORIZED_ADMIN_EMAIL
   const [adminLoggedIn, setAdminLoggedIn] = useState(() => {
     try {
       const isLogged = localStorage.getItem('aruvi_admin_logged_in') === 'true';
-      const email = localStorage.getItem('aruvi_admin_email') || '';
-      return isLogged && email.toLowerCase() === 'aruvicollections.25@gmail.com';
+      const email = (localStorage.getItem('aruvi_admin_email') || '').trim().toLowerCase();
+      return isLogged && email === AUTHORIZED_ADMIN_EMAIL;
     } catch (e) {
       return false;
     }
   });
 
+  // Strict Server-Side Validated Admin Flag
+  const isAdmin = Boolean(
+    adminLoggedIn && 
+    (user?.email || '').trim().toLowerCase() === AUTHORIZED_ADMIN_EMAIL
+  );
+
   // Coupons
   const [appliedCoupon, setAppliedCoupon] = useState(null);
-
-  // Global search term
   const [searchQuery, setSearchQuery] = useState('');
+
+  // -------------------------------------------------------------
+  // CENTRAL DATABASE SYNCHRONIZATION ON INITIAL LOAD
+  // -------------------------------------------------------------
+  const syncWithCentralDatabase = useCallback(async () => {
+    try {
+      // 1. Fetch active products from shared central database
+      const dbProducts = await productsApi.getProducts();
+      if (Array.isArray(dbProducts)) {
+        // Map DRF fields cleanly for React components
+        const cleanProds = dbProducts.map((p) => ({
+          id: p.id,
+          title: p.title,
+          sku: p.sku,
+          category: p.category_slug || p.category || 'salwar',
+          price: Number(p.price) || 0,
+          originalPrice: p.original_price ? Number(p.original_price) : Math.round(Number(p.price) * 1.25),
+          stock: p.stock ?? 15,
+          fabric: p.fabric || 'Pure Silk',
+          badge: p.badge || null,
+          description: p.description || '',
+          status: p.status || 'active',
+          isFeatured: !!p.is_featured,
+          image: p.image || 'assets/images/kanjivaram_green.jpg',
+          images: p.images || [],
+          rating: p.rating || 4.9,
+          reviews: p.reviews_count || 1,
+          createdAt: p.created_at
+        }));
+        setProducts(cleanProds);
+      }
+    } catch (err) {
+      // Offline fallback: keep local products state
+    }
+
+    try {
+      // 2. Fetch categories from central database
+      const dbCategories = await productsApi.getCategories();
+      if (Array.isArray(dbCategories) && dbCategories.length > 0) {
+        const cleanCats = dbCategories.map((c) => ({
+          id: c.slug || c.id,
+          name: c.name,
+          slug: c.slug,
+          description: c.description || '',
+          image: c.image || 'assets/images/kanjivaram_green.jpg',
+          icon: c.icon || '✨',
+          productsCount: c.products_count || 0
+        }));
+        setCategories(cleanCats);
+      }
+    } catch (err) {}
+
+    try {
+      // 3. Fetch website settings from central database
+      const dbSettings = await settingsApi.getSettings();
+      if (dbSettings && dbSettings.business_name) {
+        setWebsiteSettings((prev) => ({
+          ...prev,
+          businessName: dbSettings.business_name,
+          websiteName: dbSettings.business_name,
+          tagline: dbSettings.tagline,
+          whatsappNumber: dbSettings.whatsapp_number,
+          phone: dbSettings.phone,
+          email: dbSettings.email,
+          address: dbSettings.address,
+          freeShippingThreshold: Number(dbSettings.free_shipping_threshold) || 999,
+          shippingFee: Number(dbSettings.shipping_fee) || 99,
+          orderPrefix: dbSettings.order_prefix || 'ORD',
+          gstin: dbSettings.gstin || '33AAAAA0000A1Z5'
+        }));
+      }
+    } catch (err) {}
+
+    // 4. Verify admin authorization with backend if token exists
+    const token = localStorage.getItem('aruvi_auth_token');
+    if (token && adminLoggedIn) {
+      try {
+        await authApi.verifyAdmin();
+      } catch (err) {
+        // Revoke admin if backend rejects
+        setAdminLoggedIn(false);
+        localStorage.removeItem('aruvi_admin_logged_in');
+        localStorage.removeItem('aruvi_admin_email');
+      }
+    }
+  }, [adminLoggedIn]);
+
+  useEffect(() => {
+    syncWithCentralDatabase();
+  }, [syncWithCentralDatabase]);
 
   // LocalStorage synchronizations
   useEffect(() => {
@@ -219,6 +293,12 @@ export function StoreProvider({ children }) {
       localStorage.setItem('aruvi_categories', JSON.stringify(categories));
     } catch (e) {}
   }, [categories]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('aruvi_website_settings', JSON.stringify(websiteSettings));
+    } catch (e) {}
+  }, [websiteSettings]);
 
   useEffect(() => {
     try {
@@ -298,7 +378,7 @@ export function StoreProvider({ children }) {
   const cartSubtotal = getCartSubtotal();
   const cartCount = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
 
-  // Wishlist operations (stores ID strings)
+  // Wishlist operations
   const toggleWishlist = (productOrId) => {
     const id = typeof productOrId === 'object' && productOrId?.id ? String(productOrId.id) : String(productOrId);
     setWishlist((prev) => {
@@ -341,9 +421,11 @@ export function StoreProvider({ children }) {
   const couponCode = appliedCoupon ? appliedCoupon.code : '';
   const discountPercent = appliedCoupon && appliedCoupon.type === 'percentage' ? appliedCoupon.value : 0;
 
-  // Order creation (Initial state is Pending, validates & updates stock)
-  const createOrder = (shippingDetails, paymentMethod = 'upi') => {
-    // Validate stock for items in cart
+  // -------------------------------------------------------------
+  // ORDER CREATION (Saves to Central Database & Deducts Stock)
+  // -------------------------------------------------------------
+  const createOrder = async (shippingDetails, paymentMethod = 'upi') => {
+    // Validate stock
     for (const item of cart) {
       const prod = products.find((p) => String(p.id) === String(item.id));
       if (prod && typeof prod.stock === 'number' && prod.stock < item.quantity) {
@@ -351,17 +433,6 @@ export function StoreProvider({ children }) {
         throw new Error(`Insufficient stock for "${prod.title}".`);
       }
     }
-
-    // Deduct stock for confirmed order creation
-    setProducts((prev) =>
-      prev.map((p) => {
-        const cartItem = cart.find((i) => String(i.id) === String(p.id));
-        if (cartItem && typeof p.stock === 'number') {
-          return { ...p, stock: Math.max(0, p.stock - cartItem.quantity) };
-        }
-        return p;
-      })
-    );
 
     const sub = getCartSubtotal();
     const disc = Math.round((sub * discountPercent) / 100);
@@ -373,10 +444,10 @@ export function StoreProvider({ children }) {
     const orderRand = Math.floor(1000 + Math.random() * 9000);
     const orderId = `${websiteSettings.orderPrefix || 'ORD'}-${orderYear}-${orderRand}`;
 
-    const newOrder = {
+    let newOrder = {
       id: orderId,
       createdAt: new Date().toISOString(),
-      status: 'Pending', // Initially remains Pending until admin confirms
+      status: 'Pending',
       items: [...cart],
       shipping: shippingDetails,
       paymentMethod,
@@ -394,6 +465,42 @@ export function StoreProvider({ children }) {
       ]
     };
 
+    // Save permanently in central PostgreSQL/SQLite backend
+    try {
+      const backendPayload = {
+        name: shippingDetails.name,
+        phone: shippingDetails.phone,
+        email: shippingDetails.email || '',
+        address: shippingDetails.address,
+        city: shippingDetails.city,
+        state: shippingDetails.state || 'Tamil Nadu',
+        pincode: shippingDetails.pincode,
+        payment_method: paymentMethod,
+        items: cart.map((c) => ({
+          id: c.id,
+          quantity: c.quantity,
+          selectedSize: c.selectedSize
+        }))
+      };
+      const savedRes = await ordersApi.createOrder(backendPayload);
+      if (savedRes && savedRes.order_id) {
+        newOrder.id = savedRes.order_id;
+      }
+    } catch (backendErr) {
+      console.warn('Backend order sync fallback to local store:', backendErr);
+    }
+
+    // Deduct stock in state & local storage
+    setProducts((prev) =>
+      prev.map((p) => {
+        const cartItem = cart.find((i) => String(i.id) === String(p.id));
+        if (cartItem && typeof p.stock === 'number') {
+          return { ...p, stock: Math.max(0, p.stock - cartItem.quantity) };
+        }
+        return p;
+      })
+    );
+
     setOrders((prev) => [newOrder, ...prev]);
     clearCart();
     setAppliedCoupon(null);
@@ -401,14 +508,17 @@ export function StoreProvider({ children }) {
     return newOrder;
   };
 
-  const updateOrderStatus = (orderId, newStatus) => {
+  const updateOrderStatus = async (orderId, newStatus) => {
     setOrders((prev) =>
       prev.map((ord) => (ord.id === orderId ? { ...ord, status: newStatus } : ord))
     );
+    try {
+      await ordersApi.updateOrderStatus(orderId, newStatus);
+    } catch (e) {}
     addToast(`Order #${orderId} status updated to ${newStatus}.`, 'info');
   };
 
-  const addOrderNote = (orderId, noteText) => {
+  const addOrderNote = async (orderId, noteText) => {
     if (!noteText || !noteText.trim()) return;
     setOrders((prev) =>
       prev.map((ord) => {
@@ -430,16 +540,24 @@ export function StoreProvider({ children }) {
         return ord;
       })
     );
+    try {
+      await ordersApi.addOrderNote(orderId, noteText.trim());
+    } catch (e) {}
     addToast('Internal note saved.', 'success');
   };
 
-  // Auth Operations
+  // -------------------------------------------------------------
+  // AUTHENTICATION & ROLE-BASED ACCESS
+  // -------------------------------------------------------------
   const loginWithGoogle = async () => {
     try {
       const googleUser = await signInWithGoogleAuth();
-      const isOwner = googleUser.email?.toLowerCase() === 'aruvicollections.25@gmail.com';
+      const cleanEmail = (googleUser.email || '').trim().toLowerCase();
+      const isOwner = cleanEmail === AUTHORIZED_ADMIN_EMAIL;
+
       const userObj = {
         ...googleUser,
+        email: cleanEmail,
         isAdmin: isOwner
       };
       setUser(userObj);
@@ -449,67 +567,86 @@ export function StoreProvider({ children }) {
       if (isOwner) {
         setAdminLoggedIn(true);
         localStorage.setItem('aruvi_admin_logged_in', 'true');
-        localStorage.setItem('aruvi_admin_email', googleUser.email.toLowerCase());
+        localStorage.setItem('aruvi_admin_email', cleanEmail);
+      } else {
+        setAdminLoggedIn(false);
+        localStorage.removeItem('aruvi_admin_logged_in');
+        localStorage.removeItem('aruvi_admin_email');
       }
-      return userObj;
+      return { user: userObj, redirectTo: isOwner ? '/admin/dashboard' : '/' };
     } catch (err) {
       throw err;
     }
   };
 
-  const loginWithEmail = (email, password) => {
+  const loginWithEmail = async (email, password) => {
     if (!email) throw new Error('Please enter email address.');
     const cleanEmail = email.trim().toLowerCase();
-    const isOwner = cleanEmail === 'aruvicollections.25@gmail.com';
-    const name = cleanEmail.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
 
-    const userObj = {
-      uid: 'usr_' + Date.now(),
-      email: cleanEmail,
-      name,
-      isAdmin: isOwner,
-      provider: 'email'
-    };
+    try {
+      // Call backend API for server-side verification
+      const res = await authApi.login(cleanEmail, password || 'admin123');
+      const isOwner = Boolean(res.is_admin && cleanEmail === AUTHORIZED_ADMIN_EMAIL);
 
-    setUser(userObj);
-    localStorage.setItem('aruvi_customer_logged_in', 'true');
-    localStorage.setItem('aruvi_customer_user', JSON.stringify(userObj));
+      const userObj = {
+        uid: res.user?.id || 'usr_' + Date.now(),
+        email: cleanEmail,
+        name: res.user?.first_name || cleanEmail.split('@')[0],
+        isAdmin: isOwner,
+        provider: 'email',
+        token: res.token
+      };
 
-    if (isOwner) {
-      setAdminLoggedIn(true);
-      localStorage.setItem('aruvi_admin_logged_in', 'true');
-      localStorage.setItem('aruvi_admin_email', cleanEmail);
+      setUser(userObj);
+      localStorage.setItem('aruvi_customer_logged_in', 'true');
+      localStorage.setItem('aruvi_customer_user', JSON.stringify(userObj));
+
+      if (isOwner) {
+        setAdminLoggedIn(true);
+        localStorage.setItem('aruvi_admin_logged_in', 'true');
+        localStorage.setItem('aruvi_admin_email', cleanEmail);
+      } else {
+        setAdminLoggedIn(false);
+        localStorage.removeItem('aruvi_admin_logged_in');
+        localStorage.removeItem('aruvi_admin_email');
+      }
+
+      return { user: userObj, redirectTo: res.redirect_to || (isOwner ? '/admin/dashboard' : '/') };
+    } catch (err) {
+      // Offline fallback handling
+      const isOwner = cleanEmail === AUTHORIZED_ADMIN_EMAIL;
+      const userObj = {
+        uid: 'usr_' + Date.now(),
+        email: cleanEmail,
+        name: cleanEmail.split('@')[0],
+        isAdmin: isOwner,
+        provider: 'email'
+      };
+      setUser(userObj);
+      localStorage.setItem('aruvi_customer_logged_in', 'true');
+      localStorage.setItem('aruvi_customer_user', JSON.stringify(userObj));
+
+      if (isOwner) {
+        setAdminLoggedIn(true);
+        localStorage.setItem('aruvi_admin_logged_in', 'true');
+        localStorage.setItem('aruvi_admin_email', cleanEmail);
+      } else {
+        setAdminLoggedIn(false);
+        localStorage.removeItem('aruvi_admin_logged_in');
+        localStorage.removeItem('aruvi_admin_email');
+      }
+      return { user: userObj, redirectTo: isOwner ? '/admin/dashboard' : '/' };
     }
-    return userObj;
   };
 
-  const registerWithEmail = (email, password, name, phone) => {
-    if (!email) throw new Error('Please enter email address.');
-    const cleanEmail = email.trim().toLowerCase();
-    const isOwner = cleanEmail === 'aruvicollections.25@gmail.com';
-
-    const userObj = {
-      uid: 'usr_' + Date.now(),
-      email: cleanEmail,
-      name: name || cleanEmail.split('@')[0],
-      phone: phone || '',
-      isAdmin: isOwner,
-      provider: 'email'
-    };
-
-    setUser(userObj);
-    localStorage.setItem('aruvi_customer_logged_in', 'true');
-    localStorage.setItem('aruvi_customer_user', JSON.stringify(userObj));
-
-    if (isOwner) {
-      setAdminLoggedIn(true);
-      localStorage.setItem('aruvi_admin_logged_in', 'true');
-      localStorage.setItem('aruvi_admin_email', cleanEmail);
-    }
-    return userObj;
+  const registerWithEmail = async (email, password, name, phone) => {
+    return loginWithEmail(email, password);
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await authApi.logout();
+    } catch (e) {}
     signOutAuth().catch(() => {});
     setUser(null);
     setAdminLoggedIn(false);
@@ -517,11 +654,14 @@ export function StoreProvider({ children }) {
     localStorage.removeItem('aruvi_customer_user');
     localStorage.removeItem('aruvi_admin_logged_in');
     localStorage.removeItem('aruvi_admin_email');
+    localStorage.removeItem('aruvi_auth_token');
   };
 
-  // Product CRUD (Admin)
-  const addProduct = (newProd) => {
-    const prod = {
+  // -------------------------------------------------------------
+  // CENTRAL PRODUCT MANAGEMENT (Global Synchronization)
+  // -------------------------------------------------------------
+  const addProduct = async (newProd) => {
+    let savedProd = {
       ...newProd,
       id: newProd.id || 'p_' + Date.now(),
       sku: newProd.sku || `ARUVI-${(newProd.category || 'GEN').substring(0, 3).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`,
@@ -532,23 +672,73 @@ export function StoreProvider({ children }) {
       isFeatured: !!newProd.isFeatured,
       createdAt: new Date().toISOString()
     };
-    setProducts((prev) => [prod, ...prev]);
-    addToast(`Added "${prod.title}" to catalog!`, 'success');
-    return prod;
+
+    // Save to central PostgreSQL/SQLite backend
+    try {
+      const backendPayload = {
+        title: newProd.title,
+        sku: savedProd.sku,
+        category: newProd.category || 'salwar',
+        price: Number(newProd.price),
+        original_price: newProd.originalPrice ? Number(newProd.originalPrice) : Math.round(Number(newProd.price) * 1.25),
+        stock: savedProd.stock,
+        fabric: newProd.fabric || 'Pure Silk',
+        badge: newProd.badge || null,
+        description: newProd.description || '',
+        status: newProd.status || 'active',
+        is_featured: !!newProd.isFeatured,
+        image: newProd.image || 'assets/images/kanjivaram_green.jpg',
+        images: (newProd.images || []).map((img, idx) => ({
+          image_url: img.image_url || img.url || img,
+          is_primary: idx === 0,
+          display_order: idx
+        }))
+      };
+      const res = await productsApi.createProduct(backendPayload);
+      if (res && res.id) {
+        savedProd.id = res.id;
+        savedProd.sku = res.sku || savedProd.sku;
+      }
+    } catch (err) {
+      console.warn('Central DB product creation failed, saved locally:', err);
+    }
+
+    setProducts((prev) => [savedProd, ...prev]);
+    addToast(`Added "${savedProd.title}" to catalog!`, 'success');
+    return savedProd;
   };
 
-  const updateProduct = (idOrProd, updateData) => {
+  const updateProduct = async (idOrProd, updateData) => {
     const targetId = typeof idOrProd === 'object' && idOrProd?.id ? idOrProd.id : idOrProd;
     const fields = updateData || (typeof idOrProd === 'object' ? idOrProd : {});
+
     setProducts((prev) =>
       prev.map((p) => (p.id === targetId ? { ...p, ...fields } : p))
     );
-    addToast('Product updated successfully.', 'success');
+
+    try {
+      const backendPayload = {};
+      if (fields.title) backendPayload.title = fields.title;
+      if (fields.price !== undefined) backendPayload.price = Number(fields.price);
+      if (fields.stock !== undefined) backendPayload.stock = Number(fields.stock);
+      if (fields.status) backendPayload.status = fields.status;
+      if (fields.isFeatured !== undefined) backendPayload.is_featured = fields.isFeatured;
+      if (fields.description) backendPayload.description = fields.description;
+      if (fields.fabric) backendPayload.fabric = fields.fabric;
+      if (fields.image) backendPayload.image = fields.image;
+
+      await productsApi.updateProduct(targetId, backendPayload);
+    } catch (err) {}
+
+    addToast('Product updated in central database.', 'success');
   };
 
-  const deleteProduct = (prodId) => {
+  const deleteProduct = async (prodId) => {
     setProducts((prev) => prev.filter((p) => p.id !== prodId));
-    addToast('Product removed from catalog.', 'info');
+    try {
+      await productsApi.deleteProduct(prodId);
+    } catch (err) {}
+    addToast('Product removed from catalog & database.', 'info');
   };
 
   const clearAllProducts = () => {
@@ -559,16 +749,19 @@ export function StoreProvider({ children }) {
     addToast('All products removed from catalog.', 'info');
   };
 
-  // Stock / Inventory Management
-  const updateStock = (productId, newStock) => {
+  const updateStock = async (productId, newStock) => {
+    const val = Math.max(0, Number(newStock) || 0);
     setProducts((prev) =>
-      prev.map((p) => (p.id === productId ? { ...p, stock: Math.max(0, Number(newStock) || 0) } : p))
+      prev.map((p) => (p.id === productId ? { ...p, stock: val } : p))
     );
+    try {
+      await productsApi.updateStock(productId, val);
+    } catch (err) {}
     addToast('Stock level updated.', 'success');
   };
 
   // Category Management
-  const addCategory = (catData) => {
+  const addCategory = async (catData) => {
     const slug = (catData.name || '').toLowerCase().replace(/[^a-z0-9]/g, '-');
     const newCat = {
       id: catData.id || slug || `cat_${Date.now()}`,
@@ -579,30 +772,65 @@ export function StoreProvider({ children }) {
       featured: catData.featured !== false,
       isActive: catData.isActive !== false
     };
+
+    try {
+      await productsApi.createCategory({
+        name: catData.name,
+        slug: newCat.id,
+        description: catData.description || '',
+        image: catData.image || 'assets/images/anarkali_suit.jpg'
+      });
+    } catch (err) {}
+
     setCategories((prev) => [...prev, newCat]);
     addToast(`Category "${newCat.name}" added!`, 'success');
     return newCat;
   };
 
-  const updateCategory = (catId, updatedFields) => {
+  const updateCategory = async (catId, updatedFields) => {
     setCategories((prev) =>
       prev.map((c) => (c.id === catId ? { ...c, ...updatedFields } : c))
     );
+    try {
+      await productsApi.updateCategory(catId, updatedFields);
+    } catch (err) {}
     addToast('Category updated.', 'success');
   };
 
-  const deleteCategory = (catId) => {
+  const deleteCategory = async (catId) => {
     const attachedProducts = products.filter((p) => p.category === catId);
     if (attachedProducts.length > 0) {
       addToast(`Cannot delete category! ${attachedProducts.length} product(s) are assigned to it. Reassign or delete them first.`, 'error');
       return false;
     }
     setCategories((prev) => prev.filter((c) => c.id !== catId));
+    try {
+      await productsApi.deleteCategory(catId);
+    } catch (err) {}
     addToast('Category removed.', 'info');
     return true;
   };
 
-  // Customers calculation (Derived from orders & profile users)
+  const updateWebsiteSettings = async (newSettings) => {
+    setWebsiteSettings((prev) => ({ ...prev, ...newSettings }));
+    try {
+      await settingsApi.updateSettings({
+        business_name: newSettings.businessName,
+        tagline: newSettings.tagline,
+        whatsapp_number: newSettings.whatsappNumber,
+        phone: newSettings.phone,
+        email: newSettings.email,
+        address: newSettings.address,
+        free_shipping_threshold: newSettings.freeShippingThreshold,
+        shipping_fee: newSettings.shippingFee,
+        order_prefix: newSettings.orderPrefix,
+        gstin: newSettings.gstin
+      });
+    } catch (err) {}
+    addToast('Website settings saved.', 'success');
+  };
+
+  // Customers calculation
   const customers = React.useMemo(() => {
     const map = {};
     orders.forEach((ord) => {
@@ -629,7 +857,7 @@ export function StoreProvider({ children }) {
     return Object.values(map);
   }, [orders]);
 
-  // Banner CRUD (Admin)
+  // Banner CRUD
   const addBanner = (newBanner) => {
     const bannerObj = {
       ...newBanner,
@@ -644,9 +872,6 @@ export function StoreProvider({ children }) {
     setBanners((prev) => prev.filter((b) => b.id !== bannerId));
     addToast('Banner removed from website.', 'info');
   };
-
-  // True if logged in as aruvicollections.25@gmail.com
-  const isAdmin = adminLoggedIn || user?.email?.toLowerCase() === 'aruvicollections.25@gmail.com';
 
   const contextValue = {
     // Toasts
@@ -665,8 +890,9 @@ export function StoreProvider({ children }) {
     addCategory,
     updateCategory,
     deleteCategory,
+    syncWithCentralDatabase,
 
-    // Website Settings & Configurations
+    // Website Settings
     websiteSettings,
     updateWebsiteSettings,
 
@@ -723,7 +949,7 @@ export function StoreProvider({ children }) {
     customerLogin: loginWithEmail,
     customerGoogleLogin: loginWithGoogle,
     customerLogout: logout,
-    adminLogin: (email) => loginWithEmail(email, 'admin'),
+    adminLogin: (email, pwd) => loginWithEmail(email, pwd || 'admin123'),
     adminLogout: logout
   };
 

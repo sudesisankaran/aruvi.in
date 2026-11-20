@@ -1,18 +1,17 @@
 import random
 from datetime import datetime
 from django.db import transaction
-from django.http import HttpResponse
 from rest_framework import viewsets, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.permissions import AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Order, OrderItem, OrderNote
 from .serializers import OrderSerializer, CreateOrderInputSerializer
 from apps.products.models import Product
+from apps.accounts.permissions import IsStrictAdminUser, AUTHORIZED_ADMIN_EMAIL
 
 class OrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.all().prefetch_related('items', 'internal_notes')
     serializer_class = OrderSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['status']
@@ -23,7 +22,24 @@ class OrderViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ['create']:
             return [AllowAny()]
-        return [AllowAny()]  # Can be tightened to [IsAdminUser()] in full auth mode
+        if self.action in ['update_status', 'add_note']:
+            return [IsStrictAdminUser()]
+        return [AllowAny()]
+
+    def get_queryset(self):
+        user = self.request.user
+        base_qs = Order.objects.all().prefetch_related('items', 'internal_notes')
+
+        # Super Admin sees all customer orders
+        if user and user.is_authenticated and (user.email or '').strip().lower() == AUTHORIZED_ADMIN_EMAIL:
+            return base_qs
+
+        # Customers can only see their own orders
+        if user and user.is_authenticated and user.email:
+            return base_qs.filter(customer_email__iexact=user.email)
+
+        # Anonymous/guest visitors cannot view all customer orders
+        return Order.objects.none()
 
     def create(self, request, *args, **kwargs):
         input_serializer = CreateOrderInputSerializer(data=request.data)
@@ -111,7 +127,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         output_serializer = OrderSerializer(order)
         return Response(output_serializer.data, status=status.HTTP_201_CREATED)
 
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=['post'], permission_classes=[IsStrictAdminUser])
     def update_status(self, request, pk=None):
         order = self.get_object()
         new_status = request.data.get('status')
@@ -121,7 +137,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         order.save(update_fields=['status', 'updated_at'])
         return Response({"message": f"Order #{order.order_id} status updated to {new_status}."})
 
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=['post'], permission_classes=[IsStrictAdminUser])
     def add_note(self, request, pk=None):
         order = self.get_object()
         text = request.data.get('text', '').strip()
