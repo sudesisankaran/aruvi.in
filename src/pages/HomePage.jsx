@@ -1,72 +1,294 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 
+const FEATURED_LOOKS = [
+  {
+    id: 'look-1',
+    tag: 'BRIDAL HERITAGE',
+    title: 'Pure Kanjivaram Brocade Drape',
+    subtitle: 'Woven with certified gold zari & timeless temple motifs',
+    price: '₹8,999',
+    origPrice: '₹12,499',
+    category: 'ethnic-wear',
+    image: 'assets/images/kanjivaram_green.jpg',
+    badge: '👑 Master Weaver Silk'
+  },
+  {
+    id: 'look-2',
+    tag: 'FESTIVE ANARKALI',
+    title: 'Emerald Zari Salwar Suit',
+    subtitle: 'Flared tiered silhouette with royal artisanal embroidery',
+    price: '₹4,999',
+    origPrice: '₹6,999',
+    category: 'salwar',
+    image: 'assets/images/anarkali_suit.jpg',
+    badge: '✨ Festive Launch'
+  },
+  {
+    id: 'look-3',
+    tag: 'ROYAL SHARARA',
+    title: 'Gilded Mirrorwork Sharara Set',
+    subtitle: 'Peplum embroidered kurti paired with voluminous flared pants',
+    price: '₹5,499',
+    origPrice: '₹7,999',
+    category: 'sharara',
+    image: 'assets/images/lehenga_set.jpg',
+    badge: '💃 Best Seller'
+  },
+  {
+    id: 'look-4',
+    tag: 'INDO-WESTERN FUSION',
+    title: 'Indigo Modal Silk Co-ord Set',
+    subtitle: 'Hand-block motifs with structured modern tailored finish',
+    price: '₹3,299',
+    origPrice: '₹4,499',
+    category: 'co-ordsets',
+    image: 'assets/images/western_ethnic.jpg',
+    badge: '🌟 Contemporary Chic'
+  }
+];
+
 export default function HomePage() {
   const { categories } = useStore();
+  const [activeLookIndex, setActiveLookIndex] = useState(0);
+
+  // Auto-rotate featured looks every 5 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveLookIndex((prev) => (prev + 1) % FEATURED_LOOKS.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const currentLook = FEATURED_LOOKS[activeLookIndex];
 
   return (
     <div className="home-page-view">
       
-      {/* Hero Banner Section */}
-      <section className="hero-section" style={{ position: 'relative', overflow: 'hidden' }}>
-        <div className="container hero-container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', alignItems: 'center', gap: '40px', padding: '60px 20px' }}>
+      {/* Luxury Hero Showcase Section */}
+      <section 
+        className="hero-section" 
+        style={{ 
+          position: 'relative', 
+          overflow: 'hidden',
+          background: 'linear-gradient(135deg, rgba(254, 252, 248, 0.98) 0%, rgba(246, 241, 232, 0.95) 50%, rgba(239, 231, 218, 0.9) 100%)',
+          borderBottom: '1px solid rgba(200, 157, 56, 0.25)',
+          padding: '60px 0 70px'
+        }}
+      >
+        {/* Subtle decorative gold ambient accents */}
+        <div style={{ position: 'absolute', top: '-100px', right: '-100px', width: '450px', height: '450px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,157,56,0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: '-80px', left: '-80px', width: '380px', height: '380px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(14,41,32,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
+
+        <div className="container hero-container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', alignItems: 'center', gap: '50px', position: 'relative', zIndex: 2 }}>
           
-          <div className="hero-content" style={{ zIndex: 2 }}>
-            <span className="hero-pre-title" style={{ display: 'inline-block', color: 'var(--color-gold)', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '0.85rem', fontWeight: 700, marginBottom: '12px' }}>
-              ✨ Festive Handcrafted Showcase 2026
-            </span>
-            <h1 className="hero-main-title" style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.2rem, 5vw, 3.8rem)', color: '#0e2920', lineHeight: 1.15, marginBottom: '18px' }}>
+          {/* Left Column: Branding & CTAs */}
+          <div className="hero-content">
+            
+            {/* Top pill badge */}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(200,157,56,0.12)', border: '1px solid rgba(200,157,56,0.4)', padding: '6px 14px', borderRadius: '99px', marginBottom: '18px' }}>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--color-gold)', display: 'inline-block' }} />
+              <span style={{ color: '#0e2920', fontSize: '0.82rem', fontWeight: 700, letterSpacing: '1.2px', textTransform: 'uppercase' }}>
+                Boutique Couture Showcase 2026
+              </span>
+            </div>
+
+            <h1 className="hero-main-title" style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.4rem, 5.2vw, 4.2rem)', color: '#0e2920', lineHeight: 1.15, marginBottom: '20px' }}>
               Tradition In Every Thread, <br />
-              <span style={{ color: 'var(--color-gold)', fontStyle: 'italic' }}>Elegance In Every Drape.</span>
+              <span style={{ 
+                background: 'linear-gradient(135deg, #c89d38 0%, #dfb85e 50%, #b38622 100%)', 
+                WebkitBackgroundClip: 'text', 
+                WebkitTextFillColor: 'transparent',
+                fontStyle: 'italic'
+              }}>
+                Elegance In Every Drape.
+              </span>
             </h1>
-            <p className="hero-description" style={{ color: '#4a5d55', fontSize: '1.05rem', lineHeight: 1.6, maxWidth: '520px', marginBottom: '28px' }}>
-              Explore our boutique selection of authentic Salwars, Shararas, regal Ethnic Wear, Maxis, Co-ordsets, and modern everyday essentials handcrafted with master precision.
+
+            <p className="hero-description" style={{ color: '#4a5d55', fontSize: '1.08rem', lineHeight: 1.65, maxWidth: '540px', marginBottom: '32px' }}>
+              Discover handcrafted Salwars, royal Shararas, regal Ethnic Wear, flowing Maxis, Co-ordsets, and modern silhouettes curated for distinguished celebrations.
             </p>
 
-            <div className="hero-cta-group" style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
-              <Link to="/shop" className="btn btn-primary hover-shimmer" style={{ padding: '14px 32px', fontSize: '1rem', fontWeight: 600 }}>
-                Explore All Collections 🛍️
+            {/* CTA Buttons */}
+            <div className="hero-cta-group" style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center' }}>
+              <Link 
+                to="/shop" 
+                className="btn btn-primary hover-shimmer" 
+                style={{ 
+                  padding: '15px 34px', 
+                  fontSize: '1rem', 
+                  fontWeight: 700,
+                  boxShadow: '0 10px 24px rgba(14,41,32,0.22)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+              >
+                <span>Explore 9 Collections</span>
+                <span>→</span>
               </Link>
-              <Link to="/fitting-room" className="btn btn-secondary" style={{ padding: '14px 28px', fontSize: '1rem', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                <span>🪞 AI Virtual Try-On</span>
+
+              <Link 
+                to="/fitting-room" 
+                className="btn btn-secondary" 
+                style={{ 
+                  padding: '14px 28px', 
+                  fontSize: '1rem', 
+                  fontWeight: 600, 
+                  display: 'inline-flex', 
+                  alignItems: 'center', 
+                  gap: '10px',
+                  background: '#ffffff',
+                  border: '1.5px solid rgba(200,157,56,0.5)',
+                  boxShadow: '0 4px 14px rgba(0,0,0,0.05)'
+                }}
+              >
+                <span>🪞 Launch Virtual Try-On</span>
               </Link>
             </div>
 
-            {/* Quick stats */}
-            <div className="hero-stats-row" style={{ display: 'flex', gap: '32px', marginTop: '36px', paddingTop: '24px', borderTop: '1px solid rgba(200,157,56,0.2)' }}>
+            {/* Trust Highlights */}
+            <div className="hero-stats-row" style={{ display: 'flex', flexWrap: 'wrap', gap: '28px', marginTop: '40px', paddingTop: '24px', borderTop: '1px solid rgba(200,157,56,0.25)' }}>
               <div>
-                <strong style={{ display: 'block', fontSize: '1.4rem', color: '#0e2920' }}>9+</strong>
-                <span style={{ fontSize: '0.8rem', color: '#667770' }}>Boutique Categories</span>
+                <strong style={{ display: 'block', fontSize: '1.5rem', color: '#0e2920', fontFamily: 'var(--font-serif)' }}>9+</strong>
+                <span style={{ fontSize: '0.8rem', color: '#667770', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Boutique Services</span>
               </div>
               <div>
-                <strong style={{ display: 'block', fontSize: '1.4rem', color: '#0e2920' }}>100%</strong>
-                <span style={{ fontSize: '0.8rem', color: '#667770' }}>Authentic Pure Silks</span>
+                <strong style={{ display: 'block', fontSize: '1.5rem', color: '#0e2920', fontFamily: 'var(--font-serif)' }}>100%</strong>
+                <span style={{ fontSize: '0.8rem', color: '#667770', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Certified Handloom</span>
               </div>
               <div>
-                <strong style={{ display: 'block', fontSize: '1.4rem', color: '#0e2920' }}>4.9 ★</strong>
-                <span style={{ fontSize: '0.8rem', color: '#667770' }}>Patron Satisfaction</span>
+                <strong style={{ display: 'block', fontSize: '1.5rem', color: '#c89d38', fontFamily: 'var(--font-serif)' }}>4.9 ★</strong>
+                <span style={{ fontSize: '0.8rem', color: '#667770', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Patron Reviews</span>
               </div>
             </div>
+
           </div>
 
-          {/* Hero Visual Card */}
-          <div className="hero-visual" style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
-            <div className="hero-card-frame card-3d" style={{ maxWidth: '440px', width: '100%', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 24px 48px rgba(14,41,32,0.18)', border: '2px solid rgba(200,157,56,0.3)', background: '#fff' }}>
-              <img 
-                src="assets/images/kanjivaram_green.jpg" 
-                alt="Aruvi Signature Collection" 
-                style={{ width: '100%', height: '420px', objectFit: 'cover' }} 
-              />
-              <div style={{ padding: '20px', background: 'linear-gradient(to top, rgba(14,41,32,0.95), rgba(14,41,32,0.85))', color: '#fff' }}>
-                <span style={{ color: 'var(--color-gold)', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 700 }}>Exclusive Drop</span>
-                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.3rem', margin: '4px 0 8px' }}>Bridal Heritage Handloom</h3>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '1.1rem', fontWeight: 'bold', color: 'var(--color-gold)' }}>Special Festive Price</span>
-                  <Link to="/shop?category=ethnic-wear" style={{ color: '#fff', fontSize: '0.85rem', textDecoration: 'underline' }}>Shop Look →</Link>
+          {/* Right Column: Interactive Featured Look Card */}
+          <div className="hero-visual" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            
+            {/* Main Showcase Card with Smooth Transitions */}
+            <div 
+              className="hero-card-frame card-3d" 
+              style={{ 
+                maxWidth: '440px', 
+                width: '100%', 
+                borderRadius: '24px', 
+                overflow: 'hidden', 
+                boxShadow: '0 30px 60px rgba(14,41,32,0.22)', 
+                border: '2px solid rgba(200,157,56,0.4)', 
+                background: '#fff',
+                position: 'relative'
+              }}
+            >
+              {/* Floating Top Badge */}
+              <div style={{ position: 'absolute', top: '16px', left: '16px', zIndex: 3, background: 'rgba(14,41,32,0.85)', backdropFilter: 'blur(8px)', color: 'var(--color-gold)', padding: '6px 14px', borderRadius: '99px', fontSize: '0.78rem', fontWeight: 700, border: '1px solid rgba(200,157,56,0.4)' }}>
+                {currentLook.badge}
+              </div>
+
+              {/* Discount Tag */}
+              <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 3, background: 'rgba(201,59,59,0.9)', color: '#fff', padding: '6px 12px', borderRadius: '99px', fontSize: '0.75rem', fontWeight: 700 }}>
+                FESTIVE DROP
+              </div>
+
+              {/* Garment Image */}
+              <div style={{ position: 'relative', height: '440px', overflow: 'hidden', background: '#0e2920' }}>
+                <img 
+                  key={currentLook.id}
+                  src={currentLook.image} 
+                  alt={currentLook.title} 
+                  style={{ 
+                    width: '100%', 
+                    height: '100%', 
+                    objectFit: 'cover',
+                    animation: 'fadeIn 0.6s ease'
+                  }} 
+                  onError={(e) => { e.currentTarget.src = 'assets/images/kanjivaram_green.jpg'; }}
+                />
+              </div>
+
+              {/* Card Footer Banner */}
+              <div style={{ padding: '22px', background: 'linear-gradient(135deg, #0e2920 0%, #153b2f 100%)', color: '#fff' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <span style={{ color: 'var(--color-gold)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>
+                    {currentLook.tag}
+                  </span>
+                  <span style={{ fontSize: '0.8rem', color: '#e0d8cc' }}>
+                    Look {activeLookIndex + 1} of {FEATURED_LOOKS.length}
+                  </span>
+                </div>
+
+                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.35rem', margin: '2px 0 6px', color: '#ffffff' }}>
+                  {currentLook.title}
+                </h3>
+                <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.75)', margin: '0 0 14px', lineHeight: 1.4 }}>
+                  {currentLook.subtitle}
+                </p>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(200,157,56,0.3)', paddingTop: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                    <span style={{ fontSize: '1.3rem', fontWeight: 'bold', color: 'var(--color-gold)', fontFamily: 'var(--font-serif)' }}>
+                      {currentLook.price}
+                    </span>
+                    <span style={{ fontSize: '0.85rem', textDecoration: 'line-through', color: 'rgba(255,255,255,0.5)' }}>
+                      {currentLook.origPrice}
+                    </span>
+                  </div>
+
+                  <Link 
+                    to={`/shop?category=${currentLook.category}`} 
+                    className="hover-gold-text"
+                    style={{ 
+                      color: '#ffffff', 
+                      fontSize: '0.88rem', 
+                      fontWeight: 600,
+                      textDecoration: 'none',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      background: 'rgba(200,157,56,0.2)',
+                      padding: '6px 14px',
+                      borderRadius: '6px',
+                      border: '1px solid rgba(200,157,56,0.4)'
+                    }}
+                  >
+                    <span>Shop Look</span>
+                    <span>→</span>
+                  </Link>
                 </div>
               </div>
             </div>
+
+            {/* Interactive Look Switcher Pills */}
+            <div style={{ display: 'flex', gap: '8px', marginTop: '18px', flexWrap: 'wrap', justifyContent: 'center' }}>
+              {FEATURED_LOOKS.map((look, idx) => {
+                const isActive = activeLookIndex === idx;
+                return (
+                  <button
+                    key={look.id}
+                    type="button"
+                    onClick={() => setActiveLookIndex(idx)}
+                    style={{
+                      padding: '6px 14px',
+                      borderRadius: '99px',
+                      fontSize: '0.78rem',
+                      fontWeight: isActive ? 700 : 500,
+                      border: isActive ? '1.5px solid var(--color-primary)' : '1px solid #d4c8b8',
+                      background: isActive ? 'var(--color-primary)' : '#ffffff',
+                      color: isActive ? '#ffffff' : '#0e2920',
+                      cursor: 'pointer',
+                      transition: 'all 0.25s ease',
+                      boxShadow: isActive ? '0 4px 12px rgba(14,41,32,0.15)' : 'none'
+                    }}
+                  >
+                    {idx + 1}. {look.tag}
+                  </button>
+                );
+              })}
+            </div>
+
           </div>
 
         </div>
