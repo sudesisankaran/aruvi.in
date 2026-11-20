@@ -6,7 +6,7 @@ import ProductCard from '../components/ProductCard';
 export default function ProductDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { products, addToCart, toggleWishlist, wishlist } = useStore();
+  const { products, addToCart, toggleWishlist, wishlist, websiteSettings } = useStore();
 
   const product = products.find(p => String(p.id) === String(id));
   
@@ -44,6 +44,24 @@ export default function ProductDetailPage() {
   const handleBuyNow = () => {
     addToCart(product, quantity, selectedSize);
     navigate('/checkout');
+  };
+
+  const handleWhatsAppOrder = () => {
+    const rawNumber = websiteSettings?.whatsappNumber || '919876543210';
+    const cleanNumber = rawNumber.replace(/[^0-9]/g, '');
+    const lineTotal = currPrice * quantity;
+    const msg = 
+`*NEW CUSTOMER ORDER INQUIRY*
+
+*Product:* ${product.title}
+*Price:* ₹${currPrice.toLocaleString('en-IN')}
+*Size:* ${selectedSize}
+*Quantity:* ${quantity}
+*Total Amount:* ₹${lineTotal.toLocaleString('en-IN')}
+
+Please confirm availability and dispatch timeline.`;
+    const url = `https://wa.me/${cleanNumber}?text=${encodeURIComponent(msg)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -172,21 +190,21 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Action Buttons */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', marginBottom: '28px' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', marginBottom: '16px' }}>
               <button 
                 type="button" 
                 onClick={handleAddToCart}
                 className="btn btn-primary hover-shimmer"
-                style={{ flex: 1, minWidth: '180px', padding: '14px 20px', fontWeight: 600 }}
+                style={{ flex: 1, minWidth: '160px', padding: '14px 20px', fontWeight: 600 }}
               >
-                👜 Add to Shopping Bag
+                👜 Add to Bag
               </button>
 
               <button 
                 type="button" 
                 onClick={handleBuyNow}
                 className="btn btn-secondary"
-                style={{ flex: 1, minWidth: '180px', padding: '14px 20px', fontWeight: 600, background: 'var(--color-gold)', color: '#0e2920', border: 'none' }}
+                style={{ flex: 1, minWidth: '160px', padding: '14px 20px', fontWeight: 600, background: 'var(--color-gold)', color: '#0e2920', border: 'none' }}
               >
                 ⚡ Buy Now
               </button>
@@ -211,6 +229,16 @@ export default function ProductDetailPage() {
                 {isWishlisted ? '❤️' : '🤍'}
               </button>
             </div>
+
+            {/* Direct WhatsApp Order Button */}
+            <button
+              type="button"
+              onClick={handleWhatsAppOrder}
+              className="w-full py-3.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-sm tracking-wide uppercase transition shadow flex items-center justify-center gap-2 mb-6 cursor-pointer"
+            >
+              <span className="text-lg">💬</span>
+              <span>Order via WhatsApp Direct</span>
+            </button>
 
             {/* AI Try-on Box */}
             <div style={{ background: 'linear-gradient(135deg, rgba(200,157,56,0.14) 0%, rgba(14,41,32,0.06) 100%)', border: '1.5px solid rgba(200,157,56,0.45)', borderRadius: '14px', padding: '18px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '14px', marginBottom: '28px', boxShadow: '0 4px 16px rgba(200,157,56,0.1)' }}>

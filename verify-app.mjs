@@ -42,12 +42,18 @@ const requiredFiles = [
   'src/pages/HomePage.jsx',
   'src/pages/ShopPage.jsx',
   'src/pages/ProductDetailPage.jsx',
+  'src/pages/CategoriesPage.jsx',
+  'src/pages/AboutPage.jsx',
+  'src/pages/ContactPage.jsx',
   'src/pages/CartPage.jsx',
   'src/pages/CheckoutPage.jsx',
+  'src/pages/OrderSuccessPage.jsx',
   'src/pages/WishlistPage.jsx',
   'src/pages/VirtualFittingRoomPage.jsx',
   'src/pages/AccountPage.jsx',
   'src/pages/AdminPage.jsx',
+  'src/utils/pdfGenerator.js',
+  'src/utils/whatsappHelper.js',
   'src/styles/main.css',
   'src/styles/animations.css',
   'src/styles/fitting-room.css',
@@ -134,9 +140,13 @@ const appCode = fs.readFileSync('src/App.jsx', 'utf8');
 const routes = [
   '/',
   '/shop',
+  '/categories',
+  '/about',
+  '/contact',
   '/product/:id',
   '/cart',
   '/checkout',
+  '/order-success/:id',
   '/wishlist',
   '/fitting-room',
   '/account',
@@ -164,14 +174,16 @@ legacyFiles.forEach((f) => {
 });
 
 // ----------------------------------------------------
-// 8. Firebase Storage & Client Architecture QA
+// 8. Firebase Storage & Django Backend Architecture QA
 // ----------------------------------------------------
-console.log('\nTEST GROUP 8: Firebase Storage & Clean Client Architecture QA');
+console.log('\nTEST GROUP 8: Firebase Storage & Django Backend Architecture QA');
 
 assert(fs.existsSync('storage.rules'), 'Firebase Storage Security Rules (storage.rules) present');
 assert(fs.existsSync('tailwind.config.js'), 'Tailwind CSS config present');
 assert(fs.existsSync('postcss.config.js'), 'PostCSS config present');
-assert(!fs.existsSync('backend'), 'Backend directory is completely removed from codebase');
+assert(fs.existsSync('backend/manage.py'), 'Django REST Framework backend (backend/manage.py) present');
+assert(fs.existsSync('backend/requirements.txt'), 'Backend requirements.txt present');
+assert(fs.existsSync('backend/aruvi_backend/settings.py'), 'Django settings.py configured');
 assert(fs.existsSync('src/components/ImageUploadDropzone.jsx'), 'Reusable ImageUploadDropzone component present');
 assert(fs.existsSync('src/components/AdminProductGalleryManager.jsx'), 'Admin multi-image gallery manager present');
 
@@ -184,6 +196,32 @@ assert(storageRules.includes('match /profiles/{userId}/{allPaths=**}'), 'Storage
 const firebaseConfigCode = fs.readFileSync('src/services/firebase.js', 'utf8');
 assert(firebaseConfigCode.includes('aruvicollections-5ce06.firebasestorage.app'), 'Firebase client configured with Firebase Storage bucket');
 assert(firebaseConfigCode.includes('validateImageFile'), 'Client-side image file validation active');
+
+// ----------------------------------------------------
+// 9. PDF Generation, WhatsApp & Admin 12 Sections QA
+// ----------------------------------------------------
+console.log('\nTEST GROUP 9: PDF Generation, WhatsApp & Admin 12-Section Dashboard QA');
+
+const pdfGenCode = fs.readFileSync('src/utils/pdfGenerator.js', 'utf8');
+assert(pdfGenCode.includes('downloadOrderInvoicePDF'), 'pdfGenerator.js exports downloadOrderInvoicePDF');
+assert(pdfGenCode.includes('jsPDF'), 'pdfGenerator.js implements jsPDF vector rendering');
+
+const waHelperCode = fs.readFileSync('src/utils/whatsappHelper.js', 'utf8');
+assert(waHelperCode.includes('openWhatsAppOrderChat'), 'whatsappHelper.js exports openWhatsAppOrderChat');
+assert(waHelperCode.includes('formatWhatsAppOrderMessage'), 'whatsappHelper.js formats structured WhatsApp orders');
+
+assert(adminPageCode.includes('dashboard'), 'Admin dashboard section registered');
+assert(adminPageCode.includes('products'), 'Admin products section registered');
+assert(adminPageCode.includes('add-product'), 'Admin add-product section registered');
+assert(adminPageCode.includes('categories'), 'Admin categories section registered');
+assert(adminPageCode.includes('orders'), 'Admin orders section registered');
+assert(adminPageCode.includes('customers'), 'Admin customers section registered');
+assert(adminPageCode.includes('inventory'), 'Admin inventory stock section registered');
+assert(adminPageCode.includes('pdf-management'), 'Admin PDF & invoice management section registered');
+assert(adminPageCode.includes('whatsapp-settings'), 'Admin WhatsApp settings section registered');
+assert(adminPageCode.includes('website-settings'), 'Admin website settings section registered');
+assert(adminPageCode.includes('profile'), 'Admin profile section registered');
+assert(adminPageCode.includes('handleAdminLogout'), 'Admin logout functionality registered');
 
 // ----------------------------------------------------
 // Summary

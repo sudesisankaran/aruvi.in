@@ -14,7 +14,7 @@ export default function Footer() {
   };
 
   return (
-    <footer class="site-footer" id="contact">
+    <footer className="site-footer" id="contact">
       <div className="container">
         <div className="footer-top-grid">
           
@@ -38,6 +38,7 @@ export default function Footer() {
           <div className="footer-col">
             <h4 className="footer-col-title">Collections</h4>
             <ul className="footer-links-list">
+              <li><Link to="/categories" className="footer-link">All Categories</Link></li>
               <li><Link to="/shop?category=salwar" className="footer-link">Salwar</Link></li>
               <li><Link to="/shop?category=sharara" className="footer-link">Sharara</Link></li>
               <li><Link to="/shop?category=ethnic-wear" className="footer-link">Ethnic Wear</Link></li>
@@ -45,7 +46,6 @@ export default function Footer() {
               <li><Link to="/shop?category=co-ordsets" className="footer-link">Co-ordsets</Link></li>
               <li><Link to="/shop?category=casual-tops" className="footer-link">Casual Tops</Link></li>
               <li><Link to="/shop?category=western-wear" className="footer-link">Western Wear</Link></li>
-              <li><Link to="/shop?category=jeans-pants" className="footer-link">Jeans & Pants</Link></li>
               <li><Link to="/shop?category=kids-wear" className="footer-link">Kids Wear</Link></li>
             </ul>
           </div>
@@ -54,12 +54,14 @@ export default function Footer() {
           <div className="footer-col">
             <h4 className="footer-col-title">Customer Care</h4>
             <ul className="footer-links-list">
+              <li><Link to="/about" className="footer-link">About Our Atelier</Link></li>
+              <li><Link to="/contact" className="footer-link">Contact & WhatsApp Concierge</Link></li>
               <li><Link to="/account" className="footer-link">Track Your Order</Link></li>
               <li><Link to="/fitting-room" className="footer-link">AI Virtual Fitting Room</Link></li>
               <li><Link to="/wishlist" className="footer-link">Saved Wishlist</Link></li>
               <li><Link to="/cart" className="footer-link">Shopping Bag</Link></li>
               <li><Link to="/account" className="footer-link">My Account</Link></li>
-              <li><Link to="/admin" className="footer-link">Owner Dashboard</Link></li>
+              <li><Link to="/admin" className="footer-link">Owner Admin Dashboard</Link></li>
             </ul>
           </div>
 

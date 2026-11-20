@@ -43,6 +43,24 @@ export const DEFAULT_COUPONS = [
   { code: 'WELCOME100', type: 'flat', value: 100, minOrder: 999 }
 ];
 
+export const DEFAULT_WEBSITE_SETTINGS = {
+  websiteName: 'Aruvi Collections',
+  tagline: 'Tradition In Every Thread',
+  logo: 'assets/icons/WhatsApp Image 2026-09-21 at 7.49.20 AM (1).jpeg',
+  businessAddress: '104, Heritage Weavers Lane, T. Nagar, Chennai, Tamil Nadu - 600017',
+  contactNumber: '+91 98765 43210',
+  whatsappNumber: '919876543210',
+  emailAddress: 'aruvicollections.25@gmail.com',
+  currency: 'INR (₹)',
+  currencySymbol: '₹',
+  freeShippingThreshold: 999,
+  shippingFee: 99,
+  taxRatePercent: 0,
+  orderPrefix: 'ORD',
+  instagram: 'https://instagram.com/aruvicollections',
+  facebook: 'https://facebook.com/aruvicollections'
+};
+
 export function StoreProvider({ children }) {
   // Toasts
   const [toasts, setToasts] = useState([]);
@@ -97,6 +115,33 @@ export function StoreProvider({ children }) {
       return DEFAULT_BANNERS;
     }
   });
+
+  // Website Settings (Synced with Admin Dashboard)
+  const [websiteSettings, setWebsiteSettings] = useState(() => {
+    try {
+      const saved = localStorage.getItem('aruvi_settings');
+      return saved ? { ...DEFAULT_WEBSITE_SETTINGS, ...JSON.parse(saved) } : DEFAULT_WEBSITE_SETTINGS;
+    } catch (e) {
+      return DEFAULT_WEBSITE_SETTINGS;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('aruvi_settings', JSON.stringify(websiteSettings));
+    } catch (e) {}
+  }, [websiteSettings]);
+
+  const updateWebsiteSettings = (newSettings) => {
+    setWebsiteSettings((prev) => {
+      const updated = { ...prev, ...newSettings };
+      try {
+        localStorage.setItem('aruvi_settings', JSON.stringify(updated));
+      } catch (e) {}
+      addToast('Website settings updated successfully!', 'success');
+      return updated;
+    });
+  };
 
   // Cart: Array of { id, title, price, image, category, selectedSize, quantity }
   const [cart, setCart] = useState(() => {
@@ -296,30 +341,63 @@ export function StoreProvider({ children }) {
   const couponCode = appliedCoupon ? appliedCoupon.code : '';
   const discountPercent = appliedCoupon && appliedCoupon.type === 'percentage' ? appliedCoupon.value : 0;
 
-  // Order creation
+  // Order creation (Initial state is Pending, validates & updates stock)
   const createOrder = (shippingDetails, paymentMethod = 'upi') => {
+    // Validate stock for items in cart
+    for (const item of cart) {
+      const prod = products.find((p) => String(p.id) === String(item.id));
+      if (prod && typeof prod.stock === 'number' && prod.stock < item.quantity) {
+        addToast(`Insufficient stock for "${prod.title}". Only ${prod.stock} piece(s) available.`, 'error');
+        throw new Error(`Insufficient stock for "${prod.title}".`);
+      }
+    }
+
+    // Deduct stock for confirmed order creation
+    setProducts((prev) =>
+      prev.map((p) => {
+        const cartItem = cart.find((i) => String(i.id) === String(p.id));
+        if (cartItem && typeof p.stock === 'number') {
+          return { ...p, stock: Math.max(0, p.stock - cartItem.quantity) };
+        }
+        return p;
+      })
+    );
+
     const sub = getCartSubtotal();
     const disc = Math.round((sub * discountPercent) / 100);
-    const ship = sub >= 999 || sub === 0 ? 0 : 99;
+    const freeThreshold = Number(websiteSettings.freeShippingThreshold) || 999;
+    const ship = sub >= freeThreshold || sub === 0 ? 0 : (Number(websiteSettings.shippingFee) || 99);
     const tot = Math.max(0, sub - disc + ship);
 
+    const orderYear = new Date().getFullYear();
+    const orderRand = Math.floor(1000 + Math.random() * 9000);
+    const orderId = `${websiteSettings.orderPrefix || 'ORD'}-${orderYear}-${orderRand}`;
+
     const newOrder = {
-      id: 'ARUVI-' + Math.floor(100000 + Math.random() * 900000),
+      id: orderId,
       createdAt: new Date().toISOString(),
-      status: 'Confirmed',
+      status: 'Pending', // Initially remains Pending until admin confirms
       items: [...cart],
       shipping: shippingDetails,
       paymentMethod,
       subtotal: sub,
       discount: disc,
       shippingFee: ship,
-      total: tot
+      total: tot,
+      internalNotes: [
+        {
+          id: Date.now(),
+          text: `Order created via ${paymentMethod.toUpperCase()}. Awaiting WhatsApp confirmation.`,
+          createdAt: new Date().toISOString(),
+          author: 'System'
+        }
+      ]
     };
 
     setOrders((prev) => [newOrder, ...prev]);
     clearCart();
     setAppliedCoupon(null);
-    addToast(`Order #${newOrder.id} confirmed! Thank you for choosing Aruvi.`, 'success');
+    addToast(`Order #${newOrder.id} placed! Please confirm on WhatsApp.`, 'success');
     return newOrder;
   };
 
@@ -328,6 +406,31 @@ export function StoreProvider({ children }) {
       prev.map((ord) => (ord.id === orderId ? { ...ord, status: newStatus } : ord))
     );
     addToast(`Order #${orderId} status updated to ${newStatus}.`, 'info');
+  };
+
+  const addOrderNote = (orderId, noteText) => {
+    if (!noteText || !noteText.trim()) return;
+    setOrders((prev) =>
+      prev.map((ord) => {
+        if (ord.id === orderId) {
+          const notes = ord.internalNotes || [];
+          return {
+            ...ord,
+            internalNotes: [
+              ...notes,
+              {
+                id: Date.now(),
+                text: noteText.trim(),
+                createdAt: new Date().toISOString(),
+                author: 'Admin'
+              }
+            ]
+          };
+        }
+        return ord;
+      })
+    );
+    addToast('Internal note saved.', 'success');
   };
 
   // Auth Operations
@@ -421,8 +524,12 @@ export function StoreProvider({ children }) {
     const prod = {
       ...newProd,
       id: newProd.id || 'p_' + Date.now(),
+      sku: newProd.sku || `ARUVI-${(newProd.category || 'GEN').substring(0, 3).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`,
       rating: newProd.rating || 4.9,
       reviews: newProd.reviews || 1,
+      stock: typeof newProd.stock === 'number' ? newProd.stock : (Number(newProd.stockQuantity) || 15),
+      status: newProd.status || 'active',
+      isFeatured: !!newProd.isFeatured,
       createdAt: new Date().toISOString()
     };
     setProducts((prev) => [prod, ...prev]);
@@ -451,6 +558,76 @@ export function StoreProvider({ children }) {
     } catch (e) {}
     addToast('All products removed from catalog.', 'info');
   };
+
+  // Stock / Inventory Management
+  const updateStock = (productId, newStock) => {
+    setProducts((prev) =>
+      prev.map((p) => (p.id === productId ? { ...p, stock: Math.max(0, Number(newStock) || 0) } : p))
+    );
+    addToast('Stock level updated.', 'success');
+  };
+
+  // Category Management
+  const addCategory = (catData) => {
+    const slug = (catData.name || '').toLowerCase().replace(/[^a-z0-9]/g, '-');
+    const newCat = {
+      id: catData.id || slug || `cat_${Date.now()}`,
+      name: catData.name,
+      description: catData.description || '',
+      image: catData.image || 'assets/images/anarkali_suit.jpg',
+      icon: catData.icon || '✨',
+      featured: catData.featured !== false,
+      isActive: catData.isActive !== false
+    };
+    setCategories((prev) => [...prev, newCat]);
+    addToast(`Category "${newCat.name}" added!`, 'success');
+    return newCat;
+  };
+
+  const updateCategory = (catId, updatedFields) => {
+    setCategories((prev) =>
+      prev.map((c) => (c.id === catId ? { ...c, ...updatedFields } : c))
+    );
+    addToast('Category updated.', 'success');
+  };
+
+  const deleteCategory = (catId) => {
+    const attachedProducts = products.filter((p) => p.category === catId);
+    if (attachedProducts.length > 0) {
+      addToast(`Cannot delete category! ${attachedProducts.length} product(s) are assigned to it. Reassign or delete them first.`, 'error');
+      return false;
+    }
+    setCategories((prev) => prev.filter((c) => c.id !== catId));
+    addToast('Category removed.', 'info');
+    return true;
+  };
+
+  // Customers calculation (Derived from orders & profile users)
+  const customers = React.useMemo(() => {
+    const map = {};
+    orders.forEach((ord) => {
+      const phone = ord.shipping?.phone || ord.customerPhone || 'Unknown';
+      if (!map[phone]) {
+        map[phone] = {
+          name: ord.shipping?.name || ord.customerName || 'Patron',
+          mobile: phone,
+          email: ord.shipping?.email || 'N/A',
+          city: ord.shipping?.city || 'N/A',
+          totalOrders: 0,
+          totalSpent: 0,
+          orders: [],
+          lastOrderDate: ord.createdAt
+        };
+      }
+      map[phone].totalOrders += 1;
+      map[phone].totalSpent += Number(ord.total) || 0;
+      map[phone].orders.push(ord.id);
+      if (new Date(ord.createdAt) > new Date(map[phone].lastOrderDate)) {
+        map[phone].lastOrderDate = ord.createdAt;
+      }
+    });
+    return Object.values(map);
+  }, [orders]);
 
   // Banner CRUD (Admin)
   const addBanner = (newBanner) => {
@@ -484,6 +661,17 @@ export function StoreProvider({ children }) {
     updateProduct,
     deleteProduct,
     clearAllProducts,
+    updateStock,
+    addCategory,
+    updateCategory,
+    deleteCategory,
+
+    // Website Settings & Configurations
+    websiteSettings,
+    updateWebsiteSettings,
+
+    // Customers
+    customers,
 
     // Promotional Banners
     banners,
@@ -522,6 +710,7 @@ export function StoreProvider({ children }) {
     orders,
     createOrder,
     updateOrderStatus,
+    addOrderNote,
 
     // Auth
     user,

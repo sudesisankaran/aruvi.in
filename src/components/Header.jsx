@@ -253,6 +253,21 @@ export default function Header() {
                 <span>👤 My Account & Orders</span> <span>›</span>
               </Link>
             </li>
+            <li>
+              <Link to="/categories" className="mobile-nav-link" onClick={() => setMobileNavOpen(false)}>
+                <span>✨ All Categories</span> <span>›</span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/about" className="mobile-nav-link" onClick={() => setMobileNavOpen(false)}>
+                <span>🏛️ About Our Atelier</span> <span>›</span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/contact" className="mobile-nav-link" onClick={() => setMobileNavOpen(false)}>
+                <span>💬 Contact & Concierge</span> <span>›</span>
+              </Link>
+            </li>
             {isAdmin && (
               <li>
                 <Link to="/admin" className="mobile-nav-link" onClick={() => setMobileNavOpen(false)} style={{ color: '#d4af37', fontWeight: 700 }}>

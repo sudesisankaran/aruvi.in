@@ -55,8 +55,12 @@ export default function CheckoutPage() {
 
     setTimeout(() => {
       setIsSubmitting(false);
-      navigate('/account');
-    }, 600);
+      if (newOrder && newOrder.id) {
+        navigate(`/order-success/${newOrder.id}`);
+      } else {
+        navigate('/account');
+      }
+    }, 500);
   };
 
   return (
