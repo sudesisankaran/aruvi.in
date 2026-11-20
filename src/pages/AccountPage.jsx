@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import CustomerAuthModal from '../components/CustomerAuthModal';
 import ImageUploadDropzone from '../components/ImageUploadDropzone';
-import { BACKEND_API_BASE, auth } from '../services/firebase';
+import { auth } from '../services/firebase';
 
 export default function AccountPage() {
   const { user, isAdmin, orders, logout, addToast } = useStore();
@@ -20,72 +20,61 @@ export default function AccountPage() {
   const [hipSize, setHipSize] = useState('38"');
   const [isSaving, setIsSaving] = useState(false);
 
-  // Sync profile data from Django backend on load
+  // Load saved profile data from local storage on load
   useEffect(() => {
     if (user) {
       const currentUid = user.uid || (auth.currentUser ? auth.currentUser.uid : 'patron');
-      fetch(`${BACKEND_API_BASE}/api/customers/profiles/me/?user_id=${currentUid}`)
-        .then(res => res.ok ? res.json() : null)
-        .then(data => {
-          if (data) {
-            if (data.avatar_url) setAvatarUrl(data.avatar_url);
-            if (data.preferred_fit) setPreferredFit(data.preferred_fit);
-            if (data.height_cm) setHeightCm(data.height_cm);
-            if (data.bust_size) setBustSize(data.bust_size);
-            if (data.waist_size) setWaistSize(data.waist_size);
-            if (data.hip_size) setHipSize(data.hip_size);
-          }
-        })
-        .catch(() => {});
+      const saved = localStorage.getItem(`aruvi_profile_${currentUid}`);
+      if (saved) {
+        try {
+          const data = JSON.parse(saved);
+          if (data.avatar_url) setAvatarUrl(data.avatar_url);
+          if (data.preferred_fit) setPreferredFit(data.preferred_fit);
+          if (data.height_cm) setHeightCm(data.height_cm);
+          if (data.bust_size) setBustSize(data.bust_size);
+          if (data.waist_size) setWaistSize(data.waist_size);
+          if (data.hip_size) setHipSize(data.hip_size);
+        } catch (e) {}
+      }
     }
   }, [user]);
 
-  const handleAvatarUploadSuccess = async (result) => {
+  const handleAvatarUploadSuccess = (result) => {
     setAvatarUrl(result.url);
     addToast('Profile avatar uploaded to Firebase Cloud Storage!', 'success');
 
-    // Update profile on Django backend
     if (user) {
       const currentUid = user.uid || (auth.currentUser ? auth.currentUser.uid : 'patron');
       try {
-        await fetch(`${BACKEND_API_BASE}/api/customers/profiles/me/`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            user_id: currentUid,
-            avatar_url: result.url,
-            avatar_storage_path: result.path,
-          }),
-        });
-      } catch (e) {
-        console.warn('Backend profile update deferred:', e);
-      }
+        const saved = JSON.parse(localStorage.getItem(`aruvi_profile_${currentUid}`) || '{}');
+        saved.avatar_url = result.url;
+        localStorage.setItem(`aruvi_profile_${currentUid}`, JSON.stringify(saved));
+      } catch (e) {}
     }
   };
 
-  const handleSaveProfile = async (e) => {
+  const handleSaveProfile = (e) => {
     e.preventDefault();
     setIsSaving(true);
     const currentUid = user?.uid || (auth.currentUser ? auth.currentUser.uid : 'patron');
 
+    const profileData = {
+      preferred_fit: preferredFit,
+      height_cm: heightCm,
+      bust_size: bustSize,
+      waist_size: waistSize,
+      hip_size: hipSize,
+      avatar_url: avatarUrl,
+    };
     try {
-      await fetch(`${BACKEND_API_BASE}/api/customers/profiles/me/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_id: currentUid,
-          preferred_fit: preferredFit,
-          height_cm: heightCm,
-          bust_size: bustSize,
-          waist_size: waistSize,
-          hip_size: hipSize,
-        }),
-      });
-      addToast('Fitting preferences saved to PostgreSQL database.', 'success');
+      localStorage.setItem(`aruvi_profile_${currentUid}`, JSON.stringify(profileData));
+      setTimeout(() => {
+        setIsSaving(false);
+        addToast('Fitting preferences saved successfully.', 'success');
+      }, 300);
     } catch (err) {
-      addToast('Preferences saved locally.', 'success');
-    } finally {
       setIsSaving(false);
+      addToast('Preferences saved.', 'success');
     }
   };
 

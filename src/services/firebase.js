@@ -19,9 +19,6 @@ export const storage = getStorage(app);
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
 
-// Backend API Base URL
-export const BACKEND_API_BASE = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:8000';
-
 /**
  * Validates image format and file size
  */

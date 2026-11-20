@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import ProductCard from '../components/ProductCard';
-import CatVTONModal from '../components/CatVTONModal';
-import VirtualTryOnModal from '../components/VirtualTryOnModal';
 
 export default function ProductDetailPage() {
   const { id } = useParams();
@@ -14,8 +12,6 @@ export default function ProductDetailPage() {
   
   const [selectedSize, setSelectedSize] = useState('M');
   const [quantity, setQuantity] = useState(1);
-  const [tryOnModalOpen, setTryOnModalOpen] = useState(false);
-  const [isTryOnModalOpen, setIsTryOnModalOpen] = useState(false);
 
   if (!product) {
     return (
@@ -214,36 +210,23 @@ export default function ProductDetailPage() {
               >
                 {isWishlisted ? '❤️' : '🤍'}
               </button>
-
-              {/* Standalone Open-Source Virtual Try-On Hook */}
-              <button 
-                type="button"
-                onClick={() => setIsTryOnModalOpen(true)}
-                className="btn btn-secondary hover-shimmer"
-                style={{ flex: '1 1 100%', padding: '12px 20px', fontWeight: 700, border: '1.5px solid var(--color-gold)', background: 'rgba(200,157,56,0.12)', color: '#0e2920', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}
-              >
-                <span>✨ Try It On</span>
-              </button>
             </div>
 
             {/* AI Try-on Box */}
             <div style={{ background: 'linear-gradient(135deg, rgba(200,157,56,0.14) 0%, rgba(14,41,32,0.06) 100%)', border: '1.5px solid rgba(200,157,56,0.45)', borderRadius: '14px', padding: '18px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '14px', marginBottom: '28px', boxShadow: '0 4px 16px rgba(200,157,56,0.1)' }}>
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <strong style={{ color: '#0e2920', fontSize: '0.95rem' }}>✨ AI Virtual Try-On</strong>
-                  <span style={{ fontSize: '0.68rem', background: 'var(--color-gold)', color: '#0e2920', padding: '1px 6px', borderRadius: '4px', fontWeight: 800 }}>CATVTON</span>
-                </div>
+                <strong style={{ color: '#0e2920', fontSize: '0.95rem', display: 'block' }}>✨ AI Virtual Fitting Room</strong>
                 <span style={{ fontSize: '0.82rem', color: '#55665f', display: 'block', marginTop: '2px' }}>
-                  Upload your photo or use live camera to see yourself in this dress!
+                  Visualize this handcrafted ensemble on our diverse boutique models or with your photo!
                 </span>
               </div>
               <button 
                 type="button"
                 className="btn btn-sm btn-primary hover-shimmer"
-                onClick={() => setTryOnModalOpen(true)}
+                onClick={() => navigate(`/fitting-room?productId=${product.id}`)}
                 style={{ whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 18px', fontWeight: 700 }}
               >
-                <span>✨ Try-On Now</span>
+                <span>🪞 Try-On Now</span>
               </button>
             </div>
 
@@ -282,25 +265,6 @@ export default function ProductDetailPage() {
         )}
 
       </div>
-
-      {/* CatVTON AI Virtual Try-On Modal */}
-      <CatVTONModal
-        isOpen={tryOnModalOpen}
-        onClose={() => setTryOnModalOpen(false)}
-        garment={product}
-        onSelectOtherGarment={() => {
-          setTryOnModalOpen(false);
-          navigate('/shop');
-        }}
-      />
-
-      {/* Standalone Plug-and-Play Virtual Try-On Modal */}
-      <VirtualTryOnModal
-        isOpen={isTryOnModalOpen}
-        onClose={() => setIsTryOnModalOpen(false)}
-        garmentImageUrl={product.image}
-        garmentName={product.title}
-      />
     </div>
   );
 }

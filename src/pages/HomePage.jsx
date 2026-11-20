@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
-import CatVTONModal from '../components/CatVTONModal';
 
 const FEATURED_LOOKS = [
   {
@@ -54,7 +53,6 @@ export default function HomePage() {
   const navigate = useNavigate();
   const { categories } = useStore();
   const [activeLookIndex, setActiveLookIndex] = useState(0);
-  const [tryOnModalOpen, setTryOnModalOpen] = useState(false);
 
   // Auto-rotate featured looks every 5 seconds
   useEffect(() => {
@@ -132,9 +130,8 @@ export default function HomePage() {
                 <span>→</span>
               </Link>
 
-              <button 
-                type="button"
-                onClick={() => setTryOnModalOpen(true)}
+              <Link 
+                to="/fitting-room"
                 className="btn btn-secondary hover-shimmer" 
                 style={{ 
                   padding: '14px 28px', 
@@ -150,7 +147,7 @@ export default function HomePage() {
                 }}
               >
                 <span>✨ AI Virtual Try-On</span>
-              </button>
+              </Link>
             </div>
 
             {/* Trust Highlights */}
@@ -432,17 +429,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* CatVTON AI Virtual Try-On Modal */}
-      <CatVTONModal
-        isOpen={tryOnModalOpen}
-        onClose={() => setTryOnModalOpen(false)}
-        garment={currentLook}
-        onSelectOtherGarment={() => {
-          setTryOnModalOpen(false);
-          navigate('/shop');
-        }}
-      />
     </div>
   );
 }
