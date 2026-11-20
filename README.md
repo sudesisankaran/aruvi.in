@@ -1,85 +1,77 @@
 # Aruvi Collections (Aruvi.in) 🌿🥻
 
 > **Tradition In Every Thread** — Handcrafted South Indian Luxury Ethnic Wear & AI Couture Experience.
+> Built as a modern Single Page Application (SPA) powered by **React 18 + Vite**.
 
-Aruvi Collections is a bespoke e-commerce boutique designed for South Indian ethnic couture, featuring authentic Kanjivaram pure silk sarees, designer salwar suits, shararas, ethnic fusion wear, and an innovative **AI Virtual Fitting Room**.
-
----
-
-## ✨ Features & Highlights
-
-### 👗 1. The 7 Signature Collections
-Strictly curated collections featuring:
-1. **Sarees** — Pure Kanjivaram silk, Banarasi gold zari, Chanderi festive weaves, and lightweight handlooms.
-2. **Salwar** — Hand-embroidered Anarkali suits, straight cuts, and festive palazzo suits.
-3. **Sharara** — Royal festive flared sharara sets with intricate zari and mirror work.
-4. **Ethnic Wears** — Pattu pavadai, lehenga sets, and traditional South Indian celebration wear.
-5. **Co-ord Sets** — Fusion printed silk, cotton, and contemporary ethnic co-ords.
-6. **Western Tops** — Hand-block printed tunics, short kurtis, and Indo-western tops.
-7. **Kids** — Traditional pattu pavadai sets, dhoti sets, and ethnic festive wear for children.
-
-### 🪞 2. AI Virtual Fitting Room
-* **Step 1: Choose Garment** — Select any outfit across the 7 collections.
-* **Step 2: Model Avatar or Photo Upload** — Upload a personal full-body photo or select a diverse studio model silhouette.
-* **Step 3: Neural AI Drape** — Photorealistic AI fabric synthesis with interactive Before/After split comparison slider.
-* **Direct Integration** — Share your try-on on WhatsApp or add to bag with your silhouette measurements!
-
-### 🔥 3. Firebase Cloud Storage & Auth
-* **Live Storage**: Direct upload of product media and fitting room photos to Firebase Cloud Storage (`ssvvallarasubillsystem.firebasestorage.app`).
-* **Customer Authentication**: Integrated Firebase Google Sign-In and Email/Password registration/login on "My Account".
-
-### 👑 4. Boutique Admin Management
-* **Owner Authentication**: Strictly protected via Google Login for **`aruvicollections.25@gmail.com`**.
-* **Storefront Control**: Top Admin Bar appears automatically when the admin logs in, enabling instant product additions, real-time in-page editing, and deletions dynamically synced across Home and Service pages.
-* **Admin Portal**: Full dashboard for product catalog management, order tracking, and inventory status.
-
-### 📱 5. 100% Multi-Device Responsive
-* Optimized for all screen sizes: Desktop (1440px+), Laptops (1024px-1439px), Tablets (769px-1023px), and Mobile Phones (320px-768px).
-* 2-column mobile product grid with touch-friendly navigation drawer, horizontal category pill bar, and sticky mobile purchase bar on product details.
+Aruvi Collections is a bespoke e-commerce boutique designed for South Indian ethnic couture, featuring authentic Salwars, Shararas, regal Ethnic Wear, Maxis, Co-ordsets, Western Wear, Jeans & Pants, Kids Wear, and an interactive **AI Virtual Fitting Room**.
 
 ---
 
 ## 🚀 Tech Stack
 
-* **Frontend**: HTML5, Vanilla JavaScript (ES6+), CSS3 with CSS Custom Properties
-* **Styling**: Responsive Grid & Flexbox, 3D Tilt Cards, Luxury Glassmorphism & Gold Theme
-* **Backend / Cloud**: Firebase v10 SDK (Authentication & Cloud Storage)
-* **Fonts**: Playfair Display (Serif) & Montserrat (Sans-serif) via Google Fonts
+* **Frontend Framework**: React 18, React DOM
+* **Build Tool & Bundler**: Vite 5
+* **Routing**: React Router v6 (`HashRouter` for zero-404 GitHub Pages routing)
+* **Cloud & Auth**: Firebase v10 Modular SDK (Authentication & Cloud Storage)
+* **Styling**: Pure CSS with Custom Properties, Glassmorphism, Responsive Grid & 3D Cards
+* **Deployment**: Automated GitHub Actions CI/CD to GitHub Pages
 
 ---
 
-## 📂 Project Structure
+## 👗 The 9 Boutique Services & Collections
 
-```
-aruvi-collection/
-├── index.html                  # Boutique Home Page & Hero Showcase
-├── shop.html                   # 7 Collections Catalog with Filters & Pills
-├── product-detail.html         # Product Details with Gallery & Sticky Buy Bar
-├── virtual-fitting-room.html   # Dedicated AI Fitting Room Studio Page
-├── cart.html                   # Shopping Bag & Order Summary
-├── checkout.html               # Multi-step Delivery & Payment Checkout
-├── account.html                # Patron Account & Firebase Authentication
-├── wishlist.html               # Saved Favorites Wishlist
-├── admin.html                  # Boutique Owner Admin Portal
-├── scripts/
-│   ├── firebase-config.js      # Live Firebase Storage & Auth Configuration
-│   ├── customer-auth.js        # Firebase Google & Email/Password Engine
-│   ├── store-data.js           # Dynamic Catalog & Storage State Manager
-│   ├── app-main.js             # Storefront UI Controller & Admin Bar
-│   ├── fitting-room.js         # AI Virtual Fitting Room Engine & Canvas
-│   └── effects.js              # Ambient Animations & Micro-interactions
-├── styles/
-│   ├── main.css                # Core Design System & Multi-Device Responsive CSS
-│   ├── auth.css                # Firebase Auth Modal & Cards
-│   ├── fitting-room.css        # AI Fitting Room Modal & Split Slider
-│   ├── admin.css               # Admin Dashboard Styling
-│   └── animations.css          # Ambient Glow & Shimmer Transitions
-└── assets/                     # Curated Silk & Ethnic Images & Brand Logo
+1. **Salwar** (`#/shop?category=salwar`) — Hand-embroidered Anarkali suits, straight cuts, and festive palazzo suits.
+2. **Sharara** (`#/shop?category=sharara`) — Royal flared festive sharara sets with intricate zari and mirror work.
+3. **Ethnic Wear** (`#/shop?category=ethnic-wear`) — Pattu pavadai, lehenga sets, and traditional heritage celebration wear.
+4. **Maxi's** (`#/shop?category=maxis`) — Flowing artisanal dresses and graceful long drapes.
+5. **Co-ordsets** (`#/shop?category=co-ordsets`) — Fusion printed silk, cotton, and contemporary ethnic co-ords.
+6. **Casual Tops** (`#/shop?category=casual-tops`) — Hand-block printed tunics, short kurtis, and everyday chic tops.
+7. **Western Wear** (`#/shop?category=western-wear`) — Modern silhouettes blended with handcrafted Indian textiles.
+8. **Jeans & Pants** (`#/shop?category=jeans-pants`) — Baggy pants, straight-fit pants, and palazzos.
+9. **Kids Wear** (`#/shop?category=kids-wear`) — Festive pattu pavadai sets, dhoti sets, and children's ethnic fashion.
+
+---
+
+## 🪞 AI Virtual Fitting Room
+
+* **Studio Models**: Pooja, Meera, Ananya, Diya & Aarav (Kids).
+* **Custom Photo Upload**: Try outfits on your personal photo.
+* **Fabric Drape Simulation**: Adjust opacity and lighting presets (Boutique, Daylight, Evening Gala).
+* **Direct Bag Integration**: Add draped outfits straight to the shopping bag.
+
+---
+
+## 🔥 Firebase Authentication & Cloud Storage
+
+* **Cloud Storage Bucket**: `ssvvallarasubillsystem.firebasestorage.app`
+* **Google Authentication**: Instant OAuth pop-up login.
+* **Owner Admin Access**: Strictly gated for **`aruvicollections.25@gmail.com`**.
+* **Owner Dashboard**:
+  - Live revenue and order metrics.
+  - Direct garment image uploads to Firebase Cloud Storage.
+  - Product catalog management (Add, Edit, Delete).
+  - Customer order status tracking (Confirmed, In Loom, Dispatched, Delivered).
+
+---
+
+## 🛠️ Development & Build Commands
+
+```bash
+# Install dependencies
+npm install
+
+# Start local development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build locally
+npm run preview
 ```
 
 ---
 
-## 📄 License
+## 🌐 Deployment
 
-© 2026 Aruvi Collections. All Rights Reserved.
-Tradition In Every Thread.
+Every push to the `main` branch triggers the GitHub Actions workflow in `.github/workflows/deploy.yml`, which automatically builds and deploys the React SPA to GitHub Pages.
