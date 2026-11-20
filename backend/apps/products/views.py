@@ -1,7 +1,12 @@
+import os
+import time
+import re
 from rest_framework import viewsets, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.db.models import ProtectedError
+from django.conf import settings
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Category, Product, ProductImage
 from .serializers import CategorySerializer, ProductSerializer
@@ -28,6 +33,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
     permission_classes = [IsStrictAdminOrReadOnly]
+    parser_classes = [JSONParser, MultiPartParser, FormParser]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['category__slug', 'is_featured', 'fabric']
     search_fields = ['title', 'sku', 'description', 'fabric', 'badge']
@@ -44,6 +50,41 @@ class ProductViewSet(viewsets.ModelViewSet):
 
         # All public customers and guests only see active products
         return base_qs.filter(status='active')
+
+    @action(detail=False, methods=['post'], permission_classes=[IsStrictAdminUser], parser_classes=[MultiPartParser, FormParser])
+    def upload_image(self, request):
+        uploaded_file = request.FILES.get('file') or request.FILES.get('image')
+        if not uploaded_file:
+            return Response({"error": "No image file provided in 'file' parameter."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        allowed_extensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif']
+        ext = os.path.splitext(uploaded_file.name)[1].lower()
+        if ext not in allowed_extensions:
+            return Response(
+                {"error": f"Unsupported file extension '{ext}'. Allowed: {', '.join(allowed_extensions)}"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        clean_name = re.sub(r'[^a-zA-Z0-9_.-]', '_', os.path.splitext(uploaded_file.name)[0])
+        filename = f"{int(time.time())}_{clean_name}{ext}"
+        
+        media_products_dir = os.path.join(settings.MEDIA_ROOT, 'products')
+        os.makedirs(media_products_dir, exist_ok=True)
+        
+        file_path = os.path.join(media_products_dir, filename)
+        with open(file_path, 'wb+') as destination:
+            for chunk in uploaded_file.chunks():
+                destination.write(chunk)
+                
+        media_url = f"{settings.MEDIA_URL}products/{filename}"
+        full_url = request.build_absolute_uri(media_url)
+        
+        return Response({
+            "message": "Image uploaded successfully.",
+            "url": full_url,
+            "relative_url": media_url,
+            "filename": filename
+        }, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['post'], permission_classes=[IsStrictAdminUser])
     def update_stock(self, request, pk=None):
@@ -64,3 +105,54 @@ class ProductViewSet(viewsets.ModelViewSet):
         product.status = 'inactive' if product.status == 'active' else 'active'
         product.save(update_fields=['status', 'updated_at'])
         return Response({"message": f"Product status set to {product.status}.", "status": product.status})
+
+class AdminProductViewSet(viewsets.ModelViewSet):
+    """
+    Dedicated Admin Products ViewSet:
+    Routes strictly to /api/admin/products/
+    Requires IsStrictAdminUser (aruvicollections.25@gmail.com) for ALL actions.
+    """
+    queryset = Product.objects.all().select_related('category').prefetch_related('images')
+    serializer_class = ProductSerializer
+    permission_classes = [IsStrictAdminUser]
+    parser_classes = [JSONParser, MultiPartParser, FormParser]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['category__slug', 'is_featured', 'fabric', 'status']
+    search_fields = ['title', 'sku', 'description', 'fabric', 'badge']
+    ordering_fields = ['price', 'created_at', 'stock', 'rating']
+    ordering = ['-created_at']
+
+    @action(detail=False, methods=['post'], parser_classes=[MultiPartParser, FormParser])
+    def upload_image(self, request):
+        uploaded_file = request.FILES.get('file') or request.FILES.get('image')
+        if not uploaded_file:
+            return Response({"error": "No image file provided in 'file' parameter."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        allowed_extensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif']
+        ext = os.path.splitext(uploaded_file.name)[1].lower()
+        if ext not in allowed_extensions:
+            return Response(
+                {"error": f"Unsupported file extension '{ext}'. Allowed: {', '.join(allowed_extensions)}"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        clean_name = re.sub(r'[^a-zA-Z0-9_.-]', '_', os.path.splitext(uploaded_file.name)[0])
+        filename = f"{int(time.time())}_{clean_name}{ext}"
+        
+        media_products_dir = os.path.join(settings.MEDIA_ROOT, 'products')
+        os.makedirs(media_products_dir, exist_ok=True)
+        
+        file_path = os.path.join(media_products_dir, filename)
+        with open(file_path, 'wb+') as destination:
+            for chunk in uploaded_file.chunks():
+                destination.write(chunk)
+                
+        media_url = f"{settings.MEDIA_URL}products/{filename}"
+        full_url = request.build_absolute_uri(media_url)
+        
+        return Response({
+            "message": "Image uploaded successfully.",
+            "url": full_url,
+            "relative_url": media_url,
+            "filename": filename
+        }, status=status.HTTP_201_CREATED)

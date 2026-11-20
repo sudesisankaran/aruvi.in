@@ -78,21 +78,8 @@ export function StoreProvider({ children }) {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // Products: Starts with 0 default products, synchronized with backend central database
-  const [products, setProducts] = useState(() => {
-    try {
-      const saved = localStorage.getItem('aruvi_products');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          return parsed.filter(p => !String(p.id).startsWith('prod_'));
-        }
-      }
-      return [];
-    } catch (e) {
-      return [];
-    }
-  });
+  // Central Products Catalog: Zero default products, driven 100% by central database
+  const [products, setProducts] = useState([]);
 
   // Categories
   const [categories, setCategories] = useState(() => {
@@ -309,12 +296,13 @@ export function StoreProvider({ children }) {
     };
   }, [syncWithCentralDatabase]);
 
-  // LocalStorage synchronizations
+  // LocalStorage synchronizations (cart, wishlist, settings)
   useEffect(() => {
     try {
-      localStorage.setItem('aruvi_products', JSON.stringify(products));
+      // Clear legacy local product cache to ensure single source of truth
+      localStorage.removeItem('aruvi_products');
     } catch (e) {}
-  }, [products]);
+  }, []);
 
   useEffect(() => {
     try {
@@ -616,6 +604,10 @@ export function StoreProvider({ children }) {
       const res = await authApi.login(cleanEmail, password || 'admin123');
       const isOwner = Boolean(res.is_admin && cleanEmail === AUTHORIZED_ADMIN_EMAIL);
 
+      if (res.token) {
+        localStorage.setItem('aruvi_auth_token', res.token);
+      }
+
       const userObj = {
         uid: res.user?.id || 'usr_' + Date.now(),
         email: cleanEmail,
@@ -639,31 +631,13 @@ export function StoreProvider({ children }) {
         localStorage.removeItem('aruvi_admin_email');
       }
 
+      // Re-sync central database products immediately for newly authenticated user
+      await syncWithCentralDatabase();
+
       return { user: userObj, redirectTo: res.redirect_to || (isOwner ? '/admin/dashboard' : '/') };
     } catch (err) {
-      // Offline fallback handling
-      const isOwner = cleanEmail === AUTHORIZED_ADMIN_EMAIL;
-      const userObj = {
-        uid: 'usr_' + Date.now(),
-        email: cleanEmail,
-        name: cleanEmail.split('@')[0],
-        isAdmin: isOwner,
-        provider: 'email'
-      };
-      setUser(userObj);
-      localStorage.setItem('aruvi_customer_logged_in', 'true');
-      localStorage.setItem('aruvi_customer_user', JSON.stringify(userObj));
-
-      if (isOwner) {
-        setAdminLoggedIn(true);
-        localStorage.setItem('aruvi_admin_logged_in', 'true');
-        localStorage.setItem('aruvi_admin_email', cleanEmail);
-      } else {
-        setAdminLoggedIn(false);
-        localStorage.removeItem('aruvi_admin_logged_in');
-        localStorage.removeItem('aruvi_admin_email');
-      }
-      return { user: userObj, redirectTo: isOwner ? '/admin/dashboard' : '/' };
+      const errMsg = err.response?.data?.error || err.message || 'Login failed.';
+      throw new Error(errMsg);
     }
   };
 
@@ -689,111 +663,135 @@ export function StoreProvider({ children }) {
   // CENTRAL PRODUCT MANAGEMENT (Global Synchronization)
   // -------------------------------------------------------------
   const addProduct = async (newProd) => {
-    let savedProd = {
-      ...newProd,
-      id: newProd.id || 'p_' + Date.now(),
-      sku: newProd.sku || `ARUVI-${(newProd.category || 'GEN').substring(0, 3).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`,
-      rating: newProd.rating || 4.9,
-      reviews: newProd.reviews || 1,
-      stock: typeof newProd.stock === 'number' ? newProd.stock : (Number(newProd.stockQuantity) || 15),
-      status: newProd.status || 'active',
-      isFeatured: !!newProd.isFeatured,
-      createdAt: new Date().toISOString()
-    };
-
-    // Save to central PostgreSQL/SQLite backend
-    try {
-      const backendPayload = {
-        title: newProd.title,
-        sku: savedProd.sku,
-        category: newProd.category || 'salwar',
-        price: Number(newProd.price),
-        original_price: newProd.originalPrice ? Number(newProd.originalPrice) : null,
-        stock: savedProd.stock,
-        fabric: newProd.fabric || 'Pure Handloom Silk',
-        badge: newProd.badge || null,
-        description: newProd.description || '',
-        status: newProd.status || 'active',
-        is_featured: !!newProd.isFeatured,
-        image: newProd.image || 'assets/images/kanjivaram_green.jpg',
-        images: (newProd.images || []).map((img, idx) => ({
-          image_url: img.image_url || img.url || img,
-          is_primary: idx === 0,
-          display_order: idx
-        }))
-      };
-      const res = await productsApi.createProduct(backendPayload);
-      if (res && res.id) {
-        savedProd.id = res.id;
-        savedProd.sku = res.sku || savedProd.sku;
-      }
-      // Re-sync central database state immediately
-      await syncWithCentralDatabase();
-    } catch (err) {
-      console.warn('Central DB product creation failed, saved locally:', err);
+    // 1. Field Validations
+    if (!newProd.title || !newProd.title.trim()) {
+      addToast('Product title is required.', 'error');
+      throw new Error('Product title is required.');
+    }
+    if (newProd.price === undefined || newProd.price === '' || isNaN(Number(newProd.price)) || Number(newProd.price) <= 0) {
+      addToast('Please enter a valid regular price greater than 0.', 'error');
+      throw new Error('Please enter a valid regular price greater than 0.');
     }
 
-    setProducts((prev) => [savedProd, ...prev]);
-    addToast(`Added "${savedProd.title}" to catalog!`, 'success');
-    return savedProd;
+    // 2. Prepare payload for central database
+    const backendPayload = {
+      title: newProd.title.trim(),
+      sku: (newProd.sku || `ARUVI-${(newProd.category || 'GEN').substring(0, 3).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`).trim(),
+      category: newProd.category || 'salwar',
+      price: Number(newProd.price),
+      original_price: newProd.originalPrice ? Number(newProd.originalPrice) : null,
+      stock: Math.max(0, parseInt(newProd.stock, 10) || 0),
+      fabric: newProd.fabric || 'Pure Handloom Silk',
+      badge: newProd.badge || null,
+      description: (newProd.description || '').trim(),
+      status: newProd.status || 'active',
+      is_featured: !!newProd.isFeatured,
+      image: newProd.image || 'assets/images/kanjivaram_green.jpg',
+      images: (newProd.images || []).map((img, idx) => ({
+        image_url: img.image_url || img.url || img,
+        storage_path: img.storage_path || '',
+        alt_text: img.alt_text || newProd.title,
+        is_primary: idx === 0,
+        display_order: idx
+      }))
+    };
+
+    // 3. Send product data to backend & wait for actual database response
+    try {
+      const res = await productsApi.createProduct(backendPayload);
+      if (!res || !res.id) {
+        throw new Error('Central database did not return a valid product ID.');
+      }
+
+      // 4. Invalidate query cache & refetch immediately from central database
+      await syncWithCentralDatabase();
+      addToast(`Product "${res.title || newProd.title}" added to central database successfully!`, 'success');
+      return res;
+    } catch (err) {
+      // 5. Never show false success notification! Display actual backend error
+      const errMsg = err.response?.data?.error || 
+                     (err.response?.data ? (typeof err.response.data === 'string' ? err.response.data : JSON.stringify(err.response.data)) : null) || 
+                     err.message || 
+                     'Failed to save product in central database.';
+      addToast(`Error saving product: ${errMsg}`, 'error');
+      throw new Error(errMsg);
+    }
   };
 
   const updateProduct = async (idOrProd, updateData) => {
     const targetId = typeof idOrProd === 'object' && idOrProd?.id ? idOrProd.id : idOrProd;
     const fields = updateData || (typeof idOrProd === 'object' ? idOrProd : {});
 
-    setProducts((prev) =>
-      prev.map((p) => (p.id === targetId ? { ...p, ...fields } : p))
-    );
+    const backendPayload = {};
+    if (fields.title) backendPayload.title = fields.title.trim();
+    if (fields.price !== undefined) backendPayload.price = Number(fields.price);
+    if (fields.originalPrice !== undefined) backendPayload.original_price = fields.originalPrice ? Number(fields.originalPrice) : null;
+    if (fields.stock !== undefined) backendPayload.stock = Math.max(0, parseInt(fields.stock, 10) || 0);
+    if (fields.status) backendPayload.status = fields.status;
+    if (fields.isFeatured !== undefined) backendPayload.is_featured = !!fields.isFeatured;
+    if (fields.description !== undefined) backendPayload.description = fields.description.trim();
+    if (fields.fabric) backendPayload.fabric = fields.fabric;
+    if (fields.badge !== undefined) backendPayload.badge = fields.badge;
+    if (fields.image) backendPayload.image = fields.image;
+    if (fields.category) backendPayload.category = fields.category;
+    if (fields.images) {
+      backendPayload.images = fields.images.map((img, idx) => ({
+        image_url: img.image_url || img.url || img,
+        storage_path: img.storage_path || '',
+        alt_text: img.alt_text || fields.title || '',
+        is_primary: idx === 0,
+        display_order: idx
+      }));
+    }
 
     try {
-      const backendPayload = {};
-      if (fields.title) backendPayload.title = fields.title;
-      if (fields.price !== undefined) backendPayload.price = Number(fields.price);
-      if (fields.originalPrice !== undefined) backendPayload.original_price = Number(fields.originalPrice);
-      if (fields.stock !== undefined) backendPayload.stock = Number(fields.stock);
-      if (fields.status) backendPayload.status = fields.status;
-      if (fields.isFeatured !== undefined) backendPayload.is_featured = fields.isFeatured;
-      if (fields.description) backendPayload.description = fields.description;
-      if (fields.fabric) backendPayload.fabric = fields.fabric;
-      if (fields.badge !== undefined) backendPayload.badge = fields.badge;
-      if (fields.image) backendPayload.image = fields.image;
-      if (fields.category) backendPayload.category = fields.category;
-
-      await productsApi.updateProduct(targetId, backendPayload);
+      const res = await productsApi.updateProduct(targetId, backendPayload);
       await syncWithCentralDatabase();
-    } catch (err) {}
-
-    addToast('Product updated in central database.', 'success');
+      addToast('Product updated in central database successfully.', 'success');
+      return res;
+    } catch (err) {
+      const errMsg = err.response?.data?.error || 
+                     (err.response?.data ? (typeof err.response.data === 'string' ? err.response.data : JSON.stringify(err.response.data)) : null) || 
+                     err.message || 
+                     'Failed to update product in database.';
+      addToast(`Error updating product: ${errMsg}`, 'error');
+      throw new Error(errMsg);
+    }
   };
 
   const deleteProduct = async (prodId) => {
-    setProducts((prev) => prev.filter((p) => p.id !== prodId));
     try {
       await productsApi.deleteProduct(prodId);
       await syncWithCentralDatabase();
-    } catch (err) {}
-    addToast('Product removed from catalog & database.', 'info');
+      addToast('Product removed from database successfully.', 'info');
+      return true;
+    } catch (err) {
+      const errMsg = err.response?.data?.error || 
+                     (err.response?.data ? (typeof err.response.data === 'string' ? err.response.data : JSON.stringify(err.response.data)) : null) || 
+                     err.message || 
+                     'Failed to delete product from database.';
+      addToast(`Error deleting product: ${errMsg}`, 'error');
+      throw new Error(errMsg);
+    }
   };
 
   const clearAllProducts = () => {
     setProducts([]);
-    try {
-      localStorage.setItem('aruvi_products', JSON.stringify([]));
-    } catch (e) {}
-    addToast('All products removed from catalog.', 'info');
+    addToast('Catalog cleared locally.', 'info');
   };
 
   const updateStock = async (productId, newStock) => {
     const val = Math.max(0, Number(newStock) || 0);
-    setProducts((prev) =>
-      prev.map((p) => (p.id === productId ? { ...p, stock: val } : p))
-    );
     try {
       await productsApi.updateStock(productId, val);
       await syncWithCentralDatabase();
-    } catch (err) {}
-    addToast('Stock level updated.', 'success');
+      addToast('Stock level updated in central database.', 'success');
+      return true;
+    } catch (err) {
+      const errMsg = err.response?.data?.error || err.message || 'Failed to update stock.';
+      addToast(`Error updating stock: ${errMsg}`, 'error');
+      throw new Error(errMsg);
+    }
   };
 
   // Category Management

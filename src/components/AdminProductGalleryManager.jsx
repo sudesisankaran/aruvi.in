@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { uploadFileToFirebase, deleteFileFromFirebase, validateImageFile } from '../services/firebase';
+import { productsApi } from '../services/api';
 
 export default function AdminProductGalleryManager({
   images = [],
@@ -42,17 +43,36 @@ export default function AdminProductGalleryManager({
       }
 
       try {
-        const folder = productId ? `products/${productId}` : 'products/drafts';
-        const res = await uploadFileToFirebase(file, folder, (pct) => {
-          const overall = Math.round(((i + pct / 100) / files.length) * 100);
-          setUploadProgress(overall);
-        });
+        let imageUrl = '';
+        let storagePath = '';
+
+        // Try direct backend persistent storage upload first
+        try {
+          const backendImgRes = await productsApi.uploadImage(file);
+          if (backendImgRes && backendImgRes.url) {
+            imageUrl = backendImgRes.url;
+            storagePath = backendImgRes.relative_url || '';
+          }
+        } catch (backendErr) {
+          console.warn('Backend image upload fallback to Firebase:', backendErr);
+        }
+
+        // Fallback to Firebase storage if backend upload wasn't used
+        if (!imageUrl) {
+          const folder = productId ? `products/${productId}` : 'products/drafts';
+          const res = await uploadFileToFirebase(file, folder, (pct) => {
+            const overall = Math.round(((i + pct / 100) / files.length) * 100);
+            setUploadProgress(overall);
+          });
+          imageUrl = res.url;
+          storagePath = res.path;
+        }
 
         const isFirst = updated.length === 0;
         const newImgObj = {
           id: `temp_${Date.now()}_${i}`,
-          image_url: res.url,
-          storage_path: res.path,
+          image_url: imageUrl,
+          storage_path: storagePath,
           alt_text: file.name.replace(/\.[^/.]+$/, ''),
           is_primary: isFirst,
           display_order: updated.length,

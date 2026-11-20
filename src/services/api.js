@@ -79,17 +79,28 @@ export const productsApi = {
   },
 
   createProduct: async (productData) => {
-    const res = await apiClient.post('/products/', productData);
+    const res = await apiClient.post('/admin/products/', productData);
     return res.data;
   },
 
   updateProduct: async (id, productData) => {
-    const res = await apiClient.patch(`/products/${id}/`, productData);
+    const res = await apiClient.patch(`/admin/products/${id}/`, productData);
     return res.data;
   },
 
   deleteProduct: async (id) => {
-    const res = await apiClient.delete(`/products/${id}/`);
+    const res = await apiClient.delete(`/admin/products/${id}/`);
+    return res.data;
+  },
+
+  uploadImage: async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await apiClient.post('/admin/products/upload_image/', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return res.data;
   },
 

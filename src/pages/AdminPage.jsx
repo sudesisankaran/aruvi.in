@@ -267,16 +267,17 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
       images: prodImages
     };
 
-    if (editingProductId) {
-      await updateProduct(editingProductId, payload);
-      addToast(`Product "${payload.title}" updated successfully!`, 'success');
-    } else {
-      await addProduct(payload);
-      addToast(`Product "${payload.title}" added to catalog!`, 'success');
+    try {
+      if (editingProductId) {
+        await updateProduct(editingProductId, payload);
+      } else {
+        await addProduct(payload);
+      }
+      resetProductForm();
+      setActiveTab('products');
+    } catch (err) {
+      console.error('Save product transaction failed:', err);
     }
-
-    resetProductForm();
-    setActiveTab('products');
   };
 
   // Filtered Products for Catalog

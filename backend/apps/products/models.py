@@ -34,7 +34,7 @@ class Product(models.Model):
     description = models.TextField(blank=True, default='')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
     is_featured = models.BooleanField(default=False)
-    image = models.CharField(max_length=500, default='assets/images/kanjivaram_green.jpg')
+    image = models.TextField(default='assets/images/kanjivaram_green.jpg')
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=4.9)
     reviews_count = models.PositiveIntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -48,8 +48,8 @@ class Product(models.Model):
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
-    image_url = models.CharField(max_length=500)
-    storage_path = models.CharField(max_length=500, blank=True, default='')
+    image_url = models.TextField()
+    storage_path = models.TextField(blank=True, default='')
     alt_text = models.CharField(max_length=200, blank=True, default='')
     is_primary = models.BooleanField(default=False)
     display_order = models.PositiveIntegerField(default=0)
