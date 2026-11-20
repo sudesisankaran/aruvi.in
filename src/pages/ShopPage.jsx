@@ -7,8 +7,10 @@ export default function ShopPage() {
   const { products, categories, searchQuery } = useStore();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Active category from URL query param
+  // Active category and search from URL query param
   const activeCategory = searchParams.get('category') || 'all';
+  const urlSearch = searchParams.get('search') || '';
+  const effectiveSearch = (urlSearch || searchQuery || '').trim().toLowerCase();
 
   // Filters & Sorting state
   const [selectedSort, setSelectedSort] = useState('featured');
@@ -17,12 +19,13 @@ export default function ShopPage() {
 
   // Handle Category Pill Click
   const handleCategoryChange = (catId) => {
+    const nextParams = new URLSearchParams(searchParams);
     if (catId === 'all') {
-      searchParams.delete('category');
-      setSearchParams(searchParams);
+      nextParams.delete('category');
     } else {
-      setSearchParams({ category: catId });
+      nextParams.set('category', catId);
     }
+    setSearchParams(nextParams);
   };
 
   // Filter and sort products
@@ -33,12 +36,11 @@ export default function ShopPage() {
         return false;
       }
 
-      // Search Query filter (from global search in header)
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase();
-        const matchTitle = (product.title || '').toLowerCase().includes(q);
-        const matchCat = (product.category || '').toLowerCase().includes(q);
-        const matchFabric = (product.fabric || '').toLowerCase().includes(q);
+      // Search Query filter (from global search in header or query string)
+      if (effectiveSearch) {
+        const matchTitle = (product.title || '').toLowerCase().includes(effectiveSearch);
+        const matchCat = (product.category || '').toLowerCase().includes(effectiveSearch);
+        const matchFabric = (product.fabric || '').toLowerCase().includes(effectiveSearch);
         if (!matchTitle && !matchCat && !matchFabric) {
           return false;
         }
