@@ -571,3 +571,36 @@
   opacity: 0 !important;
   pointer-events: none !important;
 }
+
+/* ==========================================================================
+   8. SERVICES AUTO-SCROLL MARQUEE ANIMATION
+   ========================================================================== */
+@keyframes autoScrollServices {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.services-auto-scroll-container {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  padding: 10px 0;
+  mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+}
+
+.services-auto-scroll-track {
+  display: flex;
+  gap: 28px;
+  width: max-content;
+  animation: autoScrollServices 30s linear infinite;
+  will-change: transform;
+}
+
+.services-auto-scroll-container:hover .services-auto-scroll-track {
+  animation-play-state: paused;
+}

@@ -35,21 +35,18 @@ export default function Header() {
     <>
       {/* Top Announcement Bar */}
       <header className="announcement-bar">
-        <div className="announcement-inner">
-          <div className="announcement-promo">
+        <div className="announcement-inner" style={{ justifyContent: 'center', position: 'relative' }}>
+          <div className="announcement-promo" style={{ textAlign: 'center' }}>
             <span className="announcement-tag">FESTIVE SALE</span>
             <span>✨ Use code <strong>ARUVI20</strong> for Extra 20% Off + Free Shipping on orders above ₹999 ✨</span>
           </div>
-          <div className="announcement-right">
-            <Link to="/account" className="announcement-link">👤 My Account</Link>
-            <Link to="/account" className="announcement-link">Track Shipment</Link>
-            <Link to="/account" className="announcement-link">Boutique Concierge</Link>
-            {isAdmin && (
+          {isAdmin && (
+            <div className="announcement-right" style={{ position: 'absolute', right: '16px' }}>
               <Link to="/admin" className="announcement-link" style={{ color: '#d4af37', fontWeight: 700 }}>
                 👑 Admin Portal
               </Link>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </header>
 

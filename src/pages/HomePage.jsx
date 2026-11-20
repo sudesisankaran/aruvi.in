@@ -294,24 +294,69 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 9 Boutique Categories Visual Strip */}
-      <section className="categories-strip-section" style={{ padding: '40px 0', background: 'rgba(255,255,255,0.7)', borderTop: '1px solid rgba(200,157,56,0.15)', borderBottom: '1px solid rgba(200,157,56,0.15)' }}>
-        <div className="container">
-          <div className="section-header-row" style={{ textAlign: 'center', marginBottom: '32px' }}>
-            <span style={{ color: 'var(--color-gold)', fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>Curated Services</span>
-            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '2rem', color: '#0e2920', marginTop: '4px' }}>Explore By Category</h2>
-            <p style={{ color: '#667770', fontSize: '0.92rem' }}>Browse all 9 boutique fashion services handcrafted for every celebration.</p>
+      {/* 9 Boutique Categories Auto-Scroll Showcase */}
+      <section 
+        className="categories-strip-section" 
+        style={{ 
+          padding: '48px 0 54px', 
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.9) 0%, #fbf9f6 100%)', 
+          borderTop: '1px solid rgba(200,157,56,0.18)', 
+          borderBottom: '1px solid rgba(200,157,56,0.18)',
+          overflow: 'hidden'
+        }}
+      >
+        <div className="container" style={{ textAlign: 'center', marginBottom: '28px' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(200,157,56,0.1)', border: '1px solid rgba(200,157,56,0.3)', padding: '4px 14px', borderRadius: '99px', marginBottom: '10px' }}>
+            <span style={{ color: 'var(--color-gold)', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>
+              Curated Services & Collections
+            </span>
           </div>
+          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.1rem', color: '#0e2920', marginTop: '2px', marginBottom: '6px' }}>
+            Explore Handcrafted Services
+          </h2>
+          <p style={{ color: '#667770', fontSize: '0.92rem', maxWidth: '540px', margin: '0 auto' }}>
+            Continuous couture runway — tap or hover on any of our 9 boutique services to explore curated drapes.
+          </p>
+        </div>
 
-          <div className="category-circles-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(105px, 1fr))', gap: '20px', textAlign: 'center' }}>
-            {categories.map((cat) => (
+        {/* Auto-Scroll Continuous Track (Pauses on Hover) */}
+        <div className="services-auto-scroll-container">
+          <div className="services-auto-scroll-track">
+            {[...categories, ...categories].map((cat, idx) => (
               <Link 
-                key={cat.id} 
+                key={`${cat.id}-${idx}`} 
                 to={`/shop?category=${cat.id}`}
                 className="category-circle-item hover-scale"
-                style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textDecoration: 'none', color: '#0e2920', transition: 'all 0.3s ease' }}
+                style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  alignItems: 'center', 
+                  textDecoration: 'none', 
+                  color: '#0e2920', 
+                  transition: 'all 0.3s ease',
+                  flexShrink: 0,
+                  width: '136px',
+                  textAlign: 'center',
+                  padding: '14px 10px',
+                  borderRadius: '18px',
+                  background: 'rgba(255,255,255,0.8)',
+                  border: '1px solid rgba(200,157,56,0.2)',
+                  boxShadow: '0 6px 16px rgba(14,41,32,0.04)'
+                }}
               >
-                <div style={{ width: '80px', height: '80px', borderRadius: '50%', overflow: 'hidden', border: '2px solid var(--color-gold)', padding: '3px', background: '#fff', boxShadow: '0 6px 16px rgba(0,0,0,0.08)', marginBottom: '10px' }}>
+                <div 
+                  style={{ 
+                    width: '90px', 
+                    height: '90px', 
+                    borderRadius: '50%', 
+                    overflow: 'hidden', 
+                    border: '2.5px solid var(--color-gold)', 
+                    padding: '3px', 
+                    background: '#fff', 
+                    boxShadow: '0 8px 20px rgba(14,41,32,0.12)', 
+                    marginBottom: '10px'
+                  }}
+                >
                   <img 
                     src={cat.image} 
                     alt={cat.name} 
@@ -319,8 +364,12 @@ export default function HomePage() {
                     onError={(e) => { e.currentTarget.src = 'assets/images/kanjivaram_green.jpg'; }}
                   />
                 </div>
-                <span style={{ fontSize: '0.85rem', fontWeight: 600, lineHeight: 1.2 }}>{cat.name}</span>
-                <span style={{ fontSize: '0.72rem', color: '#889990', marginTop: '2px' }}>{cat.count || 'Explore'}</span>
+                <span style={{ fontSize: '0.86rem', fontWeight: 700, lineHeight: 1.25, color: '#0e2920' }}>
+                  {cat.name}
+                </span>
+                <span style={{ fontSize: '0.72rem', color: '#c89d38', fontWeight: 600, marginTop: '4px' }}>
+                  Explore Collection →
+                </span>
               </Link>
             ))}
           </div>
