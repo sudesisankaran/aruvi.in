@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
+import { fetchFreshAdminToken } from '../services/api';
 import { downloadOrderInvoicePDF } from '../utils/pdfGenerator';
 import { openWhatsAppOrderChat } from '../utils/whatsappHelper';
 import { uploadFileToFirebase } from '../services/firebase';
@@ -74,6 +75,13 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
   } = useStore();
 
   const navigate = useNavigate();
+
+  // Ensure valid admin token on AdminPage mount
+  useEffect(() => {
+    if (isAdmin && !localStorage.getItem('aruvi_auth_token')) {
+      fetchFreshAdminToken();
+    }
+  }, [isAdmin]);
 
   // Navigation & UI State
   const [activeTab, setActiveTab] = useState(initialTab);

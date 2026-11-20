@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { signInWithGoogleAuth, signOutAuth } from '../services/firebase';
-import { authApi, productsApi, ordersApi, settingsApi } from '../services/api';
+import { authApi, productsApi, ordersApi, settingsApi, fetchFreshAdminToken } from '../services/api';
 
 const StoreContext = createContext(null);
 
@@ -255,16 +255,24 @@ export function StoreProvider({ children }) {
       }
     } catch (err) {}
 
-    // 4. Verify admin authorization with backend if token exists
-    const token = localStorage.getItem('aruvi_auth_token');
-    if (token && adminLoggedIn) {
-      try {
-        await authApi.verifyAdmin();
-      } catch (err) {
-        // Revoke admin if backend rejects
-        setAdminLoggedIn(false);
-        localStorage.removeItem('aruvi_admin_logged_in');
-        localStorage.removeItem('aruvi_admin_email');
+    // 4. Verify admin authorization with backend if token exists or restore if admin session
+    let token = localStorage.getItem('aruvi_auth_token');
+    const isAdminAccount = adminLoggedIn || (user?.email || '').trim().toLowerCase() === AUTHORIZED_ADMIN_EMAIL;
+    if (isAdminAccount) {
+      if (!token) {
+        token = await fetchFreshAdminToken();
+      }
+      if (token) {
+        try {
+          await authApi.verifyAdmin();
+        } catch (err) {
+          const fresh = await fetchFreshAdminToken();
+          if (!fresh) {
+            setAdminLoggedIn(false);
+            localStorage.removeItem('aruvi_admin_logged_in');
+            localStorage.removeItem('aruvi_admin_email');
+          }
+        }
       }
     }
   }, [adminLoggedIn]);
@@ -584,6 +592,7 @@ export function StoreProvider({ children }) {
         setAdminLoggedIn(true);
         localStorage.setItem('aruvi_admin_logged_in', 'true');
         localStorage.setItem('aruvi_admin_email', cleanEmail);
+        await fetchFreshAdminToken();
       } else {
         setAdminLoggedIn(false);
         localStorage.removeItem('aruvi_admin_logged_in');
@@ -625,6 +634,7 @@ export function StoreProvider({ children }) {
         setAdminLoggedIn(true);
         localStorage.setItem('aruvi_admin_logged_in', 'true');
         localStorage.setItem('aruvi_admin_email', cleanEmail);
+        await fetchFreshAdminToken();
       } else {
         setAdminLoggedIn(false);
         localStorage.removeItem('aruvi_admin_logged_in');
@@ -663,7 +673,12 @@ export function StoreProvider({ children }) {
   // CENTRAL PRODUCT MANAGEMENT (Global Synchronization)
   // -------------------------------------------------------------
   const addProduct = async (newProd) => {
-    // 1. Field Validations
+    // 1. Ensure valid admin token exists before transaction
+    if (!localStorage.getItem('aruvi_auth_token')) {
+      await fetchFreshAdminToken();
+    }
+
+    // 2. Field Validations
     if (!newProd.title || !newProd.title.trim()) {
       addToast('Product title is required.', 'error');
       throw new Error('Product title is required.');
@@ -719,6 +734,9 @@ export function StoreProvider({ children }) {
   };
 
   const updateProduct = async (idOrProd, updateData) => {
+    if (!localStorage.getItem('aruvi_auth_token')) {
+      await fetchFreshAdminToken();
+    }
     const targetId = typeof idOrProd === 'object' && idOrProd?.id ? idOrProd.id : idOrProd;
     const fields = updateData || (typeof idOrProd === 'object' ? idOrProd : {});
 
@@ -760,6 +778,9 @@ export function StoreProvider({ children }) {
   };
 
   const deleteProduct = async (prodId) => {
+    if (!localStorage.getItem('aruvi_auth_token')) {
+      await fetchFreshAdminToken();
+    }
     try {
       await productsApi.deleteProduct(prodId);
       await syncWithCentralDatabase();

@@ -6,6 +6,8 @@ export default function CustomerAuthModal({ isOpen = true, onClose }) {
   const { user, isAdmin, loginWithGoogle, loginWithEmail, registerWithEmail, logout, addToast } = useStore();
   const navigate = useNavigate();
 
+  const isStrictAdmin = Boolean(isAdmin) && (user?.email || '').trim().toLowerCase() === 'aruvicollections.25@gmail.com';
+
   const [activeTab, setActiveTab] = useState('login'); // 'login' or 'register'
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -108,14 +110,14 @@ export default function CustomerAuthModal({ isOpen = true, onClose }) {
           <div className="auth-card-body" style={{ textAlign: 'center', padding: '24px' }}>
             <div style={{ fontSize: '3rem', marginBottom: '12px' }}>{isAdmin ? '👑' : '✨'}</div>
             <h3 style={{ fontFamily: 'var(--font-serif)', color: '#0e2920', marginBottom: '8px' }}>
-              {isAdmin ? 'Owner Admin Active' : `Hello, ${user.name || user.email}`}
+              {isStrictAdmin ? 'Owner Admin Active' : `Hello, ${user.name || user.email}`}
             </h3>
             <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginBottom: '20px' }}>
               Logged in as: <strong>{user.email}</strong>
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {isAdmin && (
+              {isStrictAdmin && (
                 <button 
                   type="button" 
                   className="btn btn-primary"

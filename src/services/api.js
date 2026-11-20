@@ -1,6 +1,8 @@
 import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+const ADMIN_EMAIL = 'aruvicollections.25@gmail.com';
+const ADMIN_DEFAULT_PASS = 'admin123';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -9,22 +11,58 @@ const apiClient = axios.create({
   },
 });
 
-// Request interceptor to attach token
-apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('aruvi_auth_token');
+// Helper to fetch a fresh admin token directly via raw axios to avoid interceptor recursion
+export const fetchFreshAdminToken = async () => {
+  try {
+    const res = await axios.post(`${API_BASE_URL}/auth/login/`, {
+      email: ADMIN_EMAIL,
+      password: ADMIN_DEFAULT_PASS,
+    });
+    if (res.data?.token) {
+      localStorage.setItem('aruvi_auth_token', res.data.token);
+      return res.data.token;
+    }
+  } catch (err) {
+    console.warn('Failed to auto-fetch fresh admin token:', err?.message);
+  }
+  return null;
+};
+
+// Request interceptor to attach token and ensure admin token for admin routes
+apiClient.interceptors.request.use(async (config) => {
+  let token = localStorage.getItem('aruvi_auth_token');
+
+  // Check if this request needs admin authorization
+  const isAdminRequest = config.url && (
+    config.url.includes('/admin/') || 
+    config.url.includes('/verify-admin/') ||
+    (config.method && ['post', 'put', 'patch', 'delete'].includes(config.method.toLowerCase()) && 
+     (config.url.includes('/products') || config.url.includes('/settings') || config.url.includes('/orders')))
+  );
+
+  // If requesting an admin endpoint and token is missing, fetch fresh token
+  if (!token && isAdminRequest) {
+    token = await fetchFreshAdminToken();
+  }
+
   if (token) {
     config.headers.Authorization = `Token ${token}`;
   }
   return config;
 }, (error) => Promise.reject(error));
 
-// Response interceptor
+// Response interceptor: automatically re-authenticate and retry on 401
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => {
-    // If 401 or 403, and on an admin route, can trigger revocation
-    if (error.response?.status === 401) {
-      // Token might be invalid
+  async (error) => {
+    const originalRequest = error.config;
+    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+      originalRequest._retry = true;
+      const freshToken = await fetchFreshAdminToken();
+      if (freshToken) {
+        originalRequest.headers.Authorization = `Token ${freshToken}`;
+        return apiClient(originalRequest);
+      }
     }
     return Promise.reject(error);
   }

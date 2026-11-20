@@ -8,6 +8,7 @@ import { auth } from '../services/firebase';
 export default function AccountPage() {
   const { user, isAdmin, orders, logout, addToast } = useStore();
   const navigate = useNavigate();
+  const isStrictAdmin = Boolean(isAdmin) && (user?.email || '').trim().toLowerCase() === 'aruvicollections.25@gmail.com';
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('orders'); // 'orders', 'profile', 'support'
 
@@ -86,7 +87,7 @@ export default function AccountPage() {
         <CustomerAuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
 
         {/* Admin Crown Notification Banner */}
-        {isAdmin && (
+        {isStrictAdmin && (
           <div className="bg-gradient-to-r from-primary-dark via-primary to-primary-dark border-2 border-gold rounded-3xl p-6 sm:p-8 text-white mb-8 shadow-xl flex flex-wrap items-center justify-between gap-6">
             <div className="max-w-2xl">
               <div className="flex items-center gap-3 mb-2">

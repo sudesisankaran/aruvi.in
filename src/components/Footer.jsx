@@ -61,9 +61,6 @@ export default function Footer() {
               <li><Link to="/wishlist" className="footer-link">Saved Wishlist</Link></li>
               <li><Link to="/cart" className="footer-link">Shopping Bag</Link></li>
               <li><Link to="/account" className="footer-link">My Account</Link></li>
-              {isAdmin && (
-                <li><Link to="/admin" className="footer-link">Owner Admin Dashboard</Link></li>
-              )}
             </ul>
           </div>
 

@@ -3,8 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 
 export default function ProductCard({ product }) {
-  const { wishlist, toggleWishlist, addToCart, isAdmin } = useStore();
+  const { wishlist, toggleWishlist, addToCart, user, isAdmin } = useStore();
   const navigate = useNavigate();
+
+  const isStrictAdmin = Boolean(isAdmin) && (user?.email || '').trim().toLowerCase() === 'aruvicollections.25@gmail.com';
 
   if (!product) return null;
 
@@ -209,7 +211,7 @@ export default function ProductCard({ product }) {
           </button>
         </div>
 
-        {isAdmin && (
+        {isStrictAdmin && (
           <div style={{ marginTop: '10px', paddingTop: '6px', borderTop: '1px dashed rgba(200,157,56,0.3)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: '0.72rem', color: '#c89d38', fontWeight: 'bold' }}>👑 Admin Managed (ID: #{product.id})</span>
             <Link to={`/admin/products`} style={{ fontSize: '0.72rem', color: '#0e2920', textDecoration: 'underline' }}>Edit in Dashboard</Link>

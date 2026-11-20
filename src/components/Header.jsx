@@ -4,12 +4,14 @@ import { useStore } from '../context/StoreContext';
 import CustomerAuthModal from './CustomerAuthModal';
 
 export default function Header() {
-  const { cartCount, wishlistCount, customer, isAdmin } = useStore();
+  const { cartCount, wishlistCount, customer, user, isAdmin } = useStore();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
+
+  const isStrictAdmin = Boolean(isAdmin) && (user?.email || '').trim().toLowerCase() === 'aruvicollections.25@gmail.com';
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -40,7 +42,7 @@ export default function Header() {
             <span className="announcement-tag">FESTIVE SALE</span>
             <span>✨ Use code <strong>ARUVI20</strong> for Extra 20% Off + Free Shipping on orders above ₹999 ✨</span>
           </div>
-          {isAdmin && (
+          {isStrictAdmin && (
             <div className="announcement-right" style={{ position: 'absolute', right: '16px' }}>
               <Link to="/admin" className="announcement-link" style={{ color: '#d4af37', fontWeight: 700 }}>
                 👑 Admin Portal
@@ -268,7 +270,7 @@ export default function Header() {
                 <span>💬 Contact & Concierge</span> <span>›</span>
               </Link>
             </li>
-            {isAdmin && (
+            {isStrictAdmin && (
               <li>
                 <Link to="/admin" className="mobile-nav-link" onClick={() => setMobileNavOpen(false)} style={{ color: '#d4af37', fontWeight: 700 }}>
                   <span>👑 Boutique Admin Portal</span> <span>›</span>
