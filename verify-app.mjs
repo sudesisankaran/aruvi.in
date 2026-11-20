@@ -23,42 +23,44 @@ function assert(condition, testName) {
 // ----------------------------------------------------
 console.log('TEST GROUP 1: Project Architecture & Structure');
 
+const frontendRoot = fs.existsSync('frontend/src') ? 'frontend' : '.';
+
 const requiredFiles = [
   'package.json',
-  'vite.config.js',
-  'index.html',
+  `${frontendRoot}/vite.config.js`,
+  `${frontendRoot}/index.html`,
   '.gitignore',
   'README.md',
   '.github/workflows/deploy.yml',
-  'src/main.jsx',
-  'src/App.jsx',
-  'src/services/firebase.js',
-  'src/context/StoreContext.jsx',
-  'src/components/Header.jsx',
-  'src/components/Footer.jsx',
-  'src/components/ProductCard.jsx',
-  'src/components/CustomerAuthModal.jsx',
-  'src/components/Toast.jsx',
-  'src/pages/HomePage.jsx',
-  'src/pages/ShopPage.jsx',
-  'src/pages/ProductDetailPage.jsx',
-  'src/pages/CategoriesPage.jsx',
-  'src/pages/AboutPage.jsx',
-  'src/pages/ContactPage.jsx',
-  'src/pages/CartPage.jsx',
-  'src/pages/CheckoutPage.jsx',
-  'src/pages/OrderSuccessPage.jsx',
-  'src/pages/WishlistPage.jsx',
-  'src/pages/VirtualFittingRoomPage.jsx',
-  'src/pages/AccountPage.jsx',
-  'src/pages/AdminPage.jsx',
-  'src/utils/pdfGenerator.js',
-  'src/utils/whatsappHelper.js',
-  'src/styles/main.css',
-  'src/styles/animations.css',
-  'src/styles/fitting-room.css',
-  'src/styles/auth.css',
-  'src/styles/admin.css'
+  `${frontendRoot}/src/main.jsx`,
+  `${frontendRoot}/src/App.jsx`,
+  `${frontendRoot}/src/services/firebase.js`,
+  `${frontendRoot}/src/context/StoreContext.jsx`,
+  `${frontendRoot}/src/components/Header.jsx`,
+  `${frontendRoot}/src/components/Footer.jsx`,
+  `${frontendRoot}/src/components/ProductCard.jsx`,
+  `${frontendRoot}/src/components/CustomerAuthModal.jsx`,
+  `${frontendRoot}/src/components/Toast.jsx`,
+  `${frontendRoot}/src/pages/HomePage.jsx`,
+  `${frontendRoot}/src/pages/ShopPage.jsx`,
+  `${frontendRoot}/src/pages/ProductDetailPage.jsx`,
+  `${frontendRoot}/src/pages/CategoriesPage.jsx`,
+  `${frontendRoot}/src/pages/AboutPage.jsx`,
+  `${frontendRoot}/src/pages/ContactPage.jsx`,
+  `${frontendRoot}/src/pages/CartPage.jsx`,
+  `${frontendRoot}/src/pages/CheckoutPage.jsx`,
+  `${frontendRoot}/src/pages/OrderSuccessPage.jsx`,
+  `${frontendRoot}/src/pages/WishlistPage.jsx`,
+  `${frontendRoot}/src/pages/VirtualFittingRoomPage.jsx`,
+  `${frontendRoot}/src/pages/AccountPage.jsx`,
+  `${frontendRoot}/src/pages/AdminPage.jsx`,
+  `${frontendRoot}/src/utils/pdfGenerator.js`,
+  `${frontendRoot}/src/utils/whatsappHelper.js`,
+  `${frontendRoot}/src/styles/main.css`,
+  `${frontendRoot}/src/styles/animations.css`,
+  `${frontendRoot}/src/styles/fitting-room.css`,
+  `${frontendRoot}/src/styles/auth.css`,
+  `${frontendRoot}/src/styles/admin.css`
 ];
 
 requiredFiles.forEach((file) => {
@@ -71,7 +73,7 @@ requiredFiles.forEach((file) => {
 // ----------------------------------------------------
 console.log('\nTEST GROUP 2: The 9 Boutique Services in StoreContext.jsx');
 
-const storeCode = fs.readFileSync('src/context/StoreContext.jsx', 'utf8');
+const storeCode = fs.readFileSync(`${frontendRoot}/src/context/StoreContext.jsx`, 'utf8');
 
 const expectedServices = [
   { id: 'salwar', label: 'Salwar' },
@@ -97,11 +99,11 @@ console.log('\nTEST GROUP 3: Owner Admin Gating (aruvicollections.25@gmail.com)'
 
 assert(storeCode.includes('aruvicollections.25@gmail.com'), 'Owner email configured in StoreContext.jsx');
 
-const adminPageCode = fs.readFileSync('src/pages/AdminPage.jsx', 'utf8');
+const adminPageCode = fs.readFileSync(`${frontendRoot}/src/pages/AdminPage.jsx`, 'utf8');
 assert(adminPageCode.includes('aruvicollections.25@gmail.com'), 'AdminPage checks aruvicollections.25@gmail.com');
 assert(adminPageCode.includes('uploadFileToFirebase'), 'AdminPage supports Firebase Storage upload');
 
-const authModalCode = fs.readFileSync('src/components/CustomerAuthModal.jsx', 'utf8');
+const authModalCode = fs.readFileSync(`${frontendRoot}/src/components/CustomerAuthModal.jsx`, 'utf8');
 assert(authModalCode.includes('loginWithGoogle'), 'AuthModal has Google OAuth integration');
 assert(authModalCode.includes('loginWithEmail'), 'AuthModal has email login');
 
@@ -122,7 +124,7 @@ assert(storeCode.includes('999'), 'Free Express Shipping threshold at ₹999 ver
 // ----------------------------------------------------
 console.log('\nTEST GROUP 5: Virtual Fitting Room Capabilities');
 
-const fittingCode = fs.readFileSync('src/pages/VirtualFittingRoomPage.jsx', 'utf8');
+const fittingCode = fs.readFileSync(`${frontendRoot}/src/pages/VirtualFittingRoomPage.jsx`, 'utf8');
 assert(fittingCode.includes('Pooja'), 'Model Pooja present');
 assert(fittingCode.includes('Meera'), 'Model Meera present');
 assert(fittingCode.includes('Ananya'), 'Model Ananya present');
@@ -136,7 +138,7 @@ assert(fittingCode.includes('lightingPreset'), 'Lighting studio presets present'
 // ----------------------------------------------------
 console.log('\nTEST GROUP 6: SPA HashRouter Routes');
 
-const appCode = fs.readFileSync('src/App.jsx', 'utf8');
+const appCode = fs.readFileSync(`${frontendRoot}/src/App.jsx`, 'utf8');
 const routes = [
   '/',
   '/shop',
@@ -178,22 +180,23 @@ legacyFiles.forEach((f) => {
 // ----------------------------------------------------
 console.log('\nTEST GROUP 8: Firebase Storage & Django Backend Architecture QA');
 
-assert(fs.existsSync('storage.rules'), 'Firebase Storage Security Rules (storage.rules) present');
-assert(fs.existsSync('tailwind.config.js'), 'Tailwind CSS config present');
-assert(fs.existsSync('postcss.config.js'), 'PostCSS config present');
+assert(fs.existsSync(`${frontendRoot}/storage.rules`) || fs.existsSync('storage.rules'), 'Firebase Storage Security Rules (storage.rules) present');
+assert(fs.existsSync(`${frontendRoot}/tailwind.config.js`) || fs.existsSync('tailwind.config.js'), 'Tailwind CSS config present');
+assert(fs.existsSync(`${frontendRoot}/postcss.config.js`) || fs.existsSync('postcss.config.js'), 'PostCSS config present');
 assert(fs.existsSync('backend/manage.py'), 'Django REST Framework backend (backend/manage.py) present');
 assert(fs.existsSync('backend/requirements.txt'), 'Backend requirements.txt present');
 assert(fs.existsSync('backend/aruvi_backend/settings.py'), 'Django settings.py configured');
-assert(fs.existsSync('src/components/ImageUploadDropzone.jsx'), 'Reusable ImageUploadDropzone component present');
-assert(fs.existsSync('src/components/AdminProductGalleryManager.jsx'), 'Admin multi-image gallery manager present');
+assert(fs.existsSync(`${frontendRoot}/src/components/ImageUploadDropzone.jsx`), 'Reusable ImageUploadDropzone component present');
+assert(fs.existsSync(`${frontendRoot}/src/components/AdminProductGalleryManager.jsx`), 'Admin multi-image gallery manager present');
 
-const storageRules = fs.readFileSync('storage.rules', 'utf8');
+const storageRulesFile = fs.existsSync(`${frontendRoot}/storage.rules`) ? `${frontendRoot}/storage.rules` : 'storage.rules';
+const storageRules = fs.readFileSync(storageRulesFile, 'utf8');
 assert(storageRules.includes('match /products/{productId}/{allPaths=**}'), 'Storage Rules: Product catalog rules defined');
 assert(storageRules.includes('match /tryons/uploads/{userId}/{allPaths=**}'), 'Storage Rules: Customer try-on upload privacy rules defined');
 assert(storageRules.includes('match /tryons/results/{userId}/{allPaths=**}'), 'Storage Rules: AI fitting results privacy rules defined');
 assert(storageRules.includes('match /profiles/{userId}/{allPaths=**}'), 'Storage Rules: Customer profile avatar rules defined');
 
-const firebaseConfigCode = fs.readFileSync('src/services/firebase.js', 'utf8');
+const firebaseConfigCode = fs.readFileSync(`${frontendRoot}/src/services/firebase.js`, 'utf8');
 assert(firebaseConfigCode.includes('aruvicollections-5ce06.firebasestorage.app'), 'Firebase client configured with Firebase Storage bucket');
 assert(firebaseConfigCode.includes('validateImageFile'), 'Client-side image file validation active');
 
@@ -202,11 +205,11 @@ assert(firebaseConfigCode.includes('validateImageFile'), 'Client-side image file
 // ----------------------------------------------------
 console.log('\nTEST GROUP 9: PDF Generation, WhatsApp & Admin 12-Section Dashboard QA');
 
-const pdfGenCode = fs.readFileSync('src/utils/pdfGenerator.js', 'utf8');
+const pdfGenCode = fs.readFileSync(`${frontendRoot}/src/utils/pdfGenerator.js`, 'utf8');
 assert(pdfGenCode.includes('downloadOrderInvoicePDF'), 'pdfGenerator.js exports downloadOrderInvoicePDF');
 assert(pdfGenCode.includes('jsPDF'), 'pdfGenerator.js implements jsPDF vector rendering');
 
-const waHelperCode = fs.readFileSync('src/utils/whatsappHelper.js', 'utf8');
+const waHelperCode = fs.readFileSync(`${frontendRoot}/src/utils/whatsappHelper.js`, 'utf8');
 assert(waHelperCode.includes('openWhatsAppOrderChat'), 'whatsappHelper.js exports openWhatsAppOrderChat');
 assert(waHelperCode.includes('formatWhatsAppOrderMessage'), 'whatsappHelper.js formats structured WhatsApp orders');
 
