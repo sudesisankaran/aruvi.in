@@ -324,15 +324,9 @@ export default function HomePage() {
                   <Link
                     to="/categories"
                     className="btn btn-primary"
-                    style={{ background: 'var(--color-gold)', color: '#0e2920', fontWeight: 'bold', padding: '12px 20px', borderRadius: '12px' }}
+                    style={{ background: 'var(--color-gold)', color: '#0e2920', fontWeight: 'bold', padding: '12px 20px', borderRadius: '12px', textAlign: 'center' }}
                   >
-                    Explore Categories
-                  </Link>
-                  <Link
-                    to="/admin"
-                    style={{ fontSize: '0.82rem', color: 'var(--color-gold)', textDecoration: 'none', marginTop: '6px' }}
-                  >
-                    👑 Owner Admin: Add Products to Showcase →
+                    ✨ Explore Categories
                   </Link>
                 </div>
               </div>
@@ -543,17 +537,28 @@ export default function HomePage() {
             <div style={{ textAlign: 'center', padding: '60px 20px', background: '#fff', borderRadius: '20px', border: '1.5px dashed rgba(200,157,56,0.3)', boxShadow: '0 6px 20px rgba(14,41,32,0.03)' }}>
               <span style={{ fontSize: '3rem', display: 'block', marginBottom: '12px' }}>✨</span>
               <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', color: '#0e2920' }}>
-                {products.length === 0 ? 'Boutique Catalog is Fresh & Ready' : 'No garments found in this category'}
+                {products.length === 0 ? 'New Collections Arriving Soon' : 'No garments found in this category'}
               </h3>
-              <p style={{ color: '#667770', fontSize: '0.92rem', margin: '8px auto 20px', maxWidth: '440px' }}>
+              <p style={{ color: '#667770', fontSize: '0.92rem', margin: '8px auto 24px', maxWidth: '460px', lineHeight: 1.6 }}>
                 {products.length === 0 
-                  ? 'All demo products have been completely removed. Upload your real handcrafted creations from the Owner Admin Portal!'
+                  ? 'Our master artisans are handcrafting exquisite new arrivals. Explore our boutique categories or reach out directly via WhatsApp for custom tailoring & inquiries.'
                   : 'Try selecting another collection or view all ensembles.'}
               </p>
               {products.length === 0 ? (
-                <Link to="/admin" className="btn btn-primary hover-shimmer" style={{ padding: '10px 24px', fontSize: '0.88rem' }}>
-                  👑 Go to Admin Dashboard
-                </Link>
+                <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  <Link to="/categories" className="btn btn-primary hover-shimmer" style={{ padding: '10px 24px', fontSize: '0.88rem' }}>
+                    ✨ Explore Categories
+                  </Link>
+                  <a 
+                    href="https://wa.me/919940881987?text=Hi%20Aruvi%20Collections,%20I%20would%20like%20to%20inquire%20about%20your%20upcoming%20boutique%20collections."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-secondary" 
+                    style={{ padding: '10px 24px', fontSize: '0.88rem' }}
+                  >
+                    💬 WhatsApp Concierge
+                  </a>
+                </div>
               ) : (
                 <button 
                   type="button" 

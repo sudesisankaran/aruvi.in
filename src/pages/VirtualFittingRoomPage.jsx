@@ -419,7 +419,7 @@ export default function VirtualFittingRoomPage() {
                 <div className="text-center py-8 px-4 bg-emerald-50/50 rounded-2xl border border-emerald-900/10 text-xs text-text-muted">
                   <span className="text-2xl block mb-1">👗</span>
                   <p className="font-semibold text-primary-dark">No garments in catalog yet</p>
-                  <p className="text-[10px] text-text-muted mt-1">Upload products from Admin Portal to try on.</p>
+                  <p className="text-[10px] text-text-muted mt-1">New boutique outfits arriving soon to try on.</p>
                 </div>
               )}
             </div>

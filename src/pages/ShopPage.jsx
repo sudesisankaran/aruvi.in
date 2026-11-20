@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import ProductCard from '../components/ProductCard';
 
@@ -208,13 +208,24 @@ export default function ShopPage() {
         ) : products.length === 0 ? (
           <div className="empty-shop-state" style={{ textAlign: 'center', padding: '70px 20px', background: '#fff', borderRadius: '20px', border: '1.5px dashed rgba(200,157,56,0.3)', boxShadow: '0 6px 20px rgba(14,41,32,0.03)' }}>
             <div style={{ fontSize: '3rem', marginBottom: '12px' }}>👗</div>
-            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', color: '#0e2920' }}>Boutique Catalog is Fresh & Ready</h3>
-            <p style={{ color: '#667770', fontSize: '0.95rem', margin: '8px auto 20px', maxWidth: '440px' }}>
-              All demo products have been completely removed. Head over to the Admin Portal to upload your real outfits and collections.
+            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', color: '#0e2920' }}>New Collections Arriving Soon</h3>
+            <p style={{ color: '#667770', fontSize: '0.95rem', margin: '8px auto 24px', maxWidth: '460px', lineHeight: 1.6 }}>
+              Our boutique collections are currently being curated with fresh handcrafted designs. Feel free to browse categories or connect with us directly on WhatsApp for custom orders.
             </p>
-            <a href="#/admin" className="btn btn-primary" style={{ display: 'inline-block' }}>
-              👑 Go to Admin Dashboard
-            </a>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <Link to="/categories" className="btn btn-primary" style={{ padding: '10px 24px', fontSize: '0.88rem' }}>
+                ✨ Explore Categories
+              </Link>
+              <a 
+                href="https://wa.me/919940881987?text=Hi%20Aruvi%20Collections,%20I%20would%20like%20to%20inquire%20about%20your%20boutique%20collections."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-secondary" 
+                style={{ padding: '10px 24px', fontSize: '0.88rem' }}
+              >
+                💬 WhatsApp Concierge
+              </a>
+            </div>
           </div>
         ) : (
           <div className="empty-shop-state" style={{ textAlign: 'center', padding: '60px 20px', background: '#fff', borderRadius: '16px', border: '1px dashed #d4c8b8' }}>
