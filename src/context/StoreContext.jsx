@@ -200,25 +200,30 @@ export function StoreProvider({ children }) {
       const dbProducts = await productsApi.getProducts();
       if (Array.isArray(dbProducts)) {
         // Map DRF fields cleanly for React components
-        const cleanProds = dbProducts.map((p) => ({
-          id: p.id,
-          title: p.title,
-          sku: p.sku,
-          category: p.category_slug || p.category || 'salwar',
-          price: Number(p.price) || 0,
-          originalPrice: p.original_price ? Number(p.original_price) : Math.round(Number(p.price) * 1.25),
-          stock: p.stock ?? 15,
-          fabric: p.fabric || 'Pure Silk',
-          badge: p.badge || null,
-          description: p.description || '',
-          status: p.status || 'active',
-          isFeatured: !!p.is_featured,
-          image: p.image || 'assets/images/kanjivaram_green.jpg',
-          images: p.images || [],
-          rating: p.rating || 4.9,
-          reviews: p.reviews_count || 1,
-          createdAt: p.created_at
-        }));
+        const cleanProds = dbProducts.map((p) => {
+          const currPrice = Number(p.price) || 0;
+          const origPrice = p.original_price ? Number(p.original_price) : currPrice;
+          return {
+            id: p.id,
+            title: p.title,
+            sku: p.sku,
+            category: p.category_slug || p.category || 'salwar',
+            categoryName: p.category_name || (p.category_slug || p.category || 'salwar').replace('-', ' '),
+            price: currPrice,
+            originalPrice: origPrice,
+            stock: p.stock !== undefined ? Number(p.stock) : 15,
+            fabric: p.fabric || 'Pure Handloom Silk',
+            badge: p.badge || null,
+            description: p.description || '',
+            status: p.status || 'active',
+            isFeatured: !!p.is_featured,
+            image: p.image || 'assets/images/kanjivaram_green.jpg',
+            images: Array.isArray(p.images) ? p.images : [],
+            rating: Number(p.rating) || 4.9,
+            reviews: p.reviews_count || 18,
+            createdAt: p.created_at
+          };
+        });
         setProducts(cleanProds);
       }
     } catch (err) {
@@ -277,8 +282,31 @@ export function StoreProvider({ children }) {
     }
   }, [adminLoggedIn]);
 
+  // Real-time synchronization & cache invalidation
   useEffect(() => {
+    // Immediate initial sync
     syncWithCentralDatabase();
+
+    // Auto-polling every 5 seconds so any customer browsing sees newly uploaded products live without manual reload
+    const pollInterval = setInterval(() => {
+      syncWithCentralDatabase();
+    }, 5000);
+
+    // Immediate sync on tab focus or visibility change
+    const onFocus = () => syncWithCentralDatabase();
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        syncWithCentralDatabase();
+      }
+    };
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    return () => {
+      clearInterval(pollInterval);
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
   }, [syncWithCentralDatabase]);
 
   // LocalStorage synchronizations
@@ -680,9 +708,9 @@ export function StoreProvider({ children }) {
         sku: savedProd.sku,
         category: newProd.category || 'salwar',
         price: Number(newProd.price),
-        original_price: newProd.originalPrice ? Number(newProd.originalPrice) : Math.round(Number(newProd.price) * 1.25),
+        original_price: newProd.originalPrice ? Number(newProd.originalPrice) : null,
         stock: savedProd.stock,
-        fabric: newProd.fabric || 'Pure Silk',
+        fabric: newProd.fabric || 'Pure Handloom Silk',
         badge: newProd.badge || null,
         description: newProd.description || '',
         status: newProd.status || 'active',
@@ -699,6 +727,8 @@ export function StoreProvider({ children }) {
         savedProd.id = res.id;
         savedProd.sku = res.sku || savedProd.sku;
       }
+      // Re-sync central database state immediately
+      await syncWithCentralDatabase();
     } catch (err) {
       console.warn('Central DB product creation failed, saved locally:', err);
     }
@@ -720,14 +750,18 @@ export function StoreProvider({ children }) {
       const backendPayload = {};
       if (fields.title) backendPayload.title = fields.title;
       if (fields.price !== undefined) backendPayload.price = Number(fields.price);
+      if (fields.originalPrice !== undefined) backendPayload.original_price = Number(fields.originalPrice);
       if (fields.stock !== undefined) backendPayload.stock = Number(fields.stock);
       if (fields.status) backendPayload.status = fields.status;
       if (fields.isFeatured !== undefined) backendPayload.is_featured = fields.isFeatured;
       if (fields.description) backendPayload.description = fields.description;
       if (fields.fabric) backendPayload.fabric = fields.fabric;
+      if (fields.badge !== undefined) backendPayload.badge = fields.badge;
       if (fields.image) backendPayload.image = fields.image;
+      if (fields.category) backendPayload.category = fields.category;
 
       await productsApi.updateProduct(targetId, backendPayload);
+      await syncWithCentralDatabase();
     } catch (err) {}
 
     addToast('Product updated in central database.', 'success');
@@ -737,6 +771,7 @@ export function StoreProvider({ children }) {
     setProducts((prev) => prev.filter((p) => p.id !== prodId));
     try {
       await productsApi.deleteProduct(prodId);
+      await syncWithCentralDatabase();
     } catch (err) {}
     addToast('Product removed from catalog & database.', 'info');
   };
@@ -756,6 +791,7 @@ export function StoreProvider({ children }) {
     );
     try {
       await productsApi.updateStock(productId, val);
+      await syncWithCentralDatabase();
     } catch (err) {}
     addToast('Stock level updated.', 'success');
   };

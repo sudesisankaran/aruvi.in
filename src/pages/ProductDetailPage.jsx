@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import ProductCard from '../components/ProductCard';
@@ -12,6 +12,7 @@ export default function ProductDetailPage() {
   
   const [selectedSize, setSelectedSize] = useState('M');
   const [quantity, setQuantity] = useState(1);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   if (!product) {
     return (
@@ -30,30 +31,52 @@ export default function ProductDetailPage() {
     ? Math.round(((origPrice - currPrice) / origPrice) * 100) 
     : 0;
 
+  const stockVal = product.stock !== undefined ? Number(product.stock) : 15;
+  const isOutOfStock = stockVal <= 0 || product.status === 'out_of_stock';
+
   const sizes = product.sizes || ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+
+  const allImages = useMemo(() => {
+    const list = [];
+    if (product.image) list.push(product.image);
+    if (Array.isArray(product.images)) {
+      product.images.forEach(img => {
+        const url = typeof img === 'string' ? img : (img.image_url || img.url);
+        if (url && !list.includes(url)) {
+          list.push(url);
+        }
+      });
+    }
+    return list.length > 0 ? list : ['assets/images/kanjivaram_green.jpg'];
+  }, [product]);
+
+  const activeImage = selectedImage || allImages[0];
 
   // Related products from same category
   const relatedProducts = products
-    .filter(p => p.category === product.category && String(p.id) !== String(product.id))
+    .filter(p => p.category === product.category && String(p.id) !== String(product.id) && (p.status || 'active') === 'active')
     .slice(0, 4);
 
   const handleAddToCart = () => {
+    if (isOutOfStock) return;
     addToCart(product, quantity, selectedSize);
   };
 
   const handleBuyNow = () => {
+    if (isOutOfStock) return;
     addToCart(product, quantity, selectedSize);
     navigate('/checkout');
   };
 
   const handleWhatsAppOrder = () => {
-    const rawNumber = websiteSettings?.whatsappNumber || '919876543210';
+    const rawNumber = websiteSettings?.whatsappNumber || '919940881987';
     const cleanNumber = rawNumber.replace(/[^0-9]/g, '');
     const lineTotal = currPrice * quantity;
     const msg = 
 `*NEW CUSTOMER ORDER INQUIRY*
 
 *Product:* ${product.title}
+*SKU:* ${product.sku || 'N/A'}
 *Price:* ₹${currPrice.toLocaleString('en-IN')}
 *Size:* ${selectedSize}
 *Quantity:* ${quantity}
@@ -86,7 +109,7 @@ Please confirm availability and dispatch timeline.`;
           <div className="detail-media-col" style={{ position: 'sticky', top: '90px' }}>
             <div style={{ position: 'relative', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 16px 36px rgba(0,0,0,0.1)', border: '1px solid rgba(200,157,56,0.3)', background: '#fff' }}>
               <img 
-                src={product.image || 'assets/images/kanjivaram_green.jpg'} 
+                src={activeImage} 
                 alt={product.title}
                 style={{ width: '100%', maxHeight: '580px', objectFit: 'cover' }}
                 onError={(e) => { e.currentTarget.src = 'assets/images/kanjivaram_green.jpg'; }}
@@ -96,29 +119,61 @@ Please confirm availability and dispatch timeline.`;
                   {product.badge}
                 </span>
               )}
+              {isOutOfStock && (
+                <span style={{ position: 'absolute', top: '16px', right: '16px', background: '#dc2626', color: '#fff', fontSize: '0.78rem', fontWeight: 700, padding: '4px 10px', borderRadius: '99px' }}>
+                  Out of Stock
+                </span>
+              )}
             </div>
+
+            {/* Thumbnail Gallery (when multiple images present) */}
+            {allImages.length > 1 && (
+              <div style={{ display: 'flex', gap: '10px', marginTop: '14px', overflowX: 'auto', paddingBottom: '6px' }}>
+                {allImages.map((imgUrl, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setSelectedImage(imgUrl)}
+                    style={{
+                      width: '68px',
+                      height: '78px',
+                      borderRadius: '8px',
+                      overflow: 'hidden',
+                      border: activeImage === imgUrl ? '2.5px solid var(--color-gold)' : '1px solid #d4c8b8',
+                      padding: 0,
+                      background: '#fff',
+                      cursor: 'pointer',
+                      flexShrink: 0,
+                      boxShadow: activeImage === imgUrl ? '0 4px 12px rgba(200,157,56,0.3)' : 'none'
+                    }}
+                  >
+                    <img src={imgUrl} alt={`Thumbnail ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Product Info Column */}
           <div className="detail-info-col">
             <span style={{ display: 'inline-block', color: 'var(--color-gold)', textTransform: 'uppercase', letterSpacing: '1.5px', fontSize: '0.82rem', fontWeight: 700, marginBottom: '8px' }}>
-              {product.category?.replace('-', ' ').toUpperCase()} • {product.fabric || 'HANDLOOM'}
+              {product.category?.replace('-', ' ').toUpperCase()} • {product.fabric || 'HANDLOOM SILK'}
             </span>
 
-            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.2rem', color: '#0e2920', lineHeight: 1.25, marginBottom: '12px' }}>
+            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.2rem', color: '#0e2920', lineHeight: 1.25, marginBottom: '10px' }}>
               {product.title}
             </h1>
 
             {/* Rating */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '18px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
               <span style={{ color: '#c89d38', letterSpacing: '2px' }}>★★★★★</span>
               <span style={{ fontSize: '0.88rem', fontWeight: 600, color: '#0e2920' }}>{product.rating || '4.9'}</span>
-              <span style={{ fontSize: '0.82rem', color: '#667770' }}>({product.reviews || '38'} verified boutique reviews)</span>
+              <span style={{ fontSize: '0.82rem', color: '#667770' }}>({product.reviews || '38'} verified reviews)</span>
             </div>
 
             {/* Price Row */}
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '14px', marginBottom: '24px' }}>
-              <span style={{ fontSize: '1.9rem', fontWeight: 'bold', color: '#0e2920' }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '14px', marginBottom: '16px' }}>
+              <span style={{ fontSize: '2rem', fontWeight: 'bold', color: '#0e2920' }}>
                 ₹{currPrice.toLocaleString('en-IN')}
               </span>
               {origPrice > currPrice && (
@@ -129,6 +184,23 @@ Please confirm availability and dispatch timeline.`;
               {discountPercent > 0 && (
                 <span style={{ background: 'rgba(201, 59, 59, 0.1)', color: '#c93b3b', padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem', fontWeight: 'bold' }}>
                   {discountPercent}% OFF
+                </span>
+              )}
+            </div>
+
+            {/* Stock Availability Indicator */}
+            <div style={{ marginBottom: '20px' }}>
+              {isOutOfStock ? (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 14px', borderRadius: '8px', background: 'rgba(220, 38, 38, 0.1)', color: '#dc2626', fontSize: '0.84rem', fontWeight: 700 }}>
+                  ✕ Out of Stock (Currently Unavailable)
+                </span>
+              ) : stockVal < 5 ? (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 14px', borderRadius: '8px', background: 'rgba(217, 119, 6, 0.1)', color: '#d97706', fontSize: '0.84rem', fontWeight: 700 }}>
+                  ⚠ Limited Stock: Only {stockVal} left!
+                </span>
+              ) : (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 14px', borderRadius: '8px', background: 'rgba(4, 120, 87, 0.1)', color: '#047857', fontSize: '0.84rem', fontWeight: 700 }}>
+                  ● In Stock ({stockVal} available)
                 </span>
               )}
             </div>
@@ -173,20 +245,25 @@ Please confirm availability and dispatch timeline.`;
               <div style={{ display: 'inline-flex', alignItems: 'center', border: '1px solid #d4c8b8', borderRadius: '6px', background: '#fff' }}>
                 <button 
                   type="button" 
+                  disabled={isOutOfStock}
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  style={{ width: '36px', height: '36px', border: 'none', background: 'none', cursor: 'pointer', fontSize: '1.1rem' }}
+                  style={{ width: '36px', height: '36px', border: 'none', background: 'none', cursor: isOutOfStock ? 'not-allowed' : 'pointer', fontSize: '1.1rem' }}
                 >
                   -
                 </button>
-                <span style={{ width: '36px', textAlign: 'center', fontWeight: 600 }}>{quantity}</span>
+                <span style={{ width: '36px', textAlign: 'center', fontWeight: 600 }}>{isOutOfStock ? 0 : quantity}</span>
                 <button 
                   type="button" 
-                  onClick={() => setQuantity(quantity + 1)}
-                  style={{ width: '36px', height: '36px', border: 'none', background: 'none', cursor: 'pointer', fontSize: '1.1rem' }}
+                  disabled={isOutOfStock || quantity >= stockVal}
+                  onClick={() => setQuantity(Math.min(stockVal, quantity + 1))}
+                  style={{ width: '36px', height: '36px', border: 'none', background: 'none', cursor: isOutOfStock || quantity >= stockVal ? 'not-allowed' : 'pointer', fontSize: '1.1rem' }}
                 >
                   +
                 </button>
               </div>
+              {quantity >= stockVal && !isOutOfStock && (
+                <span style={{ fontSize: '0.78rem', color: '#d97706' }}>Max available quantity</span>
+              )}
             </div>
 
             {/* Action Buttons */}
@@ -194,19 +271,37 @@ Please confirm availability and dispatch timeline.`;
               <button 
                 type="button" 
                 onClick={handleAddToCart}
+                disabled={isOutOfStock}
                 className="btn btn-primary hover-shimmer"
-                style={{ flex: 1, minWidth: '160px', padding: '14px 20px', fontWeight: 600 }}
+                style={{
+                  flex: 1,
+                  minWidth: '160px',
+                  padding: '14px 20px',
+                  fontWeight: 600,
+                  opacity: isOutOfStock ? 0.6 : 1,
+                  cursor: isOutOfStock ? 'not-allowed' : 'pointer'
+                }}
               >
-                👜 Add to Bag
+                {isOutOfStock ? 'Out of Stock' : '👜 Add to Bag'}
               </button>
 
               <button 
                 type="button" 
                 onClick={handleBuyNow}
+                disabled={isOutOfStock}
                 className="btn btn-secondary"
-                style={{ flex: 1, minWidth: '160px', padding: '14px 20px', fontWeight: 600, background: 'var(--color-gold)', color: '#0e2920', border: 'none' }}
+                style={{
+                  flex: 1,
+                  minWidth: '160px',
+                  padding: '14px 20px',
+                  fontWeight: 600,
+                  background: isOutOfStock ? '#ccc' : 'var(--color-gold)',
+                  color: '#0e2920',
+                  border: 'none',
+                  cursor: isOutOfStock ? 'not-allowed' : 'pointer'
+                }}
               >
-                ⚡ Buy Now
+                {isOutOfStock ? 'Sold Out' : '⚡ Buy Now'}
               </button>
 
               <button 

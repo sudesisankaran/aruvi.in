@@ -241,7 +241,7 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
   };
 
   // Save Product (Add or Edit)
-  const handleSaveProduct = (e) => {
+  const handleSaveProduct = async (e) => {
     e.preventDefault();
     if (!prodTitle.trim() || !prodPrice) {
       addToast('Please enter a product title and price.', 'error');
@@ -256,7 +256,7 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
       sku: prodSku.trim() || `ARUVI-${prodCategory.substring(0, 3).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`,
       category: prodCategory,
       price: Number(prodPrice),
-      originalPrice: prodOriginalPrice ? Number(prodOriginalPrice) : Math.round(Number(prodPrice) * 1.25),
+      originalPrice: prodOriginalPrice ? Number(prodOriginalPrice) : null,
       stock: Math.max(0, parseInt(prodStock, 10) || 0),
       fabric: prodFabric,
       badge: prodBadge.trim() || null,
@@ -268,10 +268,10 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
     };
 
     if (editingProductId) {
-      updateProduct(editingProductId, payload);
+      await updateProduct(editingProductId, payload);
       addToast(`Product "${payload.title}" updated successfully!`, 'success');
     } else {
-      addProduct(payload);
+      await addProduct(payload);
       addToast(`Product "${payload.title}" added to catalog!`, 'success');
     }
 

@@ -1322,6 +1322,20 @@ ul, ol {
   border-radius: var(--radius-full);
 }
 
+.product-card-cta-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+@media (max-width: 440px) {
+  .product-card-cta-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+}
+
 /* ==========================================================================
    PROMOTIONAL BANNERS STRIP
    ========================================================================== */
