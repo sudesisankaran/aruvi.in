@@ -1,14 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
-import ProductCard from '../components/ProductCard';
 
 export default function HomePage() {
-  const { products, categories } = useStore();
-
-  // Curated collections
-  const featuredProducts = products.filter(p => p.badge || p.rating >= 4.8).slice(0, 8);
-  const festiveProducts = products.filter(p => p.category === 'sharara' || p.category === 'ethnic-wear' || p.category === 'salwar').slice(0, 4);
+  const { categories } = useStore();
 
   return (
     <div className="home-page-view">
@@ -132,27 +127,6 @@ export default function HomePage() {
             <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', color: 'var(--color-gold)' }}>Live Try-On Models</h4>
             <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', marginTop: '4px' }}>Pooja, Meera, Ananya & Kids</p>
             <span style={{ display: 'inline-block', marginTop: '12px', background: 'rgba(200,157,56,0.2)', color: 'var(--color-gold)', padding: '4px 12px', borderRadius: '99px', fontSize: '0.78rem', fontWeight: 600 }}>100% Free Interactive Feature</span>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Products Grid */}
-      <section className="featured-products-section" style={{ padding: '40px 0 80px' }}>
-        <div className="container">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
-            <div>
-              <span style={{ color: 'var(--color-gold)', fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>Handpicked Highlights</span>
-              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.2rem', color: '#0e2920', marginTop: '4px' }}>Trending In The Boutique</h2>
-            </div>
-            <Link to="/shop" style={{ color: 'var(--color-primary)', fontWeight: 600, fontSize: '0.92rem', textDecoration: 'underline' }}>
-              View All ({products.length}) →
-            </Link>
-          </div>
-
-          <div className="products-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '28px' }}>
-            {featuredProducts.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
           </div>
         </div>
       </section>
