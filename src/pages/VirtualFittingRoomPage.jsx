@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import ImageUploadDropzone from '../components/ImageUploadDropzone';
+import CatVTONModal from '../components/CatVTONModal';
 import { BACKEND_API_BASE, auth } from '../services/firebase';
 
 const MODELS = [
@@ -38,6 +39,7 @@ export default function VirtualFittingRoomPage() {
   const [blendOpacity, setBlendOpacity] = useState(95);
   const [lightingPreset, setLightingPreset] = useState('boutique'); // 'boutique', 'daylight', 'evening'
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [catvtonModalOpen, setCatvtonModalOpen] = useState(false);
 
   const pollIntervalRef = useRef(null);
 
@@ -421,6 +423,15 @@ export default function VirtualFittingRoomPage() {
               </svg>
               <span>{isProcessing ? 'Processing in Celery...' : '✨ Run AI Drape Simulation'}</span>
             </button>
+
+            {/* Launch CatVTON Camera / Photo Studio */}
+            <button
+              type="button"
+              onClick={() => setCatvtonModalOpen(true)}
+              className="mt-2.5 w-full py-3 px-4 rounded-xl border border-gold/70 bg-primary-dark hover:bg-emerald-950 text-gold font-bold text-xs tracking-wider uppercase transition shadow-md flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span>📸 CatVTON Live Camera & Photo Studio</span>
+            </button>
           </div>
 
           {/* Right Column: Garment Selector & Bag Checkout (3 cols) */}
@@ -558,6 +569,17 @@ export default function VirtualFittingRoomPage() {
         </div>
 
       </div>
+
+      {/* CatVTON AI Virtual Try-On Modal */}
+      <CatVTONModal
+        isOpen={catvtonModalOpen}
+        onClose={() => setCatvtonModalOpen(false)}
+        garment={selectedProduct}
+        onSelectOtherGarment={() => {
+          setCatvtonModalOpen(false);
+          // Stay on fitting room to pick another garment
+        }}
+      />
     </div>
   );
 }

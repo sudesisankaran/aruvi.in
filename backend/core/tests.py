@@ -89,6 +89,37 @@ class AruviFullStackTestCase(TestCase):
         self.assertEqual(data['full_name'], 'Priyamvada Sundaram')
         self.assertEqual(data['preferred_fit'], 'Bridal Tailored')
 
+    def test_catvton_endpoints(self):
+        import time
+        test_img = create_test_image()
+        response = self.client.post('/api/tryon/generate/', {
+            'product_id': self.product.id,
+            'category': 'overall',
+            'photo': test_img
+        }, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        job_data = response.json()
+        self.assertIn('job_id', job_data)
+        self.assertEqual(job_data['status'], 'queued')
+        job_id = job_data['job_id']
+
+        # Query status
+        status_resp = self.client.get(f'/api/tryon/status/{job_id}/')
+        self.assertEqual(status_resp.status_code, status.HTTP_200_OK)
+
+        # Allow worker thread to finish processing
+        for _ in range(25):
+            st = self.client.get(f'/api/tryon/status/{job_id}/').json().get('status')
+            if st in ('completed', 'failed'):
+                break
+            time.sleep(0.2)
+
+        # Check result endpoint
+        result_resp = self.client.get(f'/api/tryon/result/{job_id}/')
+        self.assertIn(result_resp.status_code, [status.HTTP_200_OK, status.HTTP_202_ACCEPTED])
+        if result_resp.status_code == status.HTTP_200_OK:
+            self.assertEqual(result_resp['Content-Type'], 'image/webp')
+
     def test_retention_purge_task(self):
         res = purge_expired_tryon_photos()
         self.assertIn('purged_count', res)

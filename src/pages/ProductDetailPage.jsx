@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import ProductCard from '../components/ProductCard';
+import CatVTONModal from '../components/CatVTONModal';
 
 export default function ProductDetailPage() {
   const { id } = useParams();
@@ -12,6 +13,7 @@ export default function ProductDetailPage() {
   
   const [selectedSize, setSelectedSize] = useState('M');
   const [quantity, setQuantity] = useState(1);
+  const [tryOnModalOpen, setTryOnModalOpen] = useState(false);
 
   if (!product) {
     return (
@@ -213,18 +215,23 @@ export default function ProductDetailPage() {
             </div>
 
             {/* AI Try-on Box */}
-            <div style={{ background: 'rgba(200,157,56,0.12)', border: '1px solid rgba(200,157,56,0.4)', borderRadius: '12px', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '14px', marginBottom: '28px' }}>
+            <div style={{ background: 'linear-gradient(135deg, rgba(200,157,56,0.14) 0%, rgba(14,41,32,0.06) 100%)', border: '1.5px solid rgba(200,157,56,0.45)', borderRadius: '14px', padding: '18px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '14px', marginBottom: '28px', boxShadow: '0 4px 16px rgba(200,157,56,0.1)' }}>
               <div>
-                <strong style={{ display: 'block', color: '#0e2920', fontSize: '0.92rem' }}>🪞 Unsure about the drape or fit?</strong>
-                <span style={{ fontSize: '0.82rem', color: '#55665f' }}>Preview this outfit on our AI virtual models or your own photo!</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <strong style={{ color: '#0e2920', fontSize: '0.95rem' }}>✨ AI Virtual Try-On</strong>
+                  <span style={{ fontSize: '0.68rem', background: 'var(--color-gold)', color: '#0e2920', padding: '1px 6px', borderRadius: '4px', fontWeight: 800 }}>CATVTON</span>
+                </div>
+                <span style={{ fontSize: '0.82rem', color: '#55665f', display: 'block', marginTop: '2px' }}>
+                  Upload your photo or use live camera to see yourself in this dress!
+                </span>
               </div>
               <button 
                 type="button"
-                className="btn btn-sm btn-primary"
-                onClick={() => navigate(`/fitting-room?productId=${product.id}`)}
-                style={{ whiteSpace: 'nowrap' }}
+                className="btn btn-sm btn-primary hover-shimmer"
+                onClick={() => setTryOnModalOpen(true)}
+                style={{ whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 18px', fontWeight: 700 }}
               >
-                Virtual Try-On
+                <span>✨ Try-On Now</span>
               </button>
             </div>
 
@@ -263,6 +270,17 @@ export default function ProductDetailPage() {
         )}
 
       </div>
+
+      {/* CatVTON AI Virtual Try-On Modal */}
+      <CatVTONModal
+        isOpen={tryOnModalOpen}
+        onClose={() => setTryOnModalOpen(false)}
+        garment={product}
+        onSelectOtherGarment={() => {
+          setTryOnModalOpen(false);
+          navigate('/shop');
+        }}
+      />
     </div>
   );
 }
