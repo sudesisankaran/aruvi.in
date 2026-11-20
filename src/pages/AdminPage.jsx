@@ -577,9 +577,9 @@ export default function AdminPage() {
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', background: '#fafafa', borderRadius: '10px', padding: '20px', border: '1px solid #eee', fontFamily: 'monospace', fontSize: '0.85rem' }}>
-              <div><strong>Project ID:</strong> aruvi-collection-fa770</div>
-              <div><strong>Auth Domain:</strong> aruvi-collection-fa770.firebaseapp.com</div>
-              <div><strong>Storage Bucket:</strong> aruvi-collection-fa770.firebasestorage.app</div>
+              <div><strong>Project ID:</strong> aruvicollections-fb961</div>
+              <div><strong>Auth Domain:</strong> aruvicollections-fb961.firebaseapp.com</div>
+              <div><strong>Storage Bucket:</strong> aruvicollections-fb961.firebasestorage.app</div>
               <div><strong>Storage Folder:</strong> /aruvi-products/</div>
               <div><strong>Owner Admin:</strong> aruvicollections.25@gmail.com</div>
               <div><strong>Cloud Status:</strong> <span style={{ color: '#0f5132', fontWeight: 'bold' }}>✓ Operational</span></div>
