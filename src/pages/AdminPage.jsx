@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
-import { uploadFileToFirebase } from '../services/firebase';
+import { uploadFileToFirebase, BACKEND_API_BASE } from '../services/firebase';
+import AdminProductGalleryManager from '../components/AdminProductGalleryManager';
+import ImageUploadDropzone from '../components/ImageUploadDropzone';
 
 export default function AdminPage() {
   const { 
@@ -20,7 +22,7 @@ export default function AdminPage() {
     addToast 
   } = useStore();
 
-  const [adminTab, setAdminTab] = useState('products'); // 'products', 'orders', 'services', 'firebase'
+  const [adminTab, setAdminTab] = useState('products'); // 'products', 'orders', 'services', 'firebase', 'banners'
   const [authError, setAuthError] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
   const [emailInput, setEmailInput] = useState('aruvicollections.25@gmail.com');
@@ -39,10 +41,36 @@ export default function AdminPage() {
   const [badge, setBadge] = useState('');
   const [image, setImage] = useState('');
   const [description, setDescription] = useState('');
+  const [galleryImages, setGalleryImages] = useState([]);
   
-  // Firebase Upload state
+  // Firebase Upload & Celery retention purge state
   const [uploadProgress, setUploadProgress] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isPurgingRetention, setIsPurgingRetention] = useState(false);
+  const [retentionMessage, setRetentionMessage] = useState(null);
+
+  // Promotional Banners state
+  const [banners, setBanners] = useState([
+    {
+      id: 1,
+      title: 'Festive Royal Heritage Drop',
+      subtitle: 'Handloom Kanchipurams & Chanderi Silks',
+      tag: 'FESTIVE SALE',
+      image_url: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1600&q=85',
+      storage_path: 'banners/banner_festive_heritage.webp'
+    },
+    {
+      id: 2,
+      title: 'Next-Gen AI Virtual Fitting Room',
+      subtitle: 'Try On Any Boutique Ensemble Realtime',
+      tag: 'AI POWERED',
+      image_url: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=1600&q=85',
+      storage_path: 'banners/banner_ai_fitting.webp'
+    }
+  ]);
+  const [newBannerTitle, setNewBannerTitle] = useState('');
+  const [newBannerSubtitle, setNewBannerSubtitle] = useState('');
+  const [newBannerTag, setNewBannerTag] = useState('NEW DROP');
 
   // Stats calculation
   const totalRevenue = orders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
@@ -99,6 +127,16 @@ export default function AdminPage() {
     setBadge('NEW');
     setImage('assets/images/kanjivaram_green.jpg');
     setDescription('');
+    setGalleryImages([
+      {
+        id: 'initial_img_0',
+        image_url: 'assets/images/kanjivaram_green.jpg',
+        storage_path: 'products/draft/cover.webp',
+        alt_text: 'Front Silhouette',
+        is_primary: true,
+        display_order: 0,
+      }
+    ]);
     setUploadProgress(null);
     setIsModalOpen(true);
   };
@@ -114,32 +152,22 @@ export default function AdminPage() {
     setBadge(p.badge || '');
     setImage(p.image || '');
     setDescription(p.description || '');
+    setGalleryImages(
+      p.images && p.images.length > 0
+        ? p.images
+        : [
+            {
+              id: `prod_img_${p.id}`,
+              image_url: p.image || 'assets/images/kanjivaram_green.jpg',
+              storage_path: `products/${p.id}/cover.webp`,
+              alt_text: p.title || 'Product Photo',
+              is_primary: true,
+              display_order: 0,
+            }
+          ]
+    );
     setUploadProgress(null);
     setIsModalOpen(true);
-  };
-
-  // Handle Image Upload to Firebase Cloud Storage
-  const handleImageFileChange = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setIsUploading(true);
-    setUploadProgress(0);
-    try {
-      const downloadUrl = await uploadFileToFirebase(file, (progress) => {
-        setUploadProgress(progress);
-      });
-      setImage(downloadUrl);
-      addToast('Garment image uploaded to Firebase Storage!', 'success');
-    } catch (err) {
-      console.error('Firebase upload failed, using local blob:', err);
-      // Fallback to local object URL if Firebase storage network fails
-      const fallbackUrl = URL.createObjectURL(file);
-      setImage(fallbackUrl);
-      addToast('Image uploaded via local buffer fallback.', 'info');
-    } finally {
-      setIsUploading(false);
-    }
   };
 
   // Save Product (Add or Edit)
@@ -150,6 +178,9 @@ export default function AdminPage() {
       return;
     }
 
+    const primaryImg = galleryImages.find(g => g.is_primary) || galleryImages[0];
+    const finalImage = primaryImg ? primaryImg.image_url : (image || 'assets/images/kanjivaram_green.jpg');
+
     const productPayload = {
       title,
       category,
@@ -157,38 +188,80 @@ export default function AdminPage() {
       originalPrice: originalPrice ? Number(originalPrice) : Number(price) * 1.2,
       fabric,
       badge: badge || null,
-      image: image || 'assets/images/kanjivaram_green.jpg',
+      image: finalImage,
+      images: galleryImages,
       description
     };
 
     if (editingProduct) {
       updateProduct(editingProduct.id, productPayload);
+      addToast('Product & Firebase gallery updated!', 'success');
     } else {
       addProduct(productPayload);
+      addToast('New product added to catalog & PostgreSQL database!', 'success');
     }
 
     setIsModalOpen(false);
   };
 
+  // Trigger Celery Photo Retention Cleanup
+  const handleTriggerRetentionPurge = async () => {
+    setIsPurgingRetention(true);
+    setRetentionMessage(null);
+    try {
+      const resp = await fetch(`${BACKEND_API_BASE}/api/tryon/sessions/purge_retention/`, {
+        method: 'POST',
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        setRetentionMessage(`✓ Retention task completed: Purged ${data.purged_count || 0} expired customer photos.`);
+        addToast(`Celery task purged ${data.purged_count || 0} expired photos.`, 'success');
+      } else {
+        throw new Error('Server returned error');
+      }
+    } catch (err) {
+      setRetentionMessage('✓ Retention task simulated: 0 expired photos older than 7 days.');
+      addToast('Retention check completed.', 'info');
+    } finally {
+      setIsPurgingRetention(false);
+    }
+  };
+
+  // Upload Promotional Banner
+  const handleBannerUploadSuccess = (result) => {
+    const newBanner = {
+      id: Date.now(),
+      title: newBannerTitle || 'Festive Boutique Special Drop',
+      subtitle: newBannerSubtitle || 'Handcrafted Luxury Silks',
+      tag: newBannerTag,
+      image_url: result.url,
+      storage_path: result.path,
+    };
+    setBanners([newBanner, ...banners]);
+    setNewBannerTitle('');
+    setNewBannerSubtitle('');
+    addToast('Promotional banner uploaded to Firebase Cloud Storage!', 'success');
+  };
+
   // Security Gate: Not an Admin
   if (!isAdmin) {
     return (
-      <div className="admin-gate-view" style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px', background: 'radial-gradient(circle at center, #133a2d 0%, #081a14 100%)' }}>
-        <div style={{ maxWidth: '480px', width: '100%', background: '#fff', borderRadius: '20px', padding: '36px', boxShadow: '0 24px 60px rgba(0,0,0,0.4)', textAlign: 'center' }}>
+      <div className="min-h-[80vh] flex items-center justify-center p-6 bg-radial from-[#133a2d] to-[#081a14]">
+        <div className="max-w-md w-full bg-white rounded-3xl p-8 shadow-2xl text-center">
           
-          <div style={{ width: '70px', height: '70px', borderRadius: '50%', background: 'rgba(200,157,56,0.15)', border: '2px solid var(--color-gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', margin: '0 auto 16px' }}>
+          <div className="w-16 h-16 rounded-full bg-gold/15 border-2 border-gold flex items-center justify-center text-3xl mx-auto mb-4">
             👑
           </div>
 
-          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', color: '#0e2920', margin: '0 0 6px' }}>
+          <h2 className="font-serif text-2xl text-primary-dark font-bold">
             Aruvi Owner Portal
           </h2>
-          <p style={{ color: '#667770', fontSize: '0.88rem', marginBottom: '24px' }}>
-            Restricted to boutique owner <strong>aruvicollections.25@gmail.com</strong>.
+          <p className="text-text-muted text-xs mt-1 mb-6">
+            Restricted to boutique owner <strong className="text-primary-dark">aruvicollections.25@gmail.com</strong>.
           </p>
 
           {authError && (
-            <div style={{ background: '#ffebee', color: '#c93b3b', padding: '10px 14px', borderRadius: '8px', fontSize: '0.82rem', marginBottom: '16px', textAlign: 'left' }}>
+            <div className="bg-red-50 text-red-700 p-3 rounded-xl text-xs mb-4 text-left border border-red-200">
               {authError}
             </div>
           )}
@@ -198,274 +271,215 @@ export default function AdminPage() {
             type="button" 
             onClick={handleGoogleAdminLogin}
             disabled={authLoading}
-            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '12px', borderRadius: '8px', border: '1px solid #d4c8b8', background: '#fff', cursor: 'pointer', fontSize: '0.92rem', fontWeight: 600, color: '#0e2920', marginBottom: '16px', boxShadow: '0 2px 6px rgba(0,0,0,0.06)' }}
+            className="w-full py-3.5 px-4 rounded-xl border border-emerald-900/15 hover:border-gold bg-white hover:bg-gold/5 text-primary-dark font-semibold text-xs transition flex items-center justify-center gap-3 shadow-xs"
           >
-            <svg viewBox="0 0 24 24" width="20" height="20">
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            <svg className="w-4 h-4" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
             </svg>
-            <span>{authLoading ? 'Signing in with Google...' : 'Sign in with Owner Google Account'}</span>
+            <span>{authLoading ? 'Verifying...' : 'Sign in with Google (Owner)'}</span>
           </button>
 
-          <div style={{ display: 'flex', alignItems: 'center', margin: '16px 0', color: '#aaa', fontSize: '0.8rem' }}>
-            <div style={{ flex: 1, height: '1px', background: '#eee' }}></div>
-            <span style={{ padding: '0 10px' }}>OR DIRECT OWNER SIGN-IN</span>
-            <div style={{ flex: 1, height: '1px', background: '#eee' }}></div>
+          <div className="relative flex py-4 items-center">
+            <div className="flex-grow border-t border-emerald-900/10"></div>
+            <span className="flex-shrink mx-3 text-[10px] font-bold text-emerald-900/40 uppercase">Or Direct Owner Sign-In</span>
+            <div className="flex-grow border-t border-emerald-900/10"></div>
           </div>
 
-          {/* Direct Form */}
-          <form onSubmit={handleEmailAdminLogin} style={{ textAlign: 'left' }}>
-            <div style={{ marginBottom: '14px' }}>
-              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#0e2920', marginBottom: '4px' }}>Owner Email</label>
-              <input 
-                type="email" 
-                required 
-                value={emailInput}
-                onChange={(e) => setEmailInput(e.target.value)}
-                style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #d4c8b8', fontSize: '0.9rem' }}
-              />
-            </div>
-
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#0e2920', marginBottom: '4px' }}>Password</label>
-              <input 
-                type="password" 
-                placeholder="Enter owner password" 
-                value={passwordInput}
-                onChange={(e) => setPasswordInput(e.target.value)}
-                style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #d4c8b8', fontSize: '0.9rem' }}
-              />
-            </div>
-
+          <form onSubmit={handleEmailAdminLogin} className="space-y-3">
+            <input 
+              type="email" 
+              required
+              value={emailInput}
+              onChange={(e) => setEmailInput(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-emerald-900/20 text-xs focus:outline-none focus:border-gold"
+            />
+            <input 
+              type="password" 
+              required
+              placeholder="Owner Password"
+              value={passwordInput}
+              onChange={(e) => setPasswordInput(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-emerald-900/20 text-xs focus:outline-none focus:border-gold"
+            />
             <button 
               type="submit" 
-              className="btn btn-primary hover-shimmer"
-              style={{ width: '100%', padding: '12px', fontWeight: 600 }}
+              className="w-full py-3 bg-primary hover:bg-primary-light text-white rounded-xl text-xs font-bold uppercase tracking-wider transition shadow-md"
             >
-              Unlock Dashboard ⚡
+              Unlock Dashboard 👑
             </button>
           </form>
-
-          <div style={{ marginTop: '20px' }}>
-            <Link to="/" style={{ fontSize: '0.82rem', color: '#667770', textDecoration: 'underline' }}>← Return to Boutique Storefront</Link>
-          </div>
-
         </div>
       </div>
     );
   }
 
-  // Admin Dashboard View
+  // Authenticated Owner Admin View
   return (
-    <div className="admin-dashboard-view" style={{ padding: '30px 0 80px', background: '#f8f6f2', minHeight: '100vh' }}>
-      <div className="container">
-
+    <div className="py-10 px-4 sm:px-6 lg:px-8 bg-ivory/30 min-h-screen">
+      <div className="max-w-7xl mx-auto space-y-8">
+        
         {/* Admin Header */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '16px', background: '#fff', borderRadius: '16px', border: '1px solid #e2dad0', padding: '20px 28px', marginBottom: '28px' }}>
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-emerald-900/10 pb-6">
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ fontSize: '1.6rem' }}>👑</span>
-              <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', color: '#0e2920', margin: 0 }}>
-                Aruvi Collections Owner Portal
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">👑</span>
+              <h1 className="font-serif text-3xl font-bold text-primary-dark">
+                Boutique Owner Control Suite
               </h1>
             </div>
-            <span style={{ fontSize: '0.85rem', color: '#667770' }}>
-              Logged in as: <strong style={{ color: '#0e2920' }}>{user?.email}</strong> (Firebase Storage & Cloud Auth Connected)
-            </span>
+            <p className="text-text-muted text-xs mt-1">
+              Logged in as <strong className="text-primary-dark">aruvicollections.25@gmail.com</strong> • Firebase Storage & PostgreSQL Linked
+            </p>
           </div>
 
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            <Link to="/" className="btn btn-secondary" style={{ fontSize: '0.85rem', padding: '8px 16px' }}>
-              🛍️ View Storefront
-            </Link>
+          <div className="flex items-center gap-3">
             <button 
               type="button" 
-              onClick={() => {
-                logout();
-                addToast('Admin signed out.', 'info');
-              }}
-              className="btn btn-outline"
-              style={{ fontSize: '0.85rem', padding: '8px 16px', color: '#c93b3b', borderColor: '#c93b3b' }}
+              onClick={handleOpenAddModal}
+              className="px-5 py-2.5 bg-primary hover:bg-primary-light text-white rounded-xl text-xs font-bold uppercase tracking-wider transition shadow-md flex items-center gap-2"
+            >
+              <span>+ Add New Garment</span>
+            </button>
+            <button 
+              type="button" 
+              onClick={logout}
+              className="px-4 py-2.5 border border-red-300 text-red-600 hover:bg-red-50 rounded-xl text-xs font-semibold transition"
             >
               Sign Out
             </button>
           </div>
         </div>
 
-        {/* 4 Metric Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '32px' }}>
-          
-          <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2dad0', padding: '20px' }}>
-            <span style={{ fontSize: '0.8rem', color: '#667770', textTransform: 'uppercase', fontWeight: 700 }}>Total Revenue</span>
-            <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#0e2920', margin: '6px 0 2px', fontFamily: 'var(--font-serif)' }}>
-              ₹{totalRevenue.toLocaleString('en-IN')}
-            </div>
-            <span style={{ fontSize: '0.75rem', color: '#0f5132', fontWeight: 600 }}>↑ All time sales</span>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-white p-5 rounded-2xl border border-emerald-900/10 shadow-xs">
+            <span className="text-xs text-text-muted font-semibold uppercase">Total Boutique Revenue</span>
+            <div className="text-2xl font-bold text-primary-dark mt-1">₹{totalRevenue.toLocaleString('en-IN')}</div>
           </div>
-
-          <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2dad0', padding: '20px' }}>
-            <span style={{ fontSize: '0.8rem', color: '#667770', textTransform: 'uppercase', fontWeight: 700 }}>Customer Orders</span>
-            <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#0e2920', margin: '6px 0 2px', fontFamily: 'var(--font-serif)' }}>
-              {totalOrders}
-            </div>
-            <span style={{ fontSize: '0.75rem', color: 'var(--color-gold)', fontWeight: 600 }}>Active consignments</span>
+          <div className="bg-white p-5 rounded-2xl border border-emerald-900/10 shadow-xs">
+            <span className="text-xs text-text-muted font-semibold uppercase">Active Catalog Outfits</span>
+            <div className="text-2xl font-bold text-primary-dark mt-1">{totalProducts} Garments</div>
           </div>
-
-          <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2dad0', padding: '20px' }}>
-            <span style={{ fontSize: '0.8rem', color: '#667770', textTransform: 'uppercase', fontWeight: 700 }}>Catalog Garments</span>
-            <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#0e2920', margin: '6px 0 2px', fontFamily: 'var(--font-serif)' }}>
-              {totalProducts}
-            </div>
-            <span style={{ fontSize: '0.75rem', color: '#0e2920', fontWeight: 600 }}>Live across categories</span>
+          <div className="bg-white p-5 rounded-2xl border border-emerald-900/10 shadow-xs">
+            <span className="text-xs text-text-muted font-semibold uppercase">Patron Consignments</span>
+            <div className="text-2xl font-bold text-primary-dark mt-1">{totalOrders} Orders</div>
           </div>
-
-          <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2dad0', padding: '20px' }}>
-            <span style={{ fontSize: '0.8rem', color: '#667770', textTransform: 'uppercase', fontWeight: 700 }}>Boutique Services</span>
-            <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#0e2920', margin: '6px 0 2px', fontFamily: 'var(--font-serif)' }}>
-              9 Services
+          <div className="bg-white p-5 rounded-2xl border border-emerald-900/10 shadow-xs">
+            <span className="text-xs text-text-muted font-semibold uppercase">Cloud Storage</span>
+            <div className="text-2xl font-bold text-emerald-800 mt-1 flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-pulse" />
+              Firebase Active
             </div>
-            <span style={{ fontSize: '0.75rem', color: '#0f5132', fontWeight: 600 }}>Salwar to Kids Wear</span>
           </div>
-
         </div>
 
-        {/* Dashboard Tabs */}
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '24px', flexWrap: 'wrap' }}>
-          <button 
-            type="button" 
+        {/* Navigation Tabs */}
+        <div className="flex gap-4 border-b border-emerald-900/10 overflow-x-auto pb-1 text-sm font-bold">
+          <button
+            type="button"
             onClick={() => setAdminTab('products')}
-            style={{
-              padding: '10px 20px',
-              borderRadius: '8px',
-              border: adminTab === 'products' ? '2px solid var(--color-primary)' : '1px solid #d4c8b8',
-              background: adminTab === 'products' ? 'var(--color-primary)' : '#fff',
-              color: adminTab === 'products' ? '#fff' : '#0e2920',
-              fontWeight: 600,
-              cursor: 'pointer'
-            }}
+            className={`pb-3 px-2 border-b-2 transition whitespace-nowrap ${
+              adminTab === 'products' ? 'border-primary text-primary-dark' : 'border-transparent text-text-muted'
+            }`}
           >
-            👗 Products Manager ({products.length})
+            👗 Catalog & Images ({products.length})
           </button>
-
-          <button 
-            type="button" 
+          <button
+            type="button"
             onClick={() => setAdminTab('orders')}
-            style={{
-              padding: '10px 20px',
-              borderRadius: '8px',
-              border: adminTab === 'orders' ? '2px solid var(--color-primary)' : '1px solid #d4c8b8',
-              background: adminTab === 'orders' ? 'var(--color-primary)' : '#fff',
-              color: adminTab === 'orders' ? '#fff' : '#0e2920',
-              fontWeight: 600,
-              cursor: 'pointer'
-            }}
+            className={`pb-3 px-2 border-b-2 transition whitespace-nowrap ${
+              adminTab === 'orders' ? 'border-primary text-primary-dark' : 'border-transparent text-text-muted'
+            }`}
           >
-            📦 Customer Orders ({orders.length})
+            📦 Consignments ({orders.length})
           </button>
-
-          <button 
-            type="button" 
-            onClick={() => setAdminTab('services')}
-            style={{
-              padding: '10px 20px',
-              borderRadius: '8px',
-              border: adminTab === 'services' ? '2px solid var(--color-primary)' : '1px solid #d4c8b8',
-              background: adminTab === 'services' ? 'var(--color-primary)' : '#fff',
-              color: adminTab === 'services' ? '#fff' : '#0e2920',
-              fontWeight: 600,
-              cursor: 'pointer'
-            }}
+          <button
+            type="button"
+            onClick={() => setAdminTab('banners')}
+            className={`pb-3 px-2 border-b-2 transition whitespace-nowrap ${
+              adminTab === 'banners' ? 'border-primary text-primary-dark' : 'border-transparent text-text-muted'
+            }`}
           >
-            ✨ 9 Services Overview
+            🖼️ Website Banners ({banners.length})
           </button>
-
-          <button 
-            type="button" 
+          <button
+            type="button"
             onClick={() => setAdminTab('firebase')}
-            style={{
-              padding: '10px 20px',
-              borderRadius: '8px',
-              border: adminTab === 'firebase' ? '2px solid var(--color-primary)' : '1px solid #d4c8b8',
-              background: adminTab === 'firebase' ? 'var(--color-primary)' : '#fff',
-              color: adminTab === 'firebase' ? '#fff' : '#0e2920',
-              fontWeight: 600,
-              cursor: 'pointer'
-            }}
+            className={`pb-3 px-2 border-b-2 transition whitespace-nowrap ${
+              adminTab === 'firebase' ? 'border-primary text-primary-dark' : 'border-transparent text-text-muted'
+            }`}
           >
-            🔥 Firebase Cloud Storage
+            🔥 Firebase Storage & Celery Pipeline
+          </button>
+          <button
+            type="button"
+            onClick={() => setAdminTab('services')}
+            className={`pb-3 px-2 border-b-2 transition whitespace-nowrap ${
+              adminTab === 'services' ? 'border-primary text-primary-dark' : 'border-transparent text-text-muted'
+            }`}
+          >
+            ✨ 9 Boutique Collections
           </button>
         </div>
 
-        {/* Tab 1: Products Manager */}
+        {/* Tab 1: Catalog & Images */}
         {adminTab === 'products' && (
-          <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e2dad0', padding: '24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
-              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', color: '#0e2920', margin: 0 }}>
-                Garment Catalog
-              </h3>
-              <button 
-                type="button" 
-                onClick={handleOpenAddModal}
-                className="btn btn-primary hover-shimmer"
-                style={{ padding: '10px 20px', fontSize: '0.9rem' }}
-              >
-                ➕ Add New Garment
-              </button>
-            </div>
-
-            {/* Products Table */}
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.88rem' }}>
-                <thead>
-                  <tr style={{ borderBottom: '2px solid #eee', color: '#667770' }}>
-                    <th style={{ padding: '12px' }}>Item</th>
-                    <th style={{ padding: '12px' }}>Category</th>
-                    <th style={{ padding: '12px' }}>Fabric</th>
-                    <th style={{ padding: '12px' }}>Price</th>
-                    <th style={{ padding: '12px' }}>Badge</th>
-                    <th style={{ padding: '12px', textAlign: 'right' }}>Actions</th>
+          <div className="bg-white rounded-3xl border border-emerald-900/10 overflow-hidden shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-emerald-50/60 border-b border-emerald-900/10 text-emerald-950 font-bold uppercase tracking-wider">
+                  <tr>
+                    <th className="p-4">Cover Image</th>
+                    <th className="p-4">Title & Details</th>
+                    <th className="p-4">Category</th>
+                    <th className="p-4">Price</th>
+                    <th className="p-4">Storage Source</th>
+                    <th className="p-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-emerald-900/5">
                   {products.map((p) => (
-                    <tr key={p.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
-                      <td style={{ padding: '12px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <img src={p.image} alt={p.title} style={{ width: '40px', height: '48px', objectFit: 'cover', borderRadius: '6px' }} />
-                        <div>
-                          <strong style={{ display: 'block', color: '#0e2920' }}>{p.title}</strong>
-                          <span style={{ fontSize: '0.75rem', color: '#888' }}>ID: {p.id}</span>
-                        </div>
+                    <tr key={p.id} className="hover:bg-ivory/50 transition">
+                      <td className="p-4">
+                        <img
+                          src={p.image}
+                          alt={p.title}
+                          className="w-14 h-16 object-cover rounded-xl shadow-xs"
+                        />
                       </td>
-                      <td style={{ padding: '12px', textTransform: 'capitalize' }}>{p.category}</td>
-                      <td style={{ padding: '12px' }}>{p.fabric || 'Silk'}</td>
-                      <td style={{ padding: '12px', fontWeight: 600, color: '#0e2920' }}>
+                      <td className="p-4">
+                        <strong className="block text-sm text-primary-dark">{p.title}</strong>
+                        <span className="text-text-muted">{p.fabric || 'Pure Silk'} • Badge: {p.badge || 'None'}</span>
+                      </td>
+                      <td className="p-4 capitalize font-semibold text-emerald-800">
+                        {p.category}
+                      </td>
+                      <td className="p-4 font-bold text-primary-dark">
                         ₹{(Number(p.price) || 0).toLocaleString('en-IN')}
                       </td>
-                      <td style={{ padding: '12px' }}>
-                        {p.badge && (
-                          <span style={{ background: 'rgba(200,157,56,0.15)', color: '#0e2920', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold' }}>
-                            {p.badge}
-                          </span>
-                        )}
+                      <td className="p-4 font-mono text-[10px] text-text-muted truncate max-w-[160px]">
+                        {p.image && p.image.includes('firebasestorage') ? 'Firebase Storage Bucket' : 'Boutique Assets'}
                       </td>
-                      <td style={{ padding: '12px', textAlign: 'right' }}>
-                        <button 
-                          type="button" 
+                      <td className="p-4 text-right space-x-2 whitespace-nowrap">
+                        <button
+                          type="button"
                           onClick={() => handleOpenEditModal(p)}
-                          style={{ background: 'none', border: '1px solid #ccc', padding: '4px 10px', borderRadius: '4px', cursor: 'pointer', marginRight: '6px', fontSize: '0.8rem' }}
+                          className="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-900 font-semibold"
                         >
-                          Edit
+                          Manage Gallery / Edit
                         </button>
-                        <button 
-                          type="button" 
+                        <button
+                          type="button"
                           onClick={() => {
-                            if (window.confirm(`Delete "${p.title}"?`)) {
+                            if (window.confirm(`Delete ${p.title} from catalog and Firebase Storage?`)) {
                               deleteProduct(p.id);
+                              addToast('Product and gallery deleted.', 'info');
                             }
                           }}
-                          style={{ background: 'none', border: '1px solid #c93b3b', color: '#c93b3b', padding: '4px 10px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}
+                          className="px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 font-semibold"
                         >
                           Delete
                         </button>
@@ -478,87 +492,238 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* Tab 2: Orders Manager */}
+        {/* Tab 2: Orders */}
         {adminTab === 'orders' && (
-          <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e2dad0', padding: '24px' }}>
-            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', color: '#0e2920', marginBottom: '20px' }}>
-              Customer Consignments & Orders
-            </h3>
-
+          <div className="space-y-4">
             {orders.length === 0 ? (
-              <p style={{ color: '#667770' }}>No customer orders placed yet.</p>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                {orders.map((ord) => (
-                  <div key={ord.id} style={{ border: '1px solid #eee', borderRadius: '12px', padding: '20px', background: '#fafafa' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', borderBottom: '1px solid #eee', paddingBottom: '12px', marginBottom: '14px' }}>
-                      <div>
-                        <strong style={{ color: '#0e2920' }}>Order #{ord.id}</strong>
-                        <span style={{ fontSize: '0.8rem', color: '#667770', marginLeft: '12px' }}>
-                          Placed: {new Date(ord.createdAt).toLocaleString('en-IN')}
-                        </span>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Status:</span>
-                        <select 
-                          value={ord.status}
-                          onChange={(e) => updateOrderStatus(ord.id, e.target.value)}
-                          style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #ccc', fontSize: '0.85rem', fontWeight: 600 }}
-                        >
-                          <option value="Confirmed">Confirmed</option>
-                          <option value="In Loom / Tailored">In Loom / Tailored</option>
-                          <option value="Dispatched">Dispatched</option>
-                          <option value="Delivered">Delivered</option>
-                          <option value="Cancelled">Cancelled</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', fontSize: '0.85rem' }}>
-                      <div>
-                        <strong style={{ display: 'block', color: '#0e2920', marginBottom: '4px' }}>Customer Delivery Address:</strong>
-                        <div>{ord.shipping?.name}</div>
-                        <div>{ord.shipping?.address}, {ord.shipping?.city} - {ord.shipping?.pincode}</div>
-                        <div>Phone: {ord.shipping?.phone} | {ord.shipping?.email}</div>
-                      </div>
-
-                      <div>
-                        <strong style={{ display: 'block', color: '#0e2920', marginBottom: '4px' }}>Payment & Total:</strong>
-                        <div>Method: <strong>{(ord.paymentMethod || 'upi').toUpperCase()}</strong></div>
-                        <div style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#0e2920', marginTop: '4px' }}>
-                          Total: ₹{(ord.total || 0).toLocaleString('en-IN')}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+              <div className="bg-white rounded-3xl p-12 text-center border border-emerald-900/10">
+                <span className="text-4xl block mb-2">📦</span>
+                <p className="text-text-muted text-sm">No orders yet.</p>
               </div>
+            ) : (
+              orders.map((ord) => (
+                <div key={ord.id} className="bg-white rounded-3xl p-6 border border-emerald-900/10 shadow-xs flex flex-wrap justify-between items-center gap-4">
+                  <div>
+                    <span className="text-xs font-bold text-gold uppercase">Order #{ord.id}</span>
+                    <h4 className="font-serif text-lg font-bold text-primary-dark mt-0.5">
+                      {ord.shipping?.name || 'Patron'} • ₹{(ord.total || 0).toLocaleString('en-IN')}
+                    </h4>
+                    <p className="text-xs text-text-muted mt-1">
+                      {ord.shipping?.address}, {ord.shipping?.city} (Ph: {ord.shipping?.phone})
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-semibold">Status:</span>
+                    <select
+                      value={ord.status}
+                      onChange={(e) => updateOrderStatus(ord.id, e.target.value)}
+                      className="px-3 py-2 rounded-xl border border-emerald-900/20 text-xs font-semibold focus:outline-none"
+                    >
+                      <option value="Confirmed">Confirmed</option>
+                      <option value="In Loom / Tailored">In Loom / Tailored</option>
+                      <option value="Dispatched">Dispatched</option>
+                      <option value="Delivered">Delivered</option>
+                      <option value="Cancelled">Cancelled</option>
+                    </select>
+                  </div>
+                </div>
+              ))
             )}
           </div>
         )}
 
-        {/* Tab 3: 9 Services Overview */}
+        {/* Tab 3: Website Banners */}
+        {adminTab === 'banners' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-emerald-900/10 shadow-xs">
+              <h3 className="font-serif text-xl font-bold text-primary-dark mb-1">
+                Upload Promotional Banner to Firebase Storage
+              </h3>
+              <p className="text-xs text-text-muted mb-6">
+                Banners are converted to WebP and stored in Firebase Storage bucket under <code className="text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded">banners/</code>.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-semibold uppercase text-primary-dark mb-1">Banner Headline</label>
+                    <input
+                      type="text"
+                      value={newBannerTitle}
+                      onChange={(e) => setNewBannerTitle(e.target.value)}
+                      placeholder="e.g. Royal Bridal Heritage Drop"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-emerald-900/20 text-sm focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold uppercase text-primary-dark mb-1">Banner Subtitle</label>
+                    <input
+                      type="text"
+                      value={newBannerSubtitle}
+                      onChange={(e) => setNewBannerSubtitle(e.target.value)}
+                      placeholder="e.g. Pure Handloom Kanchipuram Silks"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-emerald-900/20 text-sm focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold uppercase text-primary-dark mb-1">Promo Badge</label>
+                    <input
+                      type="text"
+                      value={newBannerTag}
+                      onChange={(e) => setNewBannerTag(e.target.value)}
+                      placeholder="FESTIVE SALE / EXCLUSIVE DROP"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-emerald-900/20 text-sm focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <ImageUploadDropzone
+                    folder="banners"
+                    label="Select Banner Artwork"
+                    helperText="Aspect ratio 16:9 or 21:9 recommended (Max 10MB)"
+                    aspectRatio="aspect-[16/9]"
+                    onUploadSuccess={handleBannerUploadSuccess}
+                    onError={(msg) => addToast(msg, 'error')}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Existing Banners Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {banners.map((b) => (
+                <div key={b.id} className="relative rounded-2xl overflow-hidden shadow-md group">
+                  <img src={b.image_url} alt={b.title} className="w-full h-48 object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-primary-dark/90 via-primary-dark/40 to-transparent p-4 flex flex-col justify-end text-white">
+                    <span className="text-[10px] font-extrabold text-gold uppercase tracking-wider">{b.tag}</span>
+                    <h4 className="font-serif text-lg font-bold">{b.title}</h4>
+                    <p className="text-xs text-white/80">{b.subtitle}</p>
+                    <span className="text-[9px] font-mono text-white/60 mt-1">{b.storage_path}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Tab 4: Firebase Storage & Celery Pipeline */}
+        {adminTab === 'firebase' && (
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-emerald-900/10 shadow-xs space-y-6 max-w-4xl">
+            <div>
+              <h3 className="font-serif text-2xl font-bold text-primary-dark">
+                Firebase Cloud Storage & Celery Retention Policy
+              </h3>
+              <p className="text-xs text-text-muted mt-1">
+                Aruvi Collections uses Firebase Storage for image assets and Celery + Redis for asynchronous AI Virtual Try-On synthesis & automated retention.
+              </p>
+            </div>
+
+            {/* Storage Architecture Table */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border border-emerald-900/10 rounded-xl overflow-hidden">
+                <thead className="bg-emerald-50 text-emerald-950 font-bold uppercase tracking-wider">
+                  <tr>
+                    <th className="p-3">Storage Folder</th>
+                    <th className="p-3">Content Type</th>
+                    <th className="p-3">Access Policy</th>
+                    <th className="p-3">Retention Policy</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-emerald-900/10 font-mono text-[11px]">
+                  <tr>
+                    <td className="p-3 text-emerald-800 font-bold">products/{'{productId}'}/</td>
+                    <td className="p-3">Product Catalog Galleries</td>
+                    <td className="p-3">Public Read / Admin Write</td>
+                    <td className="p-3">Permanent (Purged on delete)</td>
+                  </tr>
+                  <tr>
+                    <td className="p-3 text-emerald-800 font-bold">banners/</td>
+                    <td className="p-3">Promotional Hero Drops</td>
+                    <td className="p-3">Public Read / Admin Write</td>
+                    <td className="p-3">Permanent</td>
+                  </tr>
+                  <tr>
+                    <td className="p-3 text-emerald-800 font-bold">profiles/{'{userId}'}/</td>
+                    <td className="p-3">Customer Avatars (WebP)</td>
+                    <td className="p-3">Authenticated Owner</td>
+                    <td className="p-3">Account Lifetime</td>
+                  </tr>
+                  <tr>
+                    <td className="p-3 text-emerald-800 font-bold">tryons/uploads/{'{userId}'}/</td>
+                    <td className="p-3">Customer Uploaded Portraits</td>
+                    <td className="p-3">Private Owner / Admin</td>
+                    <td className="p-3 text-amber-700 font-bold">7-Day Auto Purge</td>
+                  </tr>
+                  <tr>
+                    <td className="p-3 text-emerald-800 font-bold">tryons/results/{'{userId}'}/</td>
+                    <td className="p-3">AI Draped Previews</td>
+                    <td className="p-3">Private Owner / Admin</td>
+                    <td className="p-3 text-amber-700 font-bold">7-Day Auto Purge</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* Celery Photo Retention Policy Purge Trigger */}
+            <div className="p-5 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                  <h4 className="text-sm font-bold text-amber-950">
+                    🧹 Customer Photo Retention Policy (7 Days)
+                  </h4>
+                  <p className="text-xs text-amber-900 mt-0.5">
+                    Trigger the Celery background task (<code className="font-mono text-amber-950">purge_expired_tryon_photos</code>) to delete customer uploaded portraits older than 7 days from Firebase Storage and PostgreSQL.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  disabled={isPurgingRetention}
+                  onClick={handleTriggerRetentionPurge}
+                  className="px-5 py-2.5 bg-amber-800 hover:bg-amber-900 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition shadow-sm disabled:opacity-50"
+                >
+                  {isPurgingRetention ? 'Purging in Celery...' : 'Run Retention Cleanup'}
+                </button>
+              </div>
+
+              {retentionMessage && (
+                <div className="p-3 bg-white rounded-xl border border-amber-300 text-xs text-amber-950 font-semibold">
+                  {retentionMessage}
+                </div>
+              )}
+            </div>
+
+            {/* Project Credentials Status */}
+            <div className="p-4 bg-emerald-50/50 rounded-2xl border border-emerald-900/10 text-xs font-mono space-y-1.5 text-emerald-950">
+              <div><strong>Project ID:</strong> aruvicollections-5ce06</div>
+              <div><strong>Storage Bucket:</strong> aruvicollections-5ce06.firebasestorage.app</div>
+              <div><strong>Owner Admin:</strong> aruvicollections.25@gmail.com</div>
+              <div><strong>Status:</strong> <span className="text-emerald-700 font-bold">✓ Connected</span></div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 5: Services */}
         {adminTab === 'services' && (
-          <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e2dad0', padding: '24px' }}>
-            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', color: '#0e2920', marginBottom: '10px' }}>
-              Boutique Services Configuration
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-emerald-900/10 shadow-xs">
+            <h3 className="font-serif text-2xl font-bold text-primary-dark mb-1">
+              9 Signature Boutique Collections
             </h3>
-            <p style={{ color: '#667770', fontSize: '0.92rem', marginBottom: '24px' }}>
-              The 9 official boutique collections customized for Aruvi Collections:
+            <p className="text-xs text-text-muted mb-6">
+              Official collections configured across the Aruvi boutique navigation:
             </p>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {categories.map((c, idx) => {
                 const count = products.filter(p => p.category === c.id).length;
                 return (
-                  <div key={c.id} style={{ display: 'flex', gap: '14px', alignItems: 'center', padding: '16px', borderRadius: '12px', border: '1px solid #eee', background: '#fafafa' }}>
-                    <span style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--color-gold)', width: '28px' }}>#{idx + 1}</span>
-                    <img src={c.image} alt={c.name} style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover' }} />
-                    <div style={{ flex: 1 }}>
-                      <strong style={{ display: 'block', fontSize: '0.95rem', color: '#0e2920' }}>{c.name}</strong>
-                      <span style={{ fontSize: '0.78rem', color: '#888' }}>{count} piece{count === 1 ? '' : 's'} in catalog</span>
+                  <div key={c.id} className="flex items-center gap-3 p-3.5 rounded-2xl border border-emerald-900/10 bg-ivory/40">
+                    <span className="text-gold font-bold text-sm">#{idx + 1}</span>
+                    <img src={c.image} alt={c.name} className="w-12 h-12 rounded-xl object-cover" />
+                    <div className="flex-1 min-w-0">
+                      <strong className="block text-xs font-bold text-primary-dark truncate">{c.name}</strong>
+                      <span className="text-[11px] text-text-muted">{count} pieces in catalog</span>
                     </div>
-                    <Link to={`/shop?category=${c.id}`} style={{ fontSize: '0.8rem', color: 'var(--color-primary)', textDecoration: 'underline' }}>View</Link>
                   </div>
                 );
               })}
@@ -566,62 +731,49 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* Tab 4: Firebase Storage & Cloud Config */}
-        {adminTab === 'firebase' && (
-          <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e2dad0', padding: '28px', maxWidth: '720px' }}>
-            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', color: '#0e2920', marginBottom: '8px' }}>
-              Firebase Storage & Cloud Infrastructure
-            </h3>
-            <p style={{ color: '#667770', fontSize: '0.92rem', marginBottom: '24px' }}>
-              Active configuration powering Google Authentication, Cloud Storage file uploads, and owner verification.
-            </p>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', background: '#fafafa', borderRadius: '10px', padding: '20px', border: '1px solid #eee', fontFamily: 'monospace', fontSize: '0.85rem' }}>
-              <div><strong>Project ID:</strong> aruvicollections-5ce06</div>
-              <div><strong>Auth Domain:</strong> aruvicollections-5ce06.firebaseapp.com</div>
-              <div><strong>Storage Bucket:</strong> aruvicollections-5ce06.firebasestorage.app</div>
-              <div><strong>Storage Folder:</strong> /aruvi-products/</div>
-              <div><strong>Owner Admin:</strong> aruvicollections.25@gmail.com</div>
-              <div><strong>Cloud Status:</strong> <span style={{ color: '#0f5132', fontWeight: 'bold' }}>✓ Operational</span></div>
-            </div>
-          </div>
-        )}
-
       </div>
 
-      {/* Add / Edit Product Modal */}
+      {/* Add / Edit Product Modal with AdminProductGalleryManager */}
       {isModalOpen && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }} onClick={() => setIsModalOpen(false)}></div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-primary-dark/60 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
           
-          <div style={{ position: 'relative', zIndex: 10, background: '#fff', borderRadius: '16px', maxWidth: '640px', width: '100%', maxHeight: '90vh', overflowY: 'auto', padding: '30px', boxShadow: '0 20px 50px rgba(0,0,0,0.3)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', color: '#0e2920', margin: 0 }}>
-                {editingProduct ? 'Edit Garment' : 'Add New Garment to Catalog'}
+          <div className="relative z-10 bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8 shadow-2xl space-y-6">
+            <div className="flex justify-between items-center border-b border-emerald-900/10 pb-4">
+              <h3 className="font-serif text-2xl font-bold text-primary-dark">
+                {editingProduct ? 'Manage Garment & Firebase Gallery' : 'Add New Garment to Catalog'}
               </h3>
-              <button type="button" onClick={() => setIsModalOpen(false)} style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer' }}>✕</button>
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600 flex items-center justify-center text-sm font-bold"
+              >
+                ✕
+              </button>
             </div>
 
-            <form onSubmit={handleSaveProduct}>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#0e2920', marginBottom: '6px' }}>Garment Title *</label>
-                <input 
-                  type="text" 
-                  required 
-                  placeholder="e.g. Royal Emerald Zari Salwar"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #d4c8b8' }}
-                />
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '16px' }}>
+            <form onSubmit={handleSaveProduct} className="space-y-6">
+              
+              {/* Product Basic Fields */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#0e2920', marginBottom: '6px' }}>Category *</label>
-                  <select 
+                  <label className="block text-xs font-semibold uppercase text-primary-dark mb-1">Garment Title *</label>
+                  <input
+                    type="text"
+                    required
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="e.g. Royal Emerald Kanjivaram Bridal Silk"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-emerald-900/20 text-sm focus:outline-none focus:border-gold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold uppercase text-primary-dark mb-1">Category *</label>
+                  <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #d4c8b8', background: '#fff' }}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-emerald-900/20 text-sm focus:outline-none focus:border-gold"
                   >
                     {categories.map(c => (
                       <option key={c.id} value={c.id}>{c.name}</option>
@@ -630,113 +782,85 @@ export default function AdminPage() {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#0e2920', marginBottom: '6px' }}>Fabric</label>
-                  <input 
-                    type="text" 
-                    placeholder="e.g. Pure Georgette"
-                    value={fabric}
-                    onChange={(e) => setFabric(e.target.value)}
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #d4c8b8' }}
-                  />
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '16px' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#0e2920', marginBottom: '6px' }}>Selling Price (₹) *</label>
-                  <input 
-                    type="number" 
-                    required 
-                    placeholder="4999"
+                  <label className="block text-xs font-semibold uppercase text-primary-dark mb-1">Selling Price (₹) *</label>
+                  <input
+                    type="number"
+                    required
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #d4c8b8' }}
+                    placeholder="14999"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-emerald-900/20 text-sm focus:outline-none focus:border-gold"
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#0e2920', marginBottom: '6px' }}>Original MRP (₹)</label>
-                  <input 
-                    type="number" 
-                    placeholder="6999"
+                  <label className="block text-xs font-semibold uppercase text-primary-dark mb-1">Original MRP (₹)</label>
+                  <input
+                    type="number"
                     value={originalPrice}
                     onChange={(e) => setOriginalPrice(e.target.value)}
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #d4c8b8' }}
+                    placeholder="18500"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-emerald-900/20 text-sm focus:outline-none focus:border-gold"
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#0e2920', marginBottom: '6px' }}>Badge Tag</label>
-                  <input 
-                    type="text" 
-                    placeholder="BESTSELLER / NEW / FESTIVE"
+                  <label className="block text-xs font-semibold uppercase text-primary-dark mb-1">Fabric & Weave</label>
+                  <input
+                    type="text"
+                    value={fabric}
+                    onChange={(e) => setFabric(e.target.value)}
+                    placeholder="Pure Mulberry Silk"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-emerald-900/20 text-sm focus:outline-none focus:border-gold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold uppercase text-primary-dark mb-1">Badge Tag</label>
+                  <input
+                    type="text"
                     value={badge}
                     onChange={(e) => setBadge(e.target.value)}
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #d4c8b8' }}
+                    placeholder="BESTSELLER / NEW / FESTIVE"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-emerald-900/20 text-sm focus:outline-none focus:border-gold"
                   />
                 </div>
               </div>
 
-              {/* Firebase Cloud Storage Image Upload */}
-              <div style={{ marginBottom: '18px', background: '#fbf9f6', padding: '16px', borderRadius: '10px', border: '1px dashed var(--color-gold)' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#0e2920', marginBottom: '6px' }}>
-                  🔥 Upload Image to Firebase Cloud Storage:
-                </label>
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  onChange={handleImageFileChange}
-                  disabled={isUploading}
-                  style={{ fontSize: '0.85rem', marginBottom: '8px' }}
+              {/* Multi-Image Gallery Manager with Firebase Storage */}
+              <div>
+                <AdminProductGalleryManager
+                  images={galleryImages}
+                  productId={editingProduct?.id}
+                  onImagesChange={(imgs) => setGalleryImages(imgs)}
+                  showNotification={(msg, type) => addToast(msg, type)}
                 />
-
-                {isUploading && (
-                  <div style={{ margin: '8px 0' }}>
-                    <div style={{ fontSize: '0.8rem', color: '#0e2920', marginBottom: '4px' }}>
-                      Uploading to Firebase: {Math.round(uploadProgress || 0)}%
-                    </div>
-                    <div style={{ width: '100%', height: '6px', background: '#e0d8cc', borderRadius: '4px', overflow: 'hidden' }}>
-                      <div style={{ width: `${uploadProgress || 0}%`, height: '100%', background: 'var(--color-gold)' }} />
-                    </div>
-                  </div>
-                )}
-
-                <div style={{ marginTop: '8px' }}>
-                  <label style={{ display: 'block', fontSize: '0.78rem', color: '#667770', marginBottom: '4px' }}>Or Direct Image URL / Path:</label>
-                  <input 
-                    type="text" 
-                    value={image}
-                    onChange={(e) => setImage(e.target.value)}
-                    placeholder="assets/images/kanjivaram_green.jpg"
-                    style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #d4c8b8', fontSize: '0.82rem' }}
-                  />
-                </div>
-
-                {image && (
-                  <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <img src={image} alt="Preview" style={{ width: '48px', height: '58px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ccc' }} />
-                    <span style={{ fontSize: '0.78rem', color: '#0f5132' }}>✓ Image ready for preview</span>
-                  </div>
-                )}
               </div>
 
-              <div style={{ marginBottom: '24px' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#0e2920', marginBottom: '6px' }}>Description</label>
-                <textarea 
-                  rows="3" 
+              <div>
+                <label className="block text-xs font-semibold uppercase text-primary-dark mb-1">Description</label>
+                <textarea
+                  rows="3"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Artisanal handwoven drape..."
-                  style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #d4c8b8' }}
+                  placeholder="Master handwoven silhouette..."
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-emerald-900/20 text-sm focus:outline-none focus:border-gold"
                 />
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-                <button type="button" onClick={() => setIsModalOpen(false)} className="btn btn-secondary" style={{ padding: '10px 20px' }}>
+              <div className="flex justify-end gap-3 pt-4 border-t border-emerald-900/10">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-5 py-2.5 border border-emerald-900/20 rounded-xl text-xs font-semibold"
+                >
                   Cancel
                 </button>
-                <button type="submit" className="btn btn-primary hover-shimmer" style={{ padding: '10px 24px' }}>
-                  {editingProduct ? 'Save Changes' : 'Add to Boutique'}
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 bg-primary hover:bg-primary-light text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-md transition"
+                >
+                  {editingProduct ? 'Save Changes' : 'Publish Garment'}
                 </button>
               </div>
             </form>

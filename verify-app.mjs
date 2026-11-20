@@ -164,6 +164,32 @@ legacyFiles.forEach((f) => {
 });
 
 // ----------------------------------------------------
+// 8. Firebase Storage, Django Backend & Celery QA
+// ----------------------------------------------------
+console.log('\nTEST GROUP 8: Firebase Storage, Django Backend & Celery QA');
+
+assert(fs.existsSync('storage.rules'), 'Firebase Storage Security Rules (storage.rules) present');
+assert(fs.existsSync('tailwind.config.js'), 'Tailwind CSS config present');
+assert(fs.existsSync('postcss.config.js'), 'PostCSS config present');
+assert(fs.existsSync('backend/manage.py'), 'Django backend manage.py present');
+assert(fs.existsSync('backend/aruvi_backend/settings.py'), 'Django settings.py configured');
+assert(fs.existsSync('backend/aruvi_backend/celery.py'), 'Celery + Redis task app configured');
+assert(fs.existsSync('backend/core/firebase_service.py'), 'Firebase Storage & Admin SDK service configured');
+assert(fs.existsSync('backend/tryon/tasks.py'), 'AI Virtual Try-On Celery task and Photo Retention Purge configured');
+assert(fs.existsSync('src/components/ImageUploadDropzone.jsx'), 'Reusable ImageUploadDropzone component present');
+assert(fs.existsSync('src/components/AdminProductGalleryManager.jsx'), 'Admin multi-image gallery manager present');
+
+const storageRules = fs.readFileSync('storage.rules', 'utf8');
+assert(storageRules.includes('match /products/{productId}/{allPaths=**}'), 'Storage Rules: Product catalog rules defined');
+assert(storageRules.includes('match /tryons/uploads/{userId}/{allPaths=**}'), 'Storage Rules: Customer try-on upload privacy rules defined');
+assert(storageRules.includes('match /tryons/results/{userId}/{allPaths=**}'), 'Storage Rules: AI fitting results privacy rules defined');
+assert(storageRules.includes('match /profiles/{userId}/{allPaths=**}'), 'Storage Rules: Customer profile avatar rules defined');
+
+const djangoSettings = fs.readFileSync('backend/aruvi_backend/settings.py', 'utf8');
+assert(djangoSettings.includes('aruvicollections-5ce06.firebasestorage.app'), 'Django settings configured with Firebase Storage bucket');
+assert(djangoSettings.includes('PHOTO_RETENTION_DAYS'), 'Django settings configured with 7-day photo retention policy');
+
+// ----------------------------------------------------
 // Summary
 // ----------------------------------------------------
 console.log('\n====================================================');

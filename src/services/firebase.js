@@ -1,6 +1,6 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
 
 export const firebaseConfig = {
   apiKey: "AIzaSyAhRjW44QHFr4rwdEk0nvi2UlZNnQcLv_o",
@@ -18,6 +18,36 @@ export const auth = getAuth(app);
 export const storage = getStorage(app);
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
+
+// Backend API Base URL
+export const BACKEND_API_BASE = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:8000';
+
+/**
+ * Validates image format and file size
+ */
+export function validateImageFile(file, maxSizeMB = 10) {
+  if (!file) {
+    return { valid: false, error: 'Please choose an image file.' };
+  }
+
+  const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+  if (!validTypes.includes(file.type.toLowerCase())) {
+    return {
+      valid: false,
+      error: `Unsupported file format (${file.type || 'unknown'}). Please upload a JPEG, PNG, or WebP image.`
+    };
+  }
+
+  const maxBytes = maxSizeMB * 1024 * 1024;
+  if (file.size > maxBytes) {
+    return {
+      valid: false,
+      error: `File is too large (${(file.size / (1024 * 1024)).toFixed(1)}MB). Maximum allowed size is ${maxSizeMB}MB.`
+    };
+  }
+
+  return { valid: true, error: null };
+}
 
 /**
  * Sign In with Google Provider
@@ -64,13 +94,18 @@ export async function signOutAuth() {
  */
 export function uploadFileToFirebase(file, folder = 'products', onProgress) {
   return new Promise((resolve, reject) => {
-    if (!file) return reject(new Error('No file provided for upload.'));
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
+      return reject(new Error(validation.error));
+    }
 
     const cleanName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
     const timestamp = Date.now();
     const fullPath = `${folder}/${timestamp}_${cleanName}`;
     const storageRef = ref(storage, fullPath);
-    const uploadTask = uploadBytesResumable(storageRef, file);
+    const uploadTask = uploadBytesResumable(storageRef, file, {
+      contentType: file.type || 'image/webp'
+    });
 
     uploadTask.on(
       'state_changed',
@@ -80,14 +115,16 @@ export function uploadFileToFirebase(file, folder = 'products', onProgress) {
       },
       (error) => {
         console.warn('Firebase storage direct error, fallback to data url:', error);
-        // Fallback simulation
+        // Fallback simulation for offline testing
         const reader = new FileReader();
         reader.onload = (e) => {
           if (onProgress) onProgress(100);
           resolve({
             url: e.target.result,
             path: fullPath,
-            name: file.name
+            name: file.name,
+            size: file.size,
+            type: file.type
           });
         };
         reader.readAsDataURL(file);
@@ -99,7 +136,9 @@ export function uploadFileToFirebase(file, folder = 'products', onProgress) {
           resolve({
             url: downloadURL,
             path: fullPath,
-            name: file.name
+            name: file.name,
+            size: file.size,
+            type: file.type
           });
         } catch (e) {
           reject(e);
@@ -107,4 +146,33 @@ export function uploadFileToFirebase(file, folder = 'products', onProgress) {
       }
     );
   });
+}
+
+/**
+ * Delete a file from Firebase Cloud Storage by its storage path
+ */
+export async function deleteFileFromFirebase(storagePath) {
+  if (!storagePath) return false;
+  try {
+    const fileRef = ref(storage, storagePath);
+    await deleteObject(fileRef);
+    return true;
+  } catch (err) {
+    console.warn(`Could not delete file ${storagePath} from Firebase Storage:`, err);
+    return false;
+  }
+}
+
+/**
+ * Get current user token for authenticated backend API requests
+ */
+export async function getAuthToken() {
+  if (auth.currentUser) {
+    try {
+      return await auth.currentUser.getIdToken();
+    } catch (e) {
+      console.warn('Failed to retrieve Firebase ID token:', e);
+    }
+  }
+  return null;
 }

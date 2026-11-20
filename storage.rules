@@ -1,0 +1,63 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isBoutiqueAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.email == 'aruvicollections.25@gmail.com' ||
+        request.auth.token.admin == true
+      );
+    }
+    
+    function isValidImage() {
+      return request.resource.contentType.matches('image/.*')
+        && request.resource.size <= 10 * 1024 * 1024; // 10MB max
+    }
+
+    // 1. Boutique Product Catalogs & Galleries:
+    // Anyone can read product photos; only boutique admin can upload/replace/delete.
+    match /products/{productId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if isBoutiqueAdmin();
+    }
+
+    // 2. Promotional Banners & Hero Drops:
+    // Anyone can view banners; only boutique admin can modify.
+    match /banners/{allPaths=**} {
+      allow read: if true;
+      allow write: if isBoutiqueAdmin();
+    }
+
+    // 3. Customer Profile Avatars:
+    // Users can read and upload their own profile avatar up to 10MB.
+    match /profiles/{userId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if (isOwner(userId) || isBoutiqueAdmin()) && isValidImage();
+    }
+
+    // 4. Customer Uploaded Try-On Photographs:
+    // Strict privacy: only the customer who uploaded it or admin can read/view.
+    match /tryons/uploads/{userId}/{allPaths=**} {
+      allow read: if isOwner(userId) || isBoutiqueAdmin();
+      allow write: if (isOwner(userId) || isBoutiqueAdmin() || request.auth == null) && isValidImage();
+      allow delete: if isOwner(userId) || isBoutiqueAdmin();
+    }
+
+    // 5. AI Virtual Try-On Rendered Results:
+    // Only the customer or admin can access their personalized virtual fitting results.
+    match /tryons/results/{userId}/{allPaths=**} {
+      allow read: if isOwner(userId) || isBoutiqueAdmin();
+      allow write: if isBoutiqueAdmin();
+      allow delete: if isOwner(userId) || isBoutiqueAdmin();
+    }
+  }
+}
