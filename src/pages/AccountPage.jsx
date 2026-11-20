@@ -231,28 +231,44 @@ export default function AccountPage() {
               Patron Profile Information
             </h3>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '0.92rem' }}>
-              <div>
-                <span style={{ color: '#667770', display: 'block', fontSize: '0.8rem' }}>Email Address</span>
-                <strong style={{ color: '#0e2920' }}>{user?.email || 'guest@aruvi.in'}</strong>
+            {user ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '0.92rem' }}>
+                <div>
+                  <span style={{ color: '#667770', display: 'block', fontSize: '0.8rem' }}>Email Address</span>
+                  <strong style={{ color: '#0e2920' }}>{user.email}</strong>
+                </div>
+                <div>
+                  <span style={{ color: '#667770', display: 'block', fontSize: '0.8rem' }}>Full Name</span>
+                  <strong style={{ color: '#0e2920' }}>{user.name || 'Patron Member'}</strong>
+                </div>
+                <div>
+                  <span style={{ color: '#667770', display: 'block', fontSize: '0.8rem' }}>Role Status</span>
+                  <strong style={{ color: isAdmin ? 'var(--color-gold)' : '#0e2920' }}>
+                    {isAdmin ? '👑 Owner Admin (Unrestricted Access)' : 'Verified Customer Patron'}
+                  </strong>
+                </div>
+                <div>
+                  <span style={{ color: '#667770', display: 'block', fontSize: '0.8rem' }}>Authentication Provider</span>
+                  <strong style={{ color: '#0e2920' }}>
+                    {user.provider === 'google' ? 'Google Firebase OAuth' : 'Email & Password Session'}
+                  </strong>
+                </div>
               </div>
+            ) : (
               <div>
-                <span style={{ color: '#667770', display: 'block', fontSize: '0.8rem' }}>Full Name</span>
-                <strong style={{ color: '#0e2920' }}>{user?.name || 'Patron Member'}</strong>
+                <p style={{ color: '#667770', fontSize: '0.92rem', marginBottom: '16px' }}>
+                  You are currently browsing as a guest. Sign in or create an account to save favorite drapes, track consignments, and enjoy personalized boutique perks.
+                </p>
+                <button 
+                  type="button" 
+                  onClick={() => setAuthModalOpen(true)}
+                  className="btn btn-primary hover-shimmer"
+                  style={{ padding: '12px 24px', fontWeight: 600 }}
+                >
+                  Sign In / Register Now 🔐
+                </button>
               </div>
-              <div>
-                <span style={{ color: '#667770', display: 'block', fontSize: '0.8rem' }}>Role Status</span>
-                <strong style={{ color: isAdmin ? 'var(--color-gold)' : '#0e2920' }}>
-                  {isAdmin ? '👑 Owner Admin (Unrestricted Access)' : 'Verified Customer Patron'}
-                </strong>
-              </div>
-              <div>
-                <span style={{ color: '#667770', display: 'block', fontSize: '0.8rem' }}>Authentication Provider</span>
-                <strong style={{ color: '#0e2920' }}>
-                  {user?.provider === 'google' ? 'Google Firebase OAuth' : 'Email & Password Session'}
-                </strong>
-              </div>
-            </div>
+            )}
           </div>
         )}
 

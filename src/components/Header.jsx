@@ -41,6 +41,7 @@ export default function Header() {
             <span>✨ Use code <strong>ARUVI20</strong> for Extra 20% Off + Free Shipping on orders above ₹999 ✨</span>
           </div>
           <div className="announcement-right">
+            <Link to="/account" className="announcement-link">👤 My Account</Link>
             <Link to="/account" className="announcement-link">Track Shipment</Link>
             <Link to="/account" className="announcement-link">Boutique Concierge</Link>
             {isAdmin && (
@@ -129,30 +130,23 @@ export default function Header() {
             </Link>
 
             {/* Account / Login Trigger */}
-            <button 
-              type="button" 
+            <Link 
+              to="/account" 
               className="action-btn" 
-              onClick={() => {
-                if (customer || isAdmin) {
-                  navigate(isAdmin ? '/admin' : '/account');
-                } else {
-                  setAuthModalOpen(true);
-                }
-              }}
-              title={customer ? `Signed in as ${customer.name}` : "My Account (Sign In)"}
+              title={customer ? `Signed in as ${customer.name || customer.email}` : "My Account"}
               style={customer ? { borderColor: 'var(--color-gold)', background: 'var(--color-primary)', color: '#f4db8e' } : {}}
             >
               {isAdmin ? (
                 <span style={{ fontSize: '1.1rem' }}>👑</span>
               ) : customer ? (
-                <span style={{ fontWeight: 800, fontSize: '0.85rem' }}>{customer.name?.charAt(0).toUpperCase()}</span>
+                <span style={{ fontWeight: 800, fontSize: '0.85rem' }}>{(customer.name || customer.email)?.charAt(0).toUpperCase()}</span>
               ) : (
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                   <circle cx="12" cy="7" r="4"></circle>
                 </svg>
               )}
-            </button>
+            </Link>
 
             {/* Mobile Menu Toggle Hamburger */}
             <button 
@@ -289,7 +283,7 @@ export default function Header() {
       )}
 
       {/* Customer Auth Modal */}
-      {authModalOpen && <CustomerAuthModal onClose={() => setAuthModalOpen(false)} />}
+      {authModalOpen && <CustomerAuthModal isOpen={true} onClose={() => setAuthModalOpen(false)} />}
     </>
   );
 }

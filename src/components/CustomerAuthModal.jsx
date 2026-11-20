@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 
-export default function CustomerAuthModal({ isOpen, onClose }) {
+export default function CustomerAuthModal({ isOpen = true, onClose }) {
   const { user, isAdmin, loginWithGoogle, loginWithEmail, registerWithEmail, logout, addToast } = useStore();
   const navigate = useNavigate();
 
@@ -20,7 +20,7 @@ export default function CustomerAuthModal({ isOpen, onClose }) {
   const [regPhone, setRegPhone] = useState('');
   const [regPassword, setRegPassword] = useState('');
 
-  if (!isOpen) return null;
+  if (isOpen === false) return null;
 
   const handleGoogleLogin = async () => {
     setErrorMsg('');
