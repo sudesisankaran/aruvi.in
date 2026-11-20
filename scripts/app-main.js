@@ -128,12 +128,6 @@
      CATEGORY META & DYNAMIC HEADER SYNC
      ========================================================================== */
   const CATEGORY_META = {
-    sarees: {
-      title: 'Sarees',
-      subtitle: 'Grace in every drape',
-      desc: 'Explore authentic Kanjivaram pure silk, Banarasi gold zari, Chanderi festive weaves, and lightweight handloom cottons.',
-      image: 'assets/images/kanjivaram_green.jpg'
-    },
     salwar: {
       title: 'Salwar Suits',
       subtitle: 'Graceful & classy silhouettes',
@@ -146,29 +140,78 @@
       desc: 'Discover royal flared georgette and silk sharara sets enriched with exquisite zari borders and matching dupattas.',
       image: 'assets/images/lehenga_set.jpg'
     },
-    'ethnic-wears': {
-      title: 'Ethnic Wears',
+    'ethnic-wear': {
+      title: 'Ethnic Wear',
       subtitle: 'Traditional artisanal handcrafts',
       desc: 'Handcrafted South Indian ethnic ensembles, Anarkali gowns, and authentic heritage festival wear.',
       image: 'assets/images/festive_promo.jpg'
     },
-    'co-ord-sets': {
-      title: 'Co-ord Sets',
-      subtitle: 'Chic matching fusion sets',
-      desc: 'Contemporary designer two-piece fusion outfits crafted from printed georgette, silk, and structured velvet.',
+    maxis: {
+      title: "Maxi's",
+      subtitle: 'Flowing & elegant designer maxis',
+      desc: 'Flowing georgette, modal silk, and breathable cotton designer maxi dresses crafted for graceful occasions.',
       image: 'assets/images/printed_georgette.jpg'
     },
-    'western-tops': {
-      title: 'Western Tops',
-      subtitle: 'Modern peplum & chic tops',
-      desc: 'Airy georgette and Chanderi silk peplum western tops featuring scalloped borders and designer silhouettes.',
+    'co-ordsets': {
+      title: 'Co-ordsets',
+      subtitle: 'Chic matching fusion two-piece sets',
+      desc: 'Contemporary designer two-piece fusion outfits crafted from printed georgette, silk, and structured fabrics.',
+      image: 'assets/images/western_ethnic.jpg'
+    },
+    'casual-tops': {
+      title: 'Casual Tops',
+      subtitle: 'Everyday chic tops & tunics',
+      desc: 'Airy casual cotton tops, designer shirts, and trendy tunics for effortless day-to-day luxury.',
+      image: 'assets/images/kurti_wear.jpg'
+    },
+    'western-wear': {
+      title: 'Western Wear',
+      subtitle: 'Contemporary western couture & chic ensembles',
+      desc: 'Modern western dresses, smart tailored blazers, party wear jumpsuits, and contemporary fusion couture.',
       image: 'assets/images/premium_fabrics.jpg'
     },
-    kids: {
-      title: 'Kids Collection',
-      subtitle: 'Adorable festive ethnic wear for little ones',
-      desc: 'Handcrafted pure silk Pattu Pavadai, ethnic kurta dhoti sets, and festive celebratory wear for kids.',
+    'jeans-pants': {
+      title: 'Jeans & Pants',
+      subtitle: 'Baggy pants, straight cuts & palazzo trousers',
+      desc: 'High-waisted premium denim jeans, ultra-comfortable baggy pants, tailored straight-fit trousers, and flowing palazzo pants.',
+      image: 'assets/images/hero_saree_model.jpg'
+    },
+    'kids-wear': {
+      title: 'Kids Wear',
+      subtitle: 'Festive celebratory outfits for little ones',
+      desc: 'Handcrafted pure silk Pattu Pavadai, ethnic kurta sets, and designer celebratory outfits for kids.',
       image: 'assets/images/cotton_saree.jpg'
+    },
+    // Backward Compatibility Aliases
+    'ethnic-wears': {
+      title: 'Ethnic Wear',
+      subtitle: 'Traditional artisanal handcrafts',
+      desc: 'Handcrafted South Indian ethnic ensembles and authentic festival wear.',
+      image: 'assets/images/festive_promo.jpg'
+    },
+    'co-ord-sets': {
+      title: 'Co-ordsets',
+      subtitle: 'Chic matching fusion sets',
+      desc: 'Contemporary designer two-piece fusion outfits.',
+      image: 'assets/images/western_ethnic.jpg'
+    },
+    'western-tops': {
+      title: 'Casual Tops',
+      subtitle: 'Everyday chic tops & tunics',
+      desc: 'Airy casual cotton tops and trendy tunics.',
+      image: 'assets/images/kurti_wear.jpg'
+    },
+    kids: {
+      title: 'Kids Wear',
+      subtitle: 'Festive outfits for kids',
+      desc: 'Handcrafted celebratory wear for kids.',
+      image: 'assets/images/cotton_saree.jpg'
+    },
+    sarees: {
+      title: 'Salwar & Ethnic Collections',
+      subtitle: 'Boutique handcrafted fashion',
+      desc: 'Discover our exclusive range of boutique designer wear.',
+      image: 'assets/images/anarkali_suit.jpg'
     }
   };
 
@@ -263,7 +306,7 @@
         const addBtn = document.getElementById('btn-empty-add-prod');
         if (addBtn) {
           addBtn.addEventListener('click', function () {
-            openStorefrontProductModal(null, AppState.activeCategory !== 'all' ? AppState.activeCategory : 'sarees');
+            openStorefrontProductModal(null, AppState.activeCategory !== 'all' ? AppState.activeCategory : 'salwar');
           });
         }
       } else {
@@ -1497,7 +1540,7 @@
       const barAddBtn = document.getElementById('btn-admin-bar-add');
       if (barAddBtn) {
         barAddBtn.onclick = function () {
-          const defaultCat = AppState.activeCategory && AppState.activeCategory !== 'all' ? AppState.activeCategory : 'sarees';
+          const defaultCat = AppState.activeCategory && AppState.activeCategory !== 'all' ? AppState.activeCategory : 'salwar';
           openStorefrontProductModal(null, defaultCat);
         };
       }
@@ -1550,7 +1593,7 @@
         const serviceBtn = document.getElementById('btn-service-add-product');
         if (serviceBtn) {
           serviceBtn.onclick = function () {
-            openStorefrontProductModal(null, activeCat || 'sarees');
+            openStorefrontProductModal(null, activeCat || 'salwar');
           };
         }
       }
@@ -1568,7 +1611,7 @@
           catalogHeader.appendChild(homeAddBtn);
         }
         homeAddBtn.onclick = function () {
-          openStorefrontProductModal(null, AppState.activeCategory !== 'all' ? AppState.activeCategory : 'sarees');
+          openStorefrontProductModal(null, AppState.activeCategory !== 'all' ? AppState.activeCategory : 'salwar');
         };
       }
     } else {
@@ -1608,13 +1651,15 @@
             <div class="sf-form-group">
               <label class="sf-label" for="sf-input-category">Service / Collection *</label>
               <select id="sf-input-category" class="sf-select" required>
-                <option value="sarees">1. Sarees</option>
-                <option value="salwar">2. Salwar</option>
-                <option value="sharara">3. Sharara</option>
-                <option value="ethnic-wears">4. Ethnic Wears</option>
-                <option value="co-ord-sets">5. Co-ord Sets</option>
-                <option value="western-tops">6. Western Tops</option>
-                <option value="kids">7. Kids</option>
+                <option value="salwar">1. Salwar</option>
+                <option value="sharara">2. Sharara</option>
+                <option value="ethnic-wear">3. Ethnic Wear</option>
+                <option value="maxis">4. Maxi's</option>
+                <option value="co-ordsets">5. Co-ordsets</option>
+                <option value="casual-tops">6. Casual Tops</option>
+                <option value="western-wear">7. Western Wear</option>
+                <option value="jeans-pants">8. Jeans (Baggy / Straight / Palazzo)</option>
+                <option value="kids-wear">9. Kids Wear</option>
               </select>
             </div>
           </div>
@@ -1824,7 +1869,7 @@
       if (titleEl) titleEl.textContent = 'Edit Product: ' + product.title;
       if (idInput) idInput.value = product.id;
       if (titleInput) titleInput.value = product.title || '';
-      if (catInput) catInput.value = product.category || 'sarees';
+      if (catInput) catInput.value = product.category || 'salwar';
       if (priceInput) priceInput.value = product.price || '';
       if (origPriceInput) origPriceInput.value = product.originalPrice || product.price || '';
       if (stockInput) stockInput.value = product.stock || 15;
@@ -1833,16 +1878,16 @@
       if (colorInput) colorInput.value = product.color || 'green';
       if (badgeInput) badgeInput.value = product.badge || '';
       if (sizesInput) sizesInput.value = Array.isArray(product.sizes) ? product.sizes.join(', ') : (product.sizes || 'Free Size');
-      if (imageInput) imageInput.value = product.image || 'assets/images/kanjivaram_green.jpg';
+      if (imageInput) imageInput.value = product.image || 'assets/images/anarkali_suit.jpg';
       if (taglineInput) taglineInput.value = product.tagline || '';
     } else {
       // Create Mode
       if (titleEl) titleEl.textContent = 'Add New Collection Item';
       if (idInput) idInput.value = 'p_' + Date.now();
-      if (catInput) catInput.value = defaultCategory || (AppState.activeCategory !== 'all' ? AppState.activeCategory : 'sarees');
+      if (catInput) catInput.value = defaultCategory || (AppState.activeCategory !== 'all' ? AppState.activeCategory : 'salwar');
       if (stockInput) stockInput.value = 15;
       if (sizesInput) sizesInput.value = 'Free Size, S, M, L, XL';
-      if (imageInput) imageInput.value = 'assets/images/kanjivaram_green.jpg';
+      if (imageInput) imageInput.value = 'assets/images/anarkali_suit.jpg';
     }
 
     // Highlight preset if matches

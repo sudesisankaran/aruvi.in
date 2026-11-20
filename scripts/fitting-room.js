@@ -50,16 +50,6 @@
   // Default sample products if catalog is empty
   const FALLBACK_PRODUCTS = [
     {
-      id: 'try_saree',
-      title: 'Kanjivaram Pure Silk Gold Zari Saree',
-      category: 'sarees',
-      price: 8499,
-      fabric: 'Pure Mulberry Silk',
-      image: 'assets/images/kanjivaram_green.jpg',
-      color: 'Royal Emerald Green',
-      colorHex: '#153c30'
-    },
-    {
       id: 'try_salwar',
       title: 'Flared Georgette Anarkali Suit Set',
       category: 'salwar',
@@ -81,8 +71,8 @@
     },
     {
       id: 'try_ethnic',
-      title: 'Handcrafted Heritage Festive Drape',
-      category: 'ethnic-wears',
+      title: 'Handcrafted Heritage Festive Kurta Drape',
+      category: 'ethnic-wear',
       price: 6299,
       fabric: 'Chanderi Silk',
       image: 'assets/images/festive_promo.jpg',
@@ -90,29 +80,59 @@
       colorHex: '#c93b3b'
     },
     {
-      id: 'try_coord',
-      title: 'Printed Silk Fusion Co-ord Set',
-      category: 'co-ord-sets',
-      price: 3299,
-      fabric: 'Printed Georgette',
+      id: 'try_maxis',
+      title: 'Designer Flared Floral Georgette Maxi',
+      category: 'maxis',
+      price: 3899,
+      fabric: 'Pure Georgette',
       image: 'assets/images/printed_georgette.jpg',
-      color: 'Blush Peach',
+      color: 'Blush Floral',
       colorHex: '#f4c2b2'
     },
     {
-      id: 'try_western',
-      title: 'Scalloped Peplum Western Top',
-      category: 'western-tops',
+      id: 'try_coord',
+      title: 'Contemporary Matching Fusion Co-ord Set',
+      category: 'co-ordsets',
+      price: 3499,
+      fabric: 'Printed Silk',
+      image: 'assets/images/western_ethnic.jpg',
+      color: 'Sapphire Emerald',
+      colorHex: '#153c30'
+    },
+    {
+      id: 'try_casual_top',
+      title: 'Chic Embroidered Daily Casual Top',
+      category: 'casual-tops',
       price: 1899,
-      fabric: 'Chanderi Silk',
+      fabric: 'Breathable Cotton Silk',
+      image: 'assets/images/kurti_wear.jpg',
+      color: 'Mustard Gold',
+      colorHex: '#c89d38'
+    },
+    {
+      id: 'try_western',
+      title: 'Tailored Western Blazer & Dress Ensemble',
+      category: 'western-wear',
+      price: 4599,
+      fabric: 'Structured Crepe',
       image: 'assets/images/premium_fabrics.jpg',
-      color: 'Mint Green',
-      colorHex: '#a9cdbd'
+      color: 'Onyx Charcoal',
+      colorHex: '#222222'
+    },
+    {
+      id: 'try_jeans_pants',
+      title: 'High-Waist Baggy Denim Pants / Palazzo Trousers',
+      category: 'jeans-pants',
+      price: 2499,
+      fabric: 'Stretch Premium Cotton Denim',
+      image: 'assets/images/hero_saree_model.jpg',
+      color: 'Vintage Indigo',
+      colorHex: '#2e4057'
     },
     {
       id: 'try_kids',
-      title: 'Pure Pattu Pavadai Kids Silk Set',
-      category: 'kids',
+      title: 'Pure Silk Kids Festive Celebratory Wear',
+      category: 'kids-wear',
       price: 2499,
       fabric: 'Pure Soft Silk',
       image: 'assets/images/cotton_saree.jpg',

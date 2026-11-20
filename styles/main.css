@@ -3353,11 +3353,14 @@ body.admin-mode-active .announcement-bar {
 }
 
 
-/* Compact spacing for 7 collections in navbar */
+/* Compact spacing for 9 collections in navbar */
+.main-nav {
+  gap: 12px;
+}
 .main-nav .nav-link {
-  font-size: 0.82rem;
+  font-size: 0.81rem;
   white-space: nowrap;
-  padding: 6px 4px;
+  padding: 6px 3px;
 }
 
 /* ==========================================================================

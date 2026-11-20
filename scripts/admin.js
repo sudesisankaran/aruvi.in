@@ -557,7 +557,7 @@
     // Fill form
     document.getElementById('prod-input-id').value = product.id;
     document.getElementById('prod-input-title').value = product.title || '';
-    document.getElementById('prod-input-category').value = product.category || 'sarees';
+    document.getElementById('prod-input-category').value = product.category || 'salwar';
     document.getElementById('prod-input-fabric').value = product.fabric || 'silk';
     document.getElementById('prod-input-occasion').value = product.occasion || 'wedding';
     document.getElementById('prod-input-price').value = product.price || '';

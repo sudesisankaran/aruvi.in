@@ -28,23 +28,25 @@
     AUTH: 'aruvi_admin_auth'
   };
 
-  // Schema Version for 7 exclusive collections & Admin Control
+  // Schema Version for 9 exclusive services & collections
   const SCHEMA_VERSION_KEY = 'aruvi_schema_version';
-  const CURRENT_SCHEMA_VERSION = 'v5_clean_zero_demo_data';
+  const CURRENT_SCHEMA_VERSION = 'v6_services_categories_9';
 
   // Master Initial Products - STRICTLY START EMPTY AS REQUESTED
   // Admin has complete control to add, edit, and delete products across the website
   const DEFAULT_PRODUCTS = [];
 
-  // ONLY 7 EXCLUSIVE CATEGORIES
+  // 9 EXCLUSIVE SERVICES & COLLECTIONS
   const DEFAULT_CATEGORIES = [
-    { id: 'sarees', name: 'Sarees', icon: '🥻', description: 'Pure Kanjivaram, Banarasi & Handloom Silk Sarees', featured: true, image: 'assets/images/kanjivaram_green.jpg' },
-    { id: 'salwar', name: 'Salwar', icon: '👗', description: 'Designer Salwar Suits & Festive Kurta Sets', featured: true, image: 'assets/images/anarkali_suit.jpg' },
+    { id: 'salwar', name: 'Salwar', icon: '👗', description: 'Designer Salwar Suits, Anarkalis & Festive Kurta Sets', featured: true, image: 'assets/images/anarkali_suit.jpg' },
     { id: 'sharara', name: 'Sharara', icon: '✨', description: 'Royal Flared Sharara Sets & Peplum Kurta Ensembles', featured: true, image: 'assets/images/lehenga_set.jpg' },
-    { id: 'ethnic-wears', name: 'Ethnic Wears', icon: '🪡', description: 'Traditional Handcrafted Ethnic Outfits & Drapes', featured: true, image: 'assets/images/festive_promo.jpg' },
-    { id: 'co-ord-sets', name: 'Co-ord Sets', icon: '👚', description: 'Contemporary Fusion Matching Two-Piece Co-ord Sets', featured: true, image: 'assets/images/printed_georgette.jpg' },
-    { id: 'western-tops', name: 'Western Tops', icon: '🧥', description: 'Chic Designer Western Tops & Peplum Blouses', featured: true, image: 'assets/images/premium_fabrics.jpg' },
-    { id: 'kids', name: 'Kids', icon: '👶', description: 'Pure Pattu Pavadai, Festive Kurta Sets & Kids Ethnic Wear', featured: true, image: 'assets/images/cotton_saree.jpg' }
+    { id: 'ethnic-wear', name: 'Ethnic Wear', icon: '🪡', description: 'Traditional Handcrafted Ethnic Outfits & Heritage Drapes', featured: true, image: 'assets/images/festive_promo.jpg' },
+    { id: 'maxis', name: "Maxi's", icon: '💃', description: 'Flowing Georgette, Modal Silk & Cotton Designer Maxi Dresses', featured: true, image: 'assets/images/printed_georgette.jpg' },
+    { id: 'co-ordsets', name: 'Co-ordsets', icon: '👚', description: 'Contemporary Fusion Matching Two-Piece Co-ord Sets', featured: true, image: 'assets/images/western_ethnic.jpg' },
+    { id: 'casual-tops', name: 'Casual Tops', icon: '👕', description: 'Chic Everyday Casual Tops, Designer Shirts & Tunics', featured: true, image: 'assets/images/kurti_wear.jpg' },
+    { id: 'western-wear', name: 'Western Wear', icon: '🧥', description: 'Contemporary Western Dresses, Blazers & Jumpsuits', featured: true, image: 'assets/images/premium_fabrics.jpg' },
+    { id: 'jeans-pants', name: 'Jeans (Baggy Pants / Straight Pants / Pallazzo Pants)', icon: '👖', description: 'High-waisted Jeans, Baggy Pants, Straight Cuts & Palazzo Trousers', featured: true, image: 'assets/images/hero_saree_model.jpg' },
+    { id: 'kids-wear', name: 'Kids Wear', icon: '👶', description: 'Designer Kids Festive Outfits, Frocks & Traditional Sets', featured: true, image: 'assets/images/cotton_saree.jpg' }
   ];
 
   // Initial Seed Orders
@@ -69,13 +71,13 @@
 
   // Initial Seed Hero Banner
   const DEFAULT_HERO = {
-    badge: 'ROYAL HERITAGE COLLECTION • 2026',
+    badge: 'BOUTIQUE COUTURE & FESTIVE COLLECTION • 2026',
     title: 'Tradition In Every Thread.',
-    subtitle: 'Discover pure Kanchipuram silk sarees handwoven by multi-generational master weavers in South India. Timeless drape, gold zari motifs, and verified Silk Mark authenticity.',
+    subtitle: 'Discover designer Salwar, Sharara, flowing Maxi’s, fusion Co-ordsets, Western wear, and kids couture curated for every celebration.',
     discountTag: 'FLAT 20% OFF FESTIVE LAUNCH',
-    ctaText: 'Explore Handloom Silks',
-    ctaLink: 'shop.html?category=sarees',
-    image: 'assets/images/hero_saree_model.jpg'
+    ctaText: 'Explore Collections',
+    ctaLink: 'shop.html?category=salwar',
+    image: 'assets/images/anarkali_suit.jpg'
   };
 
   // Initial Seed Settings
@@ -106,15 +108,12 @@
     try {
       const version = localStorage.getItem(SCHEMA_VERSION_KEY);
       if (version !== CURRENT_SCHEMA_VERSION) {
-        // Delete all existing products from the website as requested (Start with 0 products)
-        localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify([]));
+        // Update categories to 9 exclusive services & collections
         localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(DEFAULT_CATEGORIES));
-        localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify([]));
-        localStorage.setItem(STORAGE_KEYS.CUSTOMERS, JSON.stringify([]));
-        localStorage.removeItem('aruvi_saved_orders');
-        localStorage.removeItem('aruvi_user_profile');
-        localStorage.removeItem('aruvi_cart');
-        localStorage.removeItem('aruvi_wishlist');
+        const existingProducts = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
+        if (!existingProducts) {
+          localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify([]));
+        }
         localStorage.setItem(SCHEMA_VERSION_KEY, CURRENT_SCHEMA_VERSION);
       }
     } catch (e) {
