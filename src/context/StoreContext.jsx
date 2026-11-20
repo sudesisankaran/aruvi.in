@@ -15,143 +15,7 @@ export const DEFAULT_CATEGORIES = [
   { id: 'kids-wear', name: 'Kids Wear', icon: '👶', description: 'Designer Kids Festive Outfits, Frocks & Traditional Sets', featured: true, image: 'assets/images/cotton_saree.jpg' }
 ];
 
-export const INITIAL_PRODUCTS = [
-  {
-    id: 'prod_salwar_1',
-    title: 'Royal Emerald Anarkali Salwar Suit',
-    category: 'salwar',
-    price: 4999,
-    originalPrice: 6999,
-    fabric: 'Pure Georgette & Zari',
-    badge: 'BESTSELLER',
-    badgeType: 'tag-gold',
-    rating: 4.9,
-    reviews: 42,
-    image: 'assets/images/anarkali_suit.jpg',
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    description: 'Bespoke emerald green flared Anarkali salwar suit with handcrafted zari neckline, matching dupatta and churidar trousers.'
-  },
-  {
-    id: 'prod_sharara_1',
-    title: 'Gilded Mirrorwork Festive Sharara Set',
-    category: 'sharara',
-    price: 5499,
-    originalPrice: 7999,
-    fabric: 'Silk Chanderi',
-    badge: 'FESTIVE',
-    badgeType: 'tag-gold',
-    rating: 4.9,
-    reviews: 28,
-    image: 'assets/images/lehenga_set.jpg',
-    sizes: ['S', 'M', 'L', 'XL'],
-    description: 'Exquisite flared tiered sharara paired with heavily embellished mirrorwork peplum short kurti and sheer organza dupatta.'
-  },
-  {
-    id: 'prod_ethnic_1',
-    title: 'Bridal Heritage Kanjivaram Brocade Drape',
-    category: 'ethnic-wear',
-    price: 8999,
-    originalPrice: 12499,
-    fabric: 'Pure Silk & Gold Zari',
-    badge: 'BRIDAL',
-    badgeType: 'tag-gold',
-    rating: 5.0,
-    reviews: 56,
-    image: 'assets/images/festive_promo.jpg',
-    sizes: ['Free Size'],
-    description: 'Centuries-old South Indian weaving technique with intricate temple motifs, heavy pallu, and unstitched matching blouse piece.'
-  },
-  {
-    id: 'prod_maxis_1',
-    title: 'Botanical Tiered Georgette Maxi Dress',
-    category: 'maxis',
-    price: 2799,
-    originalPrice: 3999,
-    fabric: 'Fine Georgette',
-    badge: 'NEW',
-    badgeType: 'tag-gold',
-    rating: 4.8,
-    reviews: 19,
-    image: 'assets/images/printed_georgette.jpg',
-    sizes: ['XS', 'S', 'M', 'L', 'XL'],
-    description: 'Floor-length flowy maxi dress featuring artisan floral prints, balloon sleeves, and an adjustable cinched waist belt.'
-  },
-  {
-    id: 'prod_coord_1',
-    title: 'Indigo Handblock Artisanal Co-ord Set',
-    category: 'co-ordsets',
-    price: 3299,
-    originalPrice: 4499,
-    fabric: 'Organic Modal Silk',
-    badge: 'TRENDING',
-    badgeType: 'tag-gold',
-    rating: 4.7,
-    reviews: 23,
-    image: 'assets/images/western_ethnic.jpg',
-    sizes: ['S', 'M', 'L', 'XL'],
-    description: 'Contemporary two-piece co-ord set with a tailored collared shirt and straight-cut trousers featuring natural indigo motifs.'
-  },
-  {
-    id: 'prod_tops_1',
-    title: 'Mulmul Chikankari Casual Tunic Top',
-    category: 'casual-tops',
-    price: 1499,
-    originalPrice: 1999,
-    fabric: 'Pure Breathable Cotton',
-    badge: 'EVERYDAY',
-    badgeType: 'tag-gold',
-    rating: 4.8,
-    reviews: 31,
-    image: 'assets/images/kurti_wear.jpg',
-    sizes: ['XS', 'S', 'M', 'L', 'XL'],
-    description: 'Delicate hand-embroidered Lucknowi chikankari work on featherlight cotton mulmul. Perfect for work and casual outings.'
-  },
-  {
-    id: 'prod_western_1',
-    title: 'Equestrian Tailored Linen-Silk Blazer Set',
-    category: 'western-wear',
-    price: 4299,
-    originalPrice: 5999,
-    fabric: 'Linen-Silk Blend',
-    badge: 'EXCLUSIVE',
-    badgeType: 'tag-gold',
-    rating: 4.9,
-    reviews: 15,
-    image: 'assets/images/premium_fabrics.jpg',
-    sizes: ['S', 'M', 'L'],
-    description: 'Modern structured silhouette blended with rich artisanal texture. Suitable for evening galas and formal gatherings.'
-  },
-  {
-    id: 'prod_jeans_1',
-    title: 'High-Waist Baggy Denim & Palazzo Trousers',
-    category: 'jeans-pants',
-    price: 2199,
-    originalPrice: 2999,
-    fabric: '100% Premium Cotton Denim',
-    badge: 'HOT',
-    badgeType: 'tag-gold',
-    rating: 4.8,
-    reviews: 37,
-    image: 'assets/images/hero_saree_model.jpg',
-    sizes: ['26', '28', '30', '32', '34'],
-    description: 'Ultra-comfortable vintage wash wide-leg baggy trousers with deep pockets and tailored high-rise waistline.'
-  },
-  {
-    id: 'prod_kids_1',
-    title: 'Traditional Pattu Pavadai Festive Kids Ensemble',
-    category: 'kids-wear',
-    price: 2499,
-    originalPrice: 3499,
-    fabric: 'Art Silk with Pure Zari Border',
-    badge: 'NEW',
-    badgeType: 'tag-gold',
-    rating: 5.0,
-    reviews: 29,
-    image: 'assets/images/cotton_saree.jpg',
-    sizes: ['2-3Y', '4-5Y', '6-7Y', '8-9Y', '10-12Y'],
-    description: 'Vibrant contrasting skirt and blouse set adorned with golden zari borders. Soft cotton lining to protect delicate skin.'
-  }
-];
+export const INITIAL_PRODUCTS = [];
 
 export const DEFAULT_BANNERS = [
   {
@@ -193,17 +57,24 @@ export function StoreProvider({ children }) {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // Products
+  // Products: Clean slate (starts with 0 products until uploaded by admin)
   const [products, setProducts] = useState(() => {
     try {
       const saved = localStorage.getItem('aruvi_products');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed)) {
+          // Filter out demo products starting with prod_
+          const realOnly = parsed.filter(p => !String(p.id).startsWith('prod_'));
+          if (realOnly.length !== parsed.length) {
+            localStorage.setItem('aruvi_products', JSON.stringify(realOnly));
+          }
+          return realOnly;
+        }
       }
-      return INITIAL_PRODUCTS;
+      return [];
     } catch (e) {
-      return INITIAL_PRODUCTS;
+      return [];
     }
   });
 
@@ -573,6 +444,14 @@ export function StoreProvider({ children }) {
     addToast('Product removed from catalog.', 'info');
   };
 
+  const clearAllProducts = () => {
+    setProducts([]);
+    try {
+      localStorage.setItem('aruvi_products', JSON.stringify([]));
+    } catch (e) {}
+    addToast('All products removed from catalog.', 'info');
+  };
+
   // Banner CRUD (Admin)
   const addBanner = (newBanner) => {
     const bannerObj = {
@@ -604,6 +483,7 @@ export function StoreProvider({ children }) {
     addProduct,
     updateProduct,
     deleteProduct,
+    clearAllProducts,
 
     // Promotional Banners
     banners,

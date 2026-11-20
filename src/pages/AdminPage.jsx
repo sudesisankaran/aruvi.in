@@ -18,6 +18,7 @@ export default function AdminPage() {
     addProduct, 
     updateProduct, 
     deleteProduct, 
+    clearAllProducts,
     banners,
     addBanner,
     deleteBanner,
@@ -315,6 +316,20 @@ export default function AdminPage() {
             >
               <span>+ Add New Garment</span>
             </button>
+            {products.length > 0 && (
+              <button 
+                type="button" 
+                onClick={() => {
+                  if (window.confirm('Are you sure you want to completely remove all products from the store?')) {
+                    clearAllProducts();
+                  }
+                }}
+                className="px-3.5 py-2.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 rounded-xl text-xs font-bold transition flex items-center gap-1.5"
+                title="Remove All Products"
+              >
+                <span>🗑️ Remove All Products</span>
+              </button>
+            )}
             <button 
               type="button" 
               onClick={logout}
@@ -400,67 +415,84 @@ export default function AdminPage() {
         {/* Tab 1: Catalog & Images */}
         {adminTab === 'products' && (
           <div className="bg-white rounded-3xl border border-emerald-900/10 overflow-hidden shadow-sm">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-emerald-50/60 border-b border-emerald-900/10 text-emerald-950 font-bold uppercase tracking-wider">
-                  <tr>
-                    <th className="p-4">Cover Image</th>
-                    <th className="p-4">Title & Details</th>
-                    <th className="p-4">Category</th>
-                    <th className="p-4">Price</th>
-                    <th className="p-4">Storage Source</th>
-                    <th className="p-4 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-emerald-900/5">
-                  {products.map((p) => (
-                    <tr key={p.id} className="hover:bg-ivory/50 transition">
-                      <td className="p-4">
-                        <img
-                          src={p.image}
-                          alt={p.title}
-                          className="w-14 h-16 object-cover rounded-xl shadow-xs"
-                        />
-                      </td>
-                      <td className="p-4">
-                        <strong className="block text-sm text-primary-dark">{p.title}</strong>
-                        <span className="text-text-muted">{p.fabric || 'Pure Silk'} • Badge: {p.badge || 'None'}</span>
-                      </td>
-                      <td className="p-4 capitalize font-semibold text-emerald-800">
-                        {p.category}
-                      </td>
-                      <td className="p-4 font-bold text-primary-dark">
-                        ₹{(Number(p.price) || 0).toLocaleString('en-IN')}
-                      </td>
-                      <td className="p-4 font-mono text-[10px] text-text-muted truncate max-w-[160px]">
-                        {p.image && p.image.includes('firebasestorage') ? 'Firebase Storage Bucket' : 'Boutique Assets'}
-                      </td>
-                      <td className="p-4 text-right space-x-2 whitespace-nowrap">
-                        <button
-                          type="button"
-                          onClick={() => handleOpenEditModal(p)}
-                          className="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-900 font-semibold"
-                        >
-                          Manage Gallery / Edit
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (window.confirm(`Delete ${p.title} from catalog and Firebase Storage?`)) {
-                              deleteProduct(p.id);
-                              addToast('Product and gallery deleted.', 'info');
-                            }
-                          }}
-                          className="px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 font-semibold"
-                        >
-                          Delete
-                        </button>
-                      </td>
+            {products.length === 0 ? (
+              <div className="p-12 text-center space-y-3">
+                <span className="text-4xl block">👗</span>
+                <h4 className="font-serif text-lg font-bold text-primary-dark">Zero Products In Catalog</h4>
+                <p className="text-text-muted text-xs max-w-sm mx-auto">
+                  All demo garments have been completely removed. Click below to upload your first real handcrafted boutique outfit.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleOpenAddModal}
+                  className="px-5 py-2.5 bg-primary hover:bg-primary-light text-white rounded-xl text-xs font-bold uppercase tracking-wider transition shadow-md inline-flex items-center gap-2"
+                >
+                  <span>+ Add Your First Garment</span>
+                </button>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-emerald-50/60 border-b border-emerald-900/10 text-emerald-950 font-bold uppercase tracking-wider">
+                    <tr>
+                      <th className="p-4">Cover Image</th>
+                      <th className="p-4">Title & Details</th>
+                      <th className="p-4">Category</th>
+                      <th className="p-4">Price</th>
+                      <th className="p-4">Storage Source</th>
+                      <th className="p-4 text-right">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-emerald-900/5">
+                    {products.map((p) => (
+                      <tr key={p.id} className="hover:bg-ivory/50 transition">
+                        <td className="p-4">
+                          <img
+                            src={p.image}
+                            alt={p.title}
+                            className="w-14 h-16 object-cover rounded-xl shadow-xs"
+                          />
+                        </td>
+                        <td className="p-4">
+                          <strong className="block text-sm text-primary-dark">{p.title}</strong>
+                          <span className="text-text-muted">{p.fabric || 'Pure Silk'} • Badge: {p.badge || 'None'}</span>
+                        </td>
+                        <td className="p-4 capitalize font-semibold text-emerald-800">
+                          {p.category}
+                        </td>
+                        <td className="p-4 font-bold text-primary-dark">
+                          ₹{(Number(p.price) || 0).toLocaleString('en-IN')}
+                        </td>
+                        <td className="p-4 font-mono text-[10px] text-text-muted truncate max-w-[160px]">
+                          {p.image && p.image.includes('firebasestorage') ? 'Firebase Storage Bucket' : 'Boutique Assets'}
+                        </td>
+                        <td className="p-4 text-right space-x-2 whitespace-nowrap">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEditModal(p)}
+                            className="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-900 font-semibold"
+                          >
+                            Manage Gallery / Edit
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (window.confirm(`Delete ${p.title} from catalog and Firebase Storage?`)) {
+                                deleteProduct(p.id);
+                                addToast('Product and gallery deleted.', 'info');
+                              }
+                            }}
+                            className="px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 font-semibold"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
 

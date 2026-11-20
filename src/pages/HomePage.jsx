@@ -535,16 +535,29 @@ export default function HomePage() {
           </div>
 
           {displayedProducts.length === 0 && (
-            <div style={{ textAlign: 'center', padding: '50px 20px', background: '#fff', borderRadius: '16px', border: '1px dashed #d8cfc4' }}>
-              <p style={{ color: '#667770', fontSize: '1rem' }}>No outfits found in this category yet.</p>
-              <button 
-                type="button" 
-                onClick={() => setSelectedCategoryFilter('all')} 
-                className="btn btn-sm btn-primary"
-                style={{ marginTop: '12px' }}
-              >
-                View All Ensembles
-              </button>
+            <div style={{ textAlign: 'center', padding: '60px 20px', background: '#fff', borderRadius: '20px', border: '1.5px dashed rgba(200,157,56,0.3)', boxShadow: '0 6px 20px rgba(14,41,32,0.03)' }}>
+              <span style={{ fontSize: '3rem', display: 'block', marginBottom: '12px' }}>✨</span>
+              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', color: '#0e2920' }}>
+                {products.length === 0 ? 'Boutique Catalog is Fresh & Ready' : 'No garments found in this category'}
+              </h3>
+              <p style={{ color: '#667770', fontSize: '0.92rem', margin: '8px auto 20px', maxWidth: '440px' }}>
+                {products.length === 0 
+                  ? 'All demo products have been completely removed. Upload your real handcrafted creations from the Owner Admin Portal!'
+                  : 'Try selecting another collection or view all ensembles.'}
+              </p>
+              {products.length === 0 ? (
+                <Link to="/admin" className="btn btn-primary hover-shimmer" style={{ padding: '10px 24px', fontSize: '0.88rem' }}>
+                  👑 Go to Admin Dashboard
+                </Link>
+              ) : (
+                <button 
+                  type="button" 
+                  onClick={() => setSelectedCategoryFilter('all')} 
+                  className="btn btn-sm btn-primary"
+                >
+                  View All Ensembles
+                </button>
+              )}
             </div>
           )}
 

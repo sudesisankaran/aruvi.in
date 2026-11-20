@@ -205,6 +205,17 @@ export default function ShopPage() {
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
+        ) : products.length === 0 ? (
+          <div className="empty-shop-state" style={{ textAlign: 'center', padding: '70px 20px', background: '#fff', borderRadius: '20px', border: '1.5px dashed rgba(200,157,56,0.3)', boxShadow: '0 6px 20px rgba(14,41,32,0.03)' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '12px' }}>👗</div>
+            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', color: '#0e2920' }}>Boutique Catalog is Fresh & Ready</h3>
+            <p style={{ color: '#667770', fontSize: '0.95rem', margin: '8px auto 20px', maxWidth: '440px' }}>
+              All demo products have been completely removed. Head over to the Admin Portal to upload your real outfits and collections.
+            </p>
+            <a href="#/admin" className="btn btn-primary" style={{ display: 'inline-block' }}>
+              👑 Go to Admin Dashboard
+            </a>
+          </div>
         ) : (
           <div className="empty-shop-state" style={{ textAlign: 'center', padding: '60px 20px', background: '#fff', borderRadius: '16px', border: '1px dashed #d4c8b8' }}>
             <div style={{ fontSize: '3rem', marginBottom: '12px' }}>👗</div>
