@@ -5,9 +5,10 @@ import ProductCard from '../components/ProductCard';
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { products, categories, banners } = useStore();
+  const { products, categories, banners, websiteSettings } = useStore();
   const [activeLookIndex, setActiveLookIndex] = useState(0);
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('all');
+  const waNumber = (websiteSettings?.whatsappNumber || '918610638978').replace(/[^0-9]/g, '');
 
   // Filter ONLY Active products for public customer website
   const activeProducts = useMemo(() => {
@@ -583,7 +584,7 @@ export default function HomePage() {
                     ✨ Explore Categories
                   </Link>
                   <a 
-                    href="https://wa.me/919940881987?text=Hi%20Aruvi%20Collections,%20I%20would%20like%20to%20inquire%20about%20your%20upcoming%20boutique%20collections."
+                    href={`https://wa.me/${waNumber}?text=Hi%20Aruvi%20Collections,%20I%20would%20like%20to%20inquire%20about%20your%20upcoming%20boutique%20collections.`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn btn-secondary" 

@@ -13,7 +13,7 @@ export default function ContactPage() {
   });
   const [isSent, setIsSent] = useState(false);
 
-  const whatsappNum = websiteSettings?.whatsappNumber || '919876543210';
+  const whatsappNum = websiteSettings?.whatsappNumber || '918610638978';
   const cleanNumber = whatsappNum.replace(/[^0-9]/g, '');
 
   const handleWhatsAppDirect = () => {
@@ -105,7 +105,7 @@ export default function ContactPage() {
                 <div>
                   <h4 className="text-xs font-bold uppercase tracking-wider text-text-muted">Direct Phone / Helpline</h4>
                   <p className="text-sm text-primary-dark font-medium mt-0.5">
-                    {websiteSettings?.phone || '+91 98765 43210'}
+                    {websiteSettings?.phone || '+91 86106 38978'}
                   </p>
                 </div>
               </div>

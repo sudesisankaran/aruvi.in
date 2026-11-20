@@ -69,7 +69,7 @@ export default function ProductDetailPage() {
   };
 
   const handleWhatsAppOrder = () => {
-    const rawNumber = websiteSettings?.whatsappNumber || '919940881987';
+    const rawNumber = websiteSettings?.whatsappNumber || '918610638978';
     const cleanNumber = rawNumber.replace(/[^0-9]/g, '');
     const lineTotal = currPrice * quantity;
     const msg = 

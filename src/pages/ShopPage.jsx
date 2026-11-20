@@ -4,8 +4,9 @@ import { useStore } from '../context/StoreContext';
 import ProductCard from '../components/ProductCard';
 
 export default function ShopPage() {
-  const { products, categories, searchQuery } = useStore();
+  const { products, categories, searchQuery, websiteSettings } = useStore();
   const [searchParams, setSearchParams] = useSearchParams();
+  const waNumber = (websiteSettings?.whatsappNumber || '918610638978').replace(/[^0-9]/g, '');
 
   // Active category and search from URL query param
   const activeCategory = searchParams.get('category') || 'all';
@@ -217,7 +218,7 @@ export default function ShopPage() {
                 ✨ Explore Categories
               </Link>
               <a 
-                href="https://wa.me/919940881987?text=Hi%20Aruvi%20Collections,%20I%20would%20like%20to%20inquire%20about%20your%20boutique%20collections."
+                href={`https://wa.me/${waNumber}?text=Hi%20Aruvi%20Collections,%20I%20would%20like%20to%20inquire%20about%20your%20boutique%20collections.`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-secondary" 

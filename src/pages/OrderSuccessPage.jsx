@@ -201,7 +201,7 @@ export default function OrderSuccessPage() {
               <p className="text-text-muted font-medium">
                 Phone: {order.shipping?.phone}<br />
                 Email: {order.shipping?.email || 'N/A'}<br />
-                Concierge Line: {websiteSettings.whatsappNumber || '+91 98765 43210'}
+                Concierge Line: {websiteSettings.whatsappNumber || '+91 86106 38978'}
               </p>
             </div>
           </div>

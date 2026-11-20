@@ -129,8 +129,8 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
   // Settings State Form
   const [settingsForm, setSettingsForm] = useState({
     businessName: websiteSettings?.businessName || 'Aruvi Collections',
-    whatsappNumber: websiteSettings?.whatsappNumber || '919876543210',
-    phone: websiteSettings?.phone || '+91 98765 43210',
+    whatsappNumber: websiteSettings?.whatsappNumber || '918610638978',
+    phone: websiteSettings?.phone || '+91 86106 38978',
     email: websiteSettings?.email || 'concierge@aruvicollections.com',
     address: websiteSettings?.address || 'Aruvi Heritage Square, Cathedral Road, Chennai, Tamil Nadu 600086, India',
     freeShippingThreshold: websiteSettings?.freeShippingThreshold || 999,
@@ -1768,13 +1768,13 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
                   <input
                     type="text"
                     required
-                    placeholder="e.g. 919876543210"
+                    placeholder="e.g. 918610638978"
                     value={settingsForm.whatsappNumber}
                     onChange={(e) => setSettingsForm({ ...settingsForm, whatsappNumber: e.target.value })}
                     className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-gold font-mono"
                   />
                   <span className="text-[11px] text-slate-500 mt-1 block">
-                    Format: Country code followed by mobile (e.g. 919876543210 for India). No spaces or + symbol.
+                    Format: Country code followed by mobile (e.g. 918610638978 for India). No spaces or + symbol.
                   </span>
                 </div>
 

@@ -286,7 +286,7 @@ export default function CustomerAuthModal({ isOpen = true, onClose }) {
                     <input 
                       type="tel" 
                       className="auth-form-input" 
-                      placeholder="+91 98765 43210" 
+                      placeholder="+91 86106 38978" 
                       value={regPhone}
                       onChange={(e) => setRegPhone(e.target.value)}
                     />

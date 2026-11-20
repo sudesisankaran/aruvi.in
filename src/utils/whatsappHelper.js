@@ -2,7 +2,7 @@
  * Formats and generates the official WhatsApp Click-to-Chat message for Aruvi Collections orders
  */
 export function formatWhatsAppOrderMessage(order, settings = {}) {
-  const businessNumber = (settings.whatsappNumber || '919876543210').replace(/[^0-9]/g, '');
+  const businessNumber = (settings.whatsappNumber || '918610638978').replace(/[^0-9]/g, '');
   const formattedDate = order.createdAt 
     ? new Date(order.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
     : new Date().toLocaleDateString('en-IN');

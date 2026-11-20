@@ -3,8 +3,8 @@ from django.db import models
 class WebsiteSettings(models.Model):
     business_name = models.CharField(max_length=200, default='Aruvi Collections')
     tagline = models.CharField(max_length=255, default='Tradition In Every Thread, Elegance In Every Drape')
-    whatsapp_number = models.CharField(max_length=30, default='919876543210')
-    phone = models.CharField(max_length=30, default='+91 98765 43210')
+    whatsapp_number = models.CharField(max_length=30, default='918610638978')
+    phone = models.CharField(max_length=30, default='+91 86106 38978')
     email = models.EmailField(default='concierge@aruvicollections.com')
     address = models.TextField(default='Aruvi Heritage Square, Cathedral Road, Chennai, Tamil Nadu 600086, India')
     free_shipping_threshold = models.DecimalField(max_digits=10, decimal_places=2, default=999)

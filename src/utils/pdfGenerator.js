@@ -13,8 +13,8 @@ export function generateOrderInvoicePDF(order, settings = {}) {
 
   const businessName = settings.websiteName || 'Aruvi Collections';
   const businessAddress = settings.businessAddress || '104, Heritage Weavers Lane, T. Nagar, Chennai, Tamil Nadu - 600017';
-  const businessPhone = settings.contactNumber || '+91 98765 43210';
-  const businessWhatsApp = settings.whatsappNumber || '+91 98765 43210';
+  const businessPhone = settings.contactNumber || '+91 86106 38978';
+  const businessWhatsApp = settings.whatsappNumber || '+91 86106 38978';
   const businessEmail = settings.emailAddress || 'aruvicollections.25@gmail.com';
   const currencySymbol = 'Rs.'; // jsPDF standard font safe character for INR
 
