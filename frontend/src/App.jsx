@@ -4,6 +4,7 @@ import { StoreProvider } from './context/StoreContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Toast from './components/Toast';
+import FloatingSocialBar from './components/FloatingSocialBar';
 import AdminRoute from './components/AdminRoute';
 
 // Pages
@@ -59,6 +60,7 @@ export default function App() {
             </Routes>
           </main>
           <Footer />
+          <FloatingSocialBar />
           <Toast />
         </div>
       </HashRouter>

@@ -7,7 +7,7 @@ export default function Toast() {
   if (!toasts || toasts.length === 0) return null;
 
   return (
-    <div className="toast-container" id="toast-container" style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 99999, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+    <div className="toast-container" id="toast-container" style={{ position: 'fixed', bottom: '24px', left: '24px', zIndex: 99999, display: 'flex', flexDirection: 'column', gap: '10px' }}>
       {toasts.map((toast) => (
         <div 
           key={toast.id} 
