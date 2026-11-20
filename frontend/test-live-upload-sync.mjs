@@ -1,4 +1,4 @@
-import axios from './frontend/node_modules/axios/index.js';
+import axios from 'axios';
 
 const BASE_URL = 'http://localhost:8000/api';
 

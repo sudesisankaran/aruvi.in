@@ -23,15 +23,17 @@ function assert(condition, testName) {
 // ----------------------------------------------------
 console.log('TEST GROUP 1: Project Architecture & Structure');
 
-const frontendRoot = fs.existsSync('frontend/src') ? 'frontend' : '.';
+const frontendRoot = fs.existsSync('src') ? '.' : (fs.existsSync('frontend/src') ? 'frontend' : '.');
+const projectRoot = fs.existsSync('frontend') ? '.' : '..';
+const backendRoot = fs.existsSync('backend/manage.py') ? 'backend' : (fs.existsSync('../backend/manage.py') ? '../backend' : 'backend');
 
 const requiredFiles = [
-  'package.json',
+  `${frontendRoot}/package.json`,
   `${frontendRoot}/vite.config.js`,
   `${frontendRoot}/index.html`,
-  '.gitignore',
-  'README.md',
-  '.github/workflows/deploy.yml',
+  `${projectRoot}/.gitignore`,
+  `${projectRoot}/README.md`,
+  `${projectRoot}/.github/workflows/deploy.yml`,
   `${frontendRoot}/src/main.jsx`,
   `${frontendRoot}/src/App.jsx`,
   `${frontendRoot}/src/services/firebase.js`,
@@ -183,9 +185,9 @@ console.log('\nTEST GROUP 8: Firebase Storage & Django Backend Architecture QA')
 assert(fs.existsSync(`${frontendRoot}/storage.rules`) || fs.existsSync('storage.rules'), 'Firebase Storage Security Rules (storage.rules) present');
 assert(fs.existsSync(`${frontendRoot}/tailwind.config.js`) || fs.existsSync('tailwind.config.js'), 'Tailwind CSS config present');
 assert(fs.existsSync(`${frontendRoot}/postcss.config.js`) || fs.existsSync('postcss.config.js'), 'PostCSS config present');
-assert(fs.existsSync('backend/manage.py'), 'Django REST Framework backend (backend/manage.py) present');
-assert(fs.existsSync('backend/requirements.txt'), 'Backend requirements.txt present');
-assert(fs.existsSync('backend/aruvi_backend/settings.py'), 'Django settings.py configured');
+assert(fs.existsSync(`${backendRoot}/manage.py`), 'Django REST Framework backend (backend/manage.py) present');
+assert(fs.existsSync(`${backendRoot}/requirements.txt`), 'Backend requirements.txt present');
+assert(fs.existsSync(`${backendRoot}/aruvi_backend/settings.py`), 'Django settings.py configured');
 assert(fs.existsSync(`${frontendRoot}/src/components/ImageUploadDropzone.jsx`), 'Reusable ImageUploadDropzone component present');
 assert(fs.existsSync(`${frontendRoot}/src/components/AdminProductGalleryManager.jsx`), 'Admin multi-image gallery manager present');
 
