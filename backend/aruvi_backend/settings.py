@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'core',
     'products',
     'tryon',
+    'virtual_tryon',
     'customers',
     'banners',
 ]
@@ -170,3 +171,7 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Kolkata'
+
+# Open-Source Virtual Try-On Configuration
+VTON_MODEL_ENDPOINT = os.environ.get('VTON_MODEL_ENDPOINT', 'Nymbo/Virtual-Try-On')
+HF_TOKEN = os.environ.get('HF_TOKEN', '')

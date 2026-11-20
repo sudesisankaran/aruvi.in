@@ -43,6 +43,7 @@ urlpatterns = [
     path('', api_root_view, name='api-root'),
     path('admin/', admin.site.urls),
     path('api/', include('products.urls')),
+    path('api/', include('virtual_tryon.urls')),
     path('api/tryon/', include('tryon.urls')),
     path('api/customers/', include('customers.urls')),
     path('api/banners/', include('banners.urls')),
