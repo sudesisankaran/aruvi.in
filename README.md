@@ -43,7 +43,7 @@ Aruvi Collections is a bespoke e-commerce boutique designed for South Indian eth
 
 ## 🔥 Firebase Authentication & Cloud Storage
 
-* **Cloud Storage Bucket**: `ssvvallarasubillsystem.firebasestorage.app`
+* **Cloud Storage Bucket**: `aruvi-collection-fa770.firebasestorage.app`
 * **Google Authentication**: Instant OAuth pop-up login.
 * **Owner Admin Access**: Strictly gated for **`aruvicollections.25@gmail.com`**.
 * **Owner Dashboard**:

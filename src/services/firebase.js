@@ -3,13 +3,13 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 
 export const firebaseConfig = {
-  apiKey: "AIzaSyDQi43OYV0uXiBGa5Stehbl0QYlr9GUI6o",
-  authDomain: "ssvvallarasubillsystem.firebaseapp.com",
-  projectId: "ssvvallarasubillsystem",
-  storageBucket: "ssvvallarasubillsystem.firebasestorage.app",
-  messagingSenderId: "825474038746",
-  appId: "1:825474038746:web:e0bb06c92c0acef15edee3",
-  measurementId: "G-Z2WDYRVNVZ"
+  apiKey: "AIzaSyDkPdGciIRfspy14chFVLX1S-OTG1lPHyc",
+  authDomain: "aruvi-collection-fa770.firebaseapp.com",
+  projectId: "aruvi-collection-fa770",
+  storageBucket: "aruvi-collection-fa770.firebasestorage.app",
+  messagingSenderId: "438322390032",
+  appId: "1:438322390032:web:b8bd9a80eccb2dd285d695",
+  measurementId: "G-9SL3SEVMDZ"
 };
 
 // Initialize Firebase App
