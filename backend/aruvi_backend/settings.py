@@ -173,5 +173,7 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Kolkata'
 
 # Open-Source Virtual Try-On Configuration
-VTON_MODEL_ENDPOINT = os.environ.get('VTON_MODEL_ENDPOINT', 'Nymbo/Virtual-Try-On')
+VTON_SPACE_ID = os.environ.get('VTON_SPACE_ID', os.environ.get('VTON_MODEL_ENDPOINT', 'yisol/IDM-VTON'))
+VTON_MODEL_ENDPOINT = VTON_SPACE_ID
 HF_TOKEN = os.environ.get('HF_TOKEN', '')
+VTON_TIMEOUT = int(os.environ.get('VTON_TIMEOUT', '90'))
