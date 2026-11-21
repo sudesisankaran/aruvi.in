@@ -105,10 +105,7 @@ def run_fashn_tryon(model_image, garment_image, category='auto', mode='balanced'
             "garment_image": garment_image,
             "category": category if category in ['auto', 'tops', 'bottoms', 'one-pieces'] else 'auto',
             "mode": mode if mode in ['balanced', 'performance', 'quality'] else 'balanced',
-            "nsfw_filter": True,
-            "num_samples": 1,
-            "cover_feet": bool(cover_feet),
-            "adjust_hands": bool(adjust_hands)
+            "num_samples": 1
         }
     }
 
