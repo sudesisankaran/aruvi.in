@@ -120,12 +120,26 @@ class OrderViewSet(viewsets.ModelViewSet):
 
             OrderNote.objects.create(
                 order=order,
-                text=f"Order placed via {data.get('payment_method', 'upi').upper()}. Awaiting WhatsApp confirmation.",
+                text=f"Order placed via {data.get('payment_method', 'upi').upper()}. Automated WhatsApp notification dispatched to +91 86106 38978.",
                 author='System'
             )
 
+        # Automated background WhatsApp transmission directly to boutique owner (8610638978)
+        try:
+            from .whatsapp_service import dispatch_automated_whatsapp_notification
+            dispatch_automated_whatsapp_notification(order)
+        except Exception as notify_err:
+            print(f"[Automatic WhatsApp Notification Error]: {notify_err}")
+
         output_serializer = OrderSerializer(order)
         return Response(output_serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['post'], permission_classes=[AllowAny])
+    def notify_whatsapp(self, request, pk=None):
+        order = self.get_object()
+        from .whatsapp_service import dispatch_automated_whatsapp_notification
+        res = dispatch_automated_whatsapp_notification(order)
+        return Response(res, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'], permission_classes=[IsStrictAdminUser])
     def update_status(self, request, pk=None):

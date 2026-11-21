@@ -575,6 +575,8 @@ export function StoreProvider({ children }) {
       const savedRes = await ordersApi.createOrder(backendPayload);
       if (savedRes && savedRes.order_id) {
         newOrder.id = savedRes.order_id;
+        // Trigger automated background transmission to boutique WhatsApp (+91 86106 38978)
+        ordersApi.notifyWhatsApp(savedRes.id || savedRes.order_id).catch(() => {});
       }
     } catch (backendErr) {
       console.warn('Backend order sync fallback to local store:', backendErr);
@@ -594,7 +596,7 @@ export function StoreProvider({ children }) {
     setOrders((prev) => [newOrder, ...prev]);
     clearCart();
     setAppliedCoupon(null);
-    addToast(`Order #${newOrder.id} placed! Please confirm on WhatsApp.`, 'success');
+    addToast(`Order #${newOrder.id} placed successfully! Details sent to atelier.`, 'success');
     return newOrder;
   };
 

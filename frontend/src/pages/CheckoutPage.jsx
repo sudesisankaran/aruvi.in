@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import { getProductImageUrl, handleImageError } from '../utils/imageUtils';
-import { openWhatsAppOrderChat } from '../utils/whatsappHelper';
 
 export default function CheckoutPage() {
   const { cart, getCartSubtotal, discountPercent, createOrder, user, websiteSettings } = useStore();
@@ -56,8 +55,7 @@ export default function CheckoutPage() {
     try {
       const newOrder = await createOrder(shippingDetails, paymentMethod);
       if (newOrder && newOrder.id) {
-        // Send complete order details to WhatsApp for 8610638978
-        openWhatsAppOrderChat(newOrder, websiteSettings);
+        // Customer WhatsApp does NOT open! Notification is automatically dispatched in background to +91 86106 38978.
         navigate(`/order-success/${newOrder.id}`);
       } else {
         navigate('/account');

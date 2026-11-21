@@ -204,6 +204,15 @@ export const ordersApi = {
     const res = await apiClient.post(`/orders/${id}/add_note/`, { text });
     return res.data;
   },
+
+  notifyWhatsApp: async (id) => {
+    try {
+      const res = await apiClient.post(`/orders/${id}/notify_whatsapp/`);
+      return res.data;
+    } catch (e) {
+      return null;
+    }
+  },
 };
 
 // -----------------------------------------------------------------

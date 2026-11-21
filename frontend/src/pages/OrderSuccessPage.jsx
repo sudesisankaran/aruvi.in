@@ -71,28 +71,28 @@ export default function OrderSuccessPage() {
             Placed on {formattedDate}. Your order is currently <strong className="text-amber-800 bg-amber-50 px-2 py-0.5 rounded font-bold">Pending Confirmation</strong>.
           </p>
 
-          {/* WhatsApp Primary Callout */}
+          {/* Automatic Order Transmission Status Banner */}
           <div className="mt-8 p-6 rounded-2xl bg-gradient-to-br from-emerald-950 via-emerald-900 to-primary-dark text-white text-left shadow-lg border border-gold/40 flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="space-y-1 text-center sm:text-left">
               <div className="flex items-center justify-center sm:justify-start gap-2 text-gold font-bold text-sm tracking-wide uppercase">
-                <MessageSquare className="w-4 h-4" />
-                <span>Instant WhatsApp Order Confirmation</span>
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>Automatic Order Dispatch Confirmed</span>
               </div>
               <h3 className="font-serif text-lg font-bold text-white">
-                Confirm your sizes & dispatch details on WhatsApp
+                Order details transmitted automatically to our atelier (+91 86106 38978)
               </h3>
               <p className="text-xs text-emerald-100/80 max-w-md">
-                Click below to send your pre-formatted order summary to our boutique concierge. We will confirm your measurements and arrange priority insured delivery.
+                No manual action required from you! Your order has been placed into our boutique dispatch queue. Our concierge team is verifying packaging and courier delivery.
               </p>
             </div>
 
             <button
               type="button"
               onClick={handleOpenWhatsApp}
-              className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-primary-dark font-extrabold text-sm tracking-wide uppercase transition shadow-md flex items-center justify-center gap-2.5 whitespace-nowrap cursor-pointer shrink-0"
+              className="w-full sm:w-auto px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-emerald-200 border border-emerald-400/30 text-xs font-semibold tracking-wide transition shadow-sm flex items-center justify-center gap-2 whitespace-nowrap cursor-pointer shrink-0"
             >
-              <MessageSquare className="w-5 h-5 text-emerald-950" />
-              <span>Send Order to WhatsApp (+91 86106 38978)</span>
+              <MessageSquare className="w-4 h-4 text-emerald-400" />
+              <span>Optional: Chat with Concierge</span>
             </button>
           </div>
 
