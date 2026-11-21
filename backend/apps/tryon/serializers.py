@@ -4,6 +4,7 @@ from apps.products.models import Product
 
 class TryOnGenerateSerializer(serializers.Serializer):
     product_id = serializers.IntegerField(required=True)
+    garment_image = serializers.CharField(required=False, allow_blank=True, default='')
     model_image = serializers.CharField(required=True, allow_blank=False)
     category = serializers.ChoiceField(
         choices=['auto', 'tops', 'bottoms', 'one-pieces'],

@@ -193,6 +193,7 @@ export default function VirtualTryOnModal({
     try {
       const payload = {
         product_id: product.id,
+        garment_image: getProductImageUrl(product),
         model_image: customerPhoto,
         category: garmentCategory,
         mode: tryonMode,

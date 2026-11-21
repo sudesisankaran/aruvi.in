@@ -29,6 +29,44 @@ def get_client_ip(request):
         ip = request.META.get('REMOTE_ADDR')
     return ip
 
+def resolve_garment_image_for_fashn(garment_image, request=None):
+    if not garment_image:
+        return None
+    garment_str = str(garment_image).strip()
+    if garment_str.startswith('data:image/'):
+        return garment_str
+    if garment_str.startswith('https://'):
+        return garment_str
+
+    clean_path = garment_str.lstrip('/')
+    possible_roots = [
+        os.path.abspath(os.path.join(settings.BASE_DIR, '..', 'frontend', 'public')),
+        os.path.abspath(os.path.join(settings.BASE_DIR, '..', 'frontend', 'dist')),
+        os.path.abspath(settings.BASE_DIR),
+        os.path.abspath(getattr(settings, 'MEDIA_ROOT', os.path.join(settings.BASE_DIR, 'media'))),
+    ]
+
+    for root in possible_roots:
+        candidate = os.path.join(root, clean_path)
+        if os.path.exists(candidate) and os.path.isfile(candidate):
+            try:
+                import mimetypes, base64
+                mime, _ = mimetypes.guess_type(candidate)
+                mime = mime or 'image/jpeg'
+                with open(candidate, 'rb') as f:
+                    b64 = base64.b64encode(f.read()).decode('utf-8')
+                    return f"data:{mime};base64,{b64}"
+            except Exception:
+                pass
+
+    if request and (garment_str.startswith('/media/') or garment_str.startswith('media/')):
+        full_uri = request.build_absolute_uri(f"/{clean_path}")
+        if request.is_secure() or request.META.get('HTTP_X_FORWARDED_PROTO') == 'https' or 'onrender.com' in full_uri:
+            full_uri = full_uri.replace('http://', 'https://')
+        return full_uri
+
+    return garment_str
+
 class GenerateTryOnView(APIView):
     """
     POST /api/virtual-tryon/generate/
@@ -54,25 +92,28 @@ class GenerateTryOnView(APIView):
         except Product.DoesNotExist:
             return Response({"error": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        # 1. Resolve genuine garment image from product
-        garment_image = product.image
+        # 1. Resolve genuine garment image from request or product
+        garment_image = data.get('garment_image') or product.image
         if not garment_image or 'kanjivaram_green.jpg' in garment_image:
             primary_img = product.images.filter(is_primary=True).first() or product.images.first()
             if primary_img:
                 garment_image = primary_img.image_url or primary_img.storage_path
+
+        if not garment_image and product.category:
+            slug = product.category.slug.replace('-', '_')
+            garment_image = f"assets/images/category_{slug}.jpg"
+
+        if not garment_image:
+            garment_image = "assets/images/category_salwar.jpg"
+
+        # 2. Normalize and resolve garment image for FASHN AI
+        garment_image = resolve_garment_image_for_fashn(garment_image, request)
 
         if not garment_image:
             return Response(
                 {"error": f"No high-resolution product image found for '{product.title}'."},
                 status=status.HTTP_400_BAD_REQUEST
             )
-
-        # 2. Normalize garment image URL if relative
-        if garment_image.startswith('/media/') or garment_image.startswith('media/'):
-            clean_media = garment_image if garment_image.startswith('/') else f'/{garment_image}'
-            garment_image = request.build_absolute_uri(clean_media)
-            if request.is_secure() or request.META.get('HTTP_X_FORWARDED_PROTO') == 'https' or 'onrender.com' in garment_image:
-                garment_image = garment_image.replace('http://', 'https://')
 
         # 3. Auto-detect category from product if set to auto
         final_category = chosen_category

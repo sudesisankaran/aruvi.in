@@ -97,6 +97,7 @@ export default function VirtualFittingRoomPage() {
     try {
       const payload = {
         product_id: selectedProduct.id,
+        garment_image: getProductImageUrl(selectedProduct),
         model_image: photoToUse,
         category: 'auto',
         mode: 'balanced',

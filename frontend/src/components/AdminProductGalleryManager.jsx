@@ -196,7 +196,7 @@ export default function AdminProductGalleryManager({
       {isUploading && (
         <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-emerald-800 text-xs">
           <div className="flex justify-between font-semibold mb-1">
-            <span>Uploading batch to Firebase Storage...</span>
+            <span>Optimizing & attaching product photo...</span>
             <span>{uploadProgress}%</span>
           </div>
           <div className="w-full bg-emerald-200 h-1.5 rounded-full overflow-hidden">
