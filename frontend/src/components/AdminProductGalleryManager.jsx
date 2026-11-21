@@ -67,6 +67,8 @@ export default function AdminProductGalleryManager({
 
         updated.push(newImgObj);
         successCount++;
+        setGallery([...updated]);
+        if (onImagesChange) onImagesChange([...updated]);
       } catch (err) {
         notify(`Failed to upload "${file.name}": ${err.message}`, 'error');
       }
@@ -77,7 +79,7 @@ export default function AdminProductGalleryManager({
     setGallery(updated);
     if (onImagesChange) onImagesChange(updated);
     if (successCount > 0) {
-      notify(`Successfully uploaded and verified ${successCount} image(s) for product gallery.`, 'success');
+      notify(`Successfully optimized & attached ${successCount} image(s) to product gallery.`, 'success');
     }
   };
 

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { signInWithGoogleAuth, signOutAuth } from '../services/firebase';
 import { authApi, productsApi, ordersApi, settingsApi, fetchFreshAdminToken } from '../services/api';
+import { normalizeImageUrl } from '../utils/imageUtils';
 
 const StoreContext = createContext(null);
 
@@ -190,11 +191,14 @@ export function StoreProvider({ children }) {
         const cleanProds = dbProducts.map((p) => {
           const currPrice = Number(p.price) || 0;
           const origPrice = p.original_price ? Number(p.original_price) : currPrice;
-          const imgGallery = Array.isArray(p.images) ? p.images : [];
+          const imgGallery = (Array.isArray(p.images) ? p.images : []).map(img => ({
+            ...img,
+            image_url: normalizeImageUrl(img?.image_url || img?.url || (typeof img === 'string' ? img : ''))
+          }));
           const primaryFromGallery = imgGallery.find(img => img.is_primary)?.image_url || imgGallery[0]?.image_url;
-          let resolvedImg = p.image;
-          if (!resolvedImg || resolvedImg.includes('kanjivaram_green.jpg')) {
-            resolvedImg = primaryFromGallery || p.image || '';
+          let resolvedImg = normalizeImageUrl(p.image);
+          if (!resolvedImg) {
+            resolvedImg = primaryFromGallery || '';
           }
           return {
             id: p.id,

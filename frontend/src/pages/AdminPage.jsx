@@ -948,7 +948,7 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
                                   src={getProductImageUrl(p)}
                                   alt={p.title}
                                   className="w-12 h-14 object-cover rounded-lg border border-slate-200"
-                                  onError={(e) => handleImageError(e)}
+                                  onError={(e) => handleImageError(e, p)}
                                 />
                                 <div>
                                   <span className="font-bold text-slate-900 block">{p.title}</span>
@@ -1648,7 +1648,7 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
                                   src={getProductImageUrl(p)}
                                   alt={p.title}
                                   className="w-10 h-12 object-cover rounded border border-slate-200"
-                                  onError={(e) => handleImageError(e)}
+                                  onError={(e) => handleImageError(e, p)}
                                 />
                                 <div>
                                   <span className="font-bold text-slate-900 block">{p.title}</span>

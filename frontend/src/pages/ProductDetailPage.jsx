@@ -118,7 +118,7 @@ Please confirm availability and dispatch timeline.`;
                 src={activeImage} 
                 alt={product.title}
                 style={{ width: '100%', maxHeight: '580px', objectFit: 'cover' }}
-                onError={(e) => handleImageError(e)}
+                onError={(e) => handleImageError(e, product)}
               />
               {product.badge && (
                 <span className="product-badge-tag tag-gold" style={{ position: 'absolute', top: '16px', left: '16px' }}>

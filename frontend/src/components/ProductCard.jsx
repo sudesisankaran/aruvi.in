@@ -98,7 +98,7 @@ export default function ProductCard({ product }) {
             alt={product.title} 
             loading="lazy" 
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            onError={(e) => handleImageError(e)}
+            onError={(e) => handleImageError(e, product)}
           />
         </Link>
 

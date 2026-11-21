@@ -20,18 +20,21 @@ export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
 
 /**
- * Validates image format and file size
+ * Validates image format and file size with wide device compatibility
  */
-export function validateImageFile(file, maxSizeMB = 10) {
+export function validateImageFile(file, maxSizeMB = 25) {
   if (!file) {
     return { valid: false, error: 'Please choose an image file.' };
   }
 
-  const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
-  if (!validTypes.includes(file.type.toLowerCase())) {
+  const name = (file.name || '').toLowerCase();
+  const extMatch = /\.(jpg|jpeg|png|webp|gif|avif|bmp|heic|heif)$/i.test(name);
+  const typeMatch = file.type ? file.type.startsWith('image/') : false;
+
+  if (!extMatch && !typeMatch) {
     return {
       valid: false,
-      error: `Unsupported file format (${file.type || 'unknown'}). Please upload a JPEG, PNG, or WebP image.`
+      error: `Please upload an image file (JPEG, PNG, WebP, or AVIF).`
     };
   }
 
@@ -39,7 +42,7 @@ export function validateImageFile(file, maxSizeMB = 10) {
   if (file.size > maxBytes) {
     return {
       valid: false,
-      error: `File is too large (${(file.size / (1024 * 1024)).toFixed(1)}MB). Maximum allowed size is ${maxSizeMB}MB.`
+      error: `File is too large (${(file.size / (1024 * 1024)).toFixed(1)}MB). Maximum allowed is ${maxSizeMB}MB.`
     };
   }
 
