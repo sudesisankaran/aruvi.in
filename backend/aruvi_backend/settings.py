@@ -14,6 +14,9 @@ DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = ['*']
 
+# Official FASHN AI Virtual Try-On Key
+FASHN_API_KEY = os.getenv('FASHN_API_KEY', 'fa-gLtsB3GmiHcJ-hFVqNoqMO3WJMlDoPTWv7koo')
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
