@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import ProductCard from '../components/ProductCard';
+import { getProductImageUrl, handleImageError, NEUTRAL_PRODUCT_FALLBACK } from '../utils/imageUtils';
 
 export default function ProductDetailPage() {
   const { id } = useParams();
@@ -38,16 +39,21 @@ export default function ProductDetailPage() {
 
   const allImages = useMemo(() => {
     const list = [];
-    if (product.image) list.push(product.image);
+    if (product.image && !product.image.includes('kanjivaram_green.jpg')) {
+      list.push(product.image);
+    }
     if (Array.isArray(product.images)) {
       product.images.forEach(img => {
         const url = typeof img === 'string' ? img : (img.image_url || img.url);
-        if (url && !list.includes(url)) {
+        if (url && !list.includes(url) && !url.includes('kanjivaram_green.jpg')) {
           list.push(url);
         }
       });
     }
-    return list.length > 0 ? list : ['assets/images/kanjivaram_green.jpg'];
+    if (list.length === 0 && product.image) {
+      list.push(product.image);
+    }
+    return list.length > 0 ? list : [NEUTRAL_PRODUCT_FALLBACK];
   }, [product]);
 
   const activeImage = selectedImage || allImages[0];
@@ -112,7 +118,7 @@ Please confirm availability and dispatch timeline.`;
                 src={activeImage} 
                 alt={product.title}
                 style={{ width: '100%', maxHeight: '580px', objectFit: 'cover' }}
-                onError={(e) => { e.currentTarget.src = 'assets/images/kanjivaram_green.jpg'; }}
+                onError={(e) => handleImageError(e)}
               />
               {product.badge && (
                 <span className="product-badge-tag tag-gold" style={{ position: 'absolute', top: '16px', left: '16px' }}>

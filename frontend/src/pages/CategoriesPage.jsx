@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import { ArrowRight, Sparkles, Layers } from 'lucide-react';
+import { handleImageError } from '../utils/imageUtils';
 
 export default function CategoriesPage() {
   const { categories, products } = useStore();
@@ -43,7 +44,7 @@ export default function CategoriesPage() {
                     src={cat.image || 'assets/images/kanjivaram_green.jpg'}
                     alt={cat.name}
                     className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                    onError={(e) => { e.currentTarget.src = 'assets/images/kanjivaram_green.jpg'; }}
+                    onError={(e) => handleImageError(e)}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/80 via-emerald-950/20 to-transparent" />
                   

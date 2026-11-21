@@ -4,6 +4,7 @@ import { useStore } from '../context/StoreContext';
 import CustomerAuthModal from '../components/CustomerAuthModal';
 import ImageUploadDropzone from '../components/ImageUploadDropzone';
 import { auth } from '../services/firebase';
+import { getProductImageUrl, handleImageError } from '../utils/imageUtils';
 
 export default function AccountPage() {
   const { user, isAdmin, orders, logout, addToast } = useStore();
@@ -265,9 +266,10 @@ export default function AccountPage() {
                       {ord.items?.map((item, idx) => (
                         <div key={idx} className="flex items-center gap-3">
                           <img
-                            src={item.image || 'assets/images/kanjivaram_green.jpg'}
+                            src={getProductImageUrl(item)}
                             alt={item.title}
                             className="w-12 h-14 object-cover rounded-xl shadow-xs"
+                            onError={(e) => handleImageError(e)}
                           />
                           <div className="flex-1">
                             <strong className="text-sm font-semibold text-primary-dark">{item.title}</strong>

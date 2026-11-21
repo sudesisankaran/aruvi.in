@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { validateImageFile, uploadFileToFirebase } from '../services/firebase';
+import { validateImageFile } from '../services/firebase';
+import { uploadProductImage } from '../utils/imageUtils';
 
 export default function ImageUploadDropzone({
   folder = 'products',
@@ -56,7 +57,7 @@ export default function ImageUploadDropzone({
       setIsUploading(true);
       setProgress(5);
       try {
-        const uploadResult = await uploadFileToFirebase(
+        const uploadResult = await uploadProductImage(
           selectedFile,
           folder,
           (pct) => setProgress(pct)
@@ -66,7 +67,7 @@ export default function ImageUploadDropzone({
         if (onUploadSuccess) onUploadSuccess(uploadResult);
       } catch (err) {
         setIsUploading(false);
-        const msg = err.message || 'Upload to Firebase Storage failed.';
+        const msg = err.message || 'Image upload failed.';
         setErrorMsg(msg);
         if (onError) onError(msg);
       }

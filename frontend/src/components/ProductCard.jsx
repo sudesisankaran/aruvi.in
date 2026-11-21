@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
+import { getProductImageUrl, handleImageError } from '../utils/imageUtils';
 
 export default function ProductCard({ product }) {
   const { wishlist, toggleWishlist, addToCart, user, isAdmin } = useStore();
@@ -35,8 +36,7 @@ export default function ProductCard({ product }) {
     addToCart(product, 1, product.sizes?.[0] || 'M');
   };
 
-  const fallbackImage = 'assets/images/kanjivaram_green.jpg';
-  const displayImage = product.image || (product.images?.[0]?.image_url) || fallbackImage;
+  const displayImage = getProductImageUrl(product);
 
   return (
     <article className="product-card card-3d hover-gold-glow" data-id={product.id}>
@@ -98,9 +98,7 @@ export default function ProductCard({ product }) {
             alt={product.title} 
             loading="lazy" 
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            onError={(e) => {
-              e.currentTarget.src = fallbackImage;
-            }}
+            onError={(e) => handleImageError(e)}
           />
         </Link>
 

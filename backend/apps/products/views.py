@@ -78,6 +78,8 @@ class ProductViewSet(viewsets.ModelViewSet):
                 
         media_url = f"{settings.MEDIA_URL}products/{filename}"
         full_url = request.build_absolute_uri(media_url)
+        if request.is_secure() or request.META.get('HTTP_X_FORWARDED_PROTO') == 'https' or 'onrender.com' in full_url:
+            full_url = full_url.replace('http://', 'https://')
         
         return Response({
             "message": "Image uploaded successfully.",
@@ -149,6 +151,8 @@ class AdminProductViewSet(viewsets.ModelViewSet):
                 
         media_url = f"{settings.MEDIA_URL}products/{filename}"
         full_url = request.build_absolute_uri(media_url)
+        if request.is_secure() or request.META.get('HTTP_X_FORWARDED_PROTO') == 'https' or 'onrender.com' in full_url:
+            full_url = full_url.replace('http://', 'https://')
         
         return Response({
             "message": "Image uploaded successfully.",

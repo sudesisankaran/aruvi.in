@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
+import { getProductImageUrl, handleImageError } from '../utils/imageUtils';
 
 export default function CartPage() {
   const { cart, updateCartQuantity, removeFromCart, getCartSubtotal, couponCode, discountPercent, applyCoupon, removeCoupon } = useStore();
@@ -84,10 +85,10 @@ export default function CartPage() {
                   style={{ display: 'flex', gap: '16px', background: '#fff', borderRadius: '12px', border: '1px solid #e8e2d8', padding: '16px', alignItems: 'center' }}
                 >
                   <img 
-                    src={item.image || 'assets/images/kanjivaram_green.jpg'} 
+                    src={getProductImageUrl(item)} 
                     alt={item.title} 
                     style={{ width: '90px', height: '110px', objectFit: 'cover', borderRadius: '8px' }}
-                    onError={(e) => { e.currentTarget.src = 'assets/images/kanjivaram_green.jpg'; }}
+                    onError={(e) => handleImageError(e)}
                   />
 
                   <div style={{ flex: 1 }}>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import ImageUploadDropzone from '../components/ImageUploadDropzone';
+import { getProductImageUrl, handleImageError } from '../utils/imageUtils';
 
 const MODELS = [
   { id: 'pooja', name: 'Pooja', style: 'Modern Silks & Salwars', height: "5'6\"", image: 'assets/images/kanjivaram_green.jpg' },
@@ -294,9 +295,10 @@ export default function VirtualFittingRoomPage() {
                       style={{ opacity: blendOpacity / 100 }}
                     >
                       <img
-                        src={selectedProduct.image}
+                        src={getProductImageUrl(selectedProduct)}
                         alt={selectedProduct.title}
                         className="max-w-full max-h-full object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.6)]"
+                        onError={(e) => handleImageError(e)}
                       />
                     </div>
                   )}
@@ -397,9 +399,10 @@ export default function VirtualFittingRoomPage() {
                       }`}
                     >
                       <img
-                        src={p.image}
+                        src={getProductImageUrl(p)}
                         alt={p.title}
                         className="w-12 h-14 object-cover rounded-xl shadow-xs"
+                        onError={(e) => handleImageError(e)}
                       />
                       <div className="min-w-0 flex-1">
                         <strong className="block text-xs font-bold text-primary-dark truncate">

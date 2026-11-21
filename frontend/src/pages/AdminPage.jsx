@@ -5,6 +5,7 @@ import { fetchFreshAdminToken } from '../services/api';
 import { downloadOrderInvoicePDF } from '../utils/pdfGenerator';
 import { openWhatsAppOrderChat } from '../utils/whatsappHelper';
 import { uploadFileToFirebase } from '../services/firebase';
+import { getProductImageUrl, handleImageError } from '../utils/imageUtils';
 import AdminProductGalleryManager from '../components/AdminProductGalleryManager';
 import ImageUploadDropzone from '../components/ImageUploadDropzone';
 import { 
@@ -241,7 +242,7 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
     setProdImages(
       prod.images && prod.images.length > 0
         ? prod.images
-        : prod.image
+        : (prod.image && !prod.image.includes('kanjivaram_green.jpg'))
         ? [{ id: '1', image_url: prod.image, is_primary: true }]
         : []
     );
@@ -257,7 +258,7 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
     }
 
     const primaryImg = prodImages.find((img) => img.is_primary) || prodImages[0];
-    const mainImageUrl = primaryImg ? primaryImg.image_url : 'assets/images/kanjivaram_green.jpg';
+    const mainImageUrl = primaryImg ? primaryImg.image_url : (prodImages.length > 0 ? prodImages[0].image_url : '');
 
     const payload = {
       title: prodTitle.trim(),
@@ -944,10 +945,10 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
                             <tr key={p.id} className="hover:bg-slate-50">
                               <td className="p-3 flex items-center gap-3">
                                 <img
-                                  src={p.image || 'assets/images/kanjivaram_green.jpg'}
+                                  src={getProductImageUrl(p)}
                                   alt={p.title}
                                   className="w-12 h-14 object-cover rounded-lg border border-slate-200"
-                                  onError={(e) => { e.currentTarget.src = 'assets/images/kanjivaram_green.jpg'; }}
+                                  onError={(e) => handleImageError(e)}
                                 />
                                 <div>
                                   <span className="font-bold text-slate-900 block">{p.title}</span>
@@ -1644,9 +1645,10 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
                             <tr key={p.id} className="hover:bg-slate-50">
                               <td className="p-3 flex items-center gap-3">
                                 <img
-                                  src={p.image || 'assets/images/kanjivaram_green.jpg'}
+                                  src={getProductImageUrl(p)}
                                   alt={p.title}
                                   className="w-10 h-12 object-cover rounded border border-slate-200"
+                                  onError={(e) => handleImageError(e)}
                                 />
                                 <div>
                                   <span className="font-bold text-slate-900 block">{p.title}</span>

@@ -81,22 +81,69 @@ class ProductSerializer(serializers.ModelSerializer):
                 defaults={'name': 'Salwar', 'icon': '✨', 'is_active': True}
             )
             validated_data['category'] = default_cat
+
+        # Ensure product.image is set to the primary uploaded image URL
+        primary_url = None
+        for img in images_data:
+            if img.get('is_primary') and img.get('image_url'):
+                primary_url = img.get('image_url')
+                break
+        if not primary_url and images_data:
+            primary_url = images_data[0].get('image_url')
+
+        if primary_url and (not validated_data.get('image') or 'kanjivaram_green.jpg' in validated_data.get('image', '')):
+            validated_data['image'] = primary_url
+
         product = Product.objects.create(**validated_data)
-        for img_data in images_data:
-            ProductImage.objects.create(product=product, **img_data)
-        return product
-            ProductImage.objects.create(product=product, **img_data)
+        for idx, img_data in enumerate(images_data):
+            ProductImage.objects.create(
+                product=product,
+                image_url=img_data.get('image_url', ''),
+                storage_path=img_data.get('storage_path', ''),
+                alt_text=img_data.get('alt_text', product.title),
+                is_primary=bool(img_data.get('is_primary', idx == 0)),
+                display_order=int(img_data.get('display_order', idx))
+            )
         return product
 
     def update(self, instance, validated_data):
         images_data = validated_data.pop('images', None)
+
+        if images_data is not None:
+            primary_url = None
+            for img in images_data:
+                if img.get('is_primary') and img.get('image_url'):
+                    primary_url = img.get('image_url')
+                    break
+            if not primary_url and len(images_data) > 0:
+                primary_url = images_data[0].get('image_url')
+
+            if primary_url:
+                validated_data['image'] = primary_url
+
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
 
         if images_data is not None:
             instance.images.all().delete()
-            for img_data in images_data:
-                ProductImage.objects.create(product=instance, **img_data)
+            for idx, img_data in enumerate(images_data):
+                ProductImage.objects.create(
+                    product=instance,
+                    image_url=img_data.get('image_url', ''),
+                    storage_path=img_data.get('storage_path', ''),
+                    alt_text=img_data.get('alt_text', instance.title),
+                    is_primary=bool(img_data.get('is_primary', idx == 0)),
+                    display_order=int(img_data.get('display_order', idx))
+                )
 
         return instance
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        # Ensure image always reflects the genuine uploaded image from gallery if available
+        if not data.get('image') or 'kanjivaram_green.jpg' in str(data.get('image')):
+            primary_img = instance.images.filter(is_primary=True).first() or instance.images.first()
+            if primary_img and primary_img.image_url:
+                data['image'] = primary_img.image_url
+        return data

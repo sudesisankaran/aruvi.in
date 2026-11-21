@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { uploadFileToFirebase, deleteFileFromFirebase, validateImageFile } from '../services/firebase';
-import { productsApi } from '../services/api';
+import { deleteFileFromFirebase, validateImageFile } from '../services/firebase';
+import { uploadProductImage, handleImageError } from '../utils/imageUtils';
 
 export default function AdminProductGalleryManager({
   images = [],
@@ -10,7 +10,6 @@ export default function AdminProductGalleryManager({
 }) {
   const [gallery, setGallery] = useState(images);
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadQueue, setUploadQueue] = useState([]);
   const [uploadProgress, setUploadProgress] = useState(0);
 
   // Sync when prop changes
@@ -33,6 +32,7 @@ export default function AdminProductGalleryManager({
     setIsUploading(true);
     setUploadProgress(10);
     const updated = [...gallery];
+    let successCount = 0;
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
@@ -43,43 +43,30 @@ export default function AdminProductGalleryManager({
       }
 
       try {
-        let imageUrl = '';
-        let storagePath = '';
+        notify(`Uploading "${file.name}" to storage...`, 'info');
+        const uploadResult = await uploadProductImage(file, productId, (pct) => {
+          const overall = Math.round(((i + pct / 100) / files.length) * 100);
+          setUploadProgress(overall);
+        });
 
-        // Try direct backend persistent storage upload first
-        try {
-          const backendImgRes = await productsApi.uploadImage(file);
-          if (backendImgRes && backendImgRes.url) {
-            imageUrl = backendImgRes.url;
-            storagePath = backendImgRes.relative_url || '';
-          }
-        } catch (backendErr) {
-          console.warn('Backend image upload fallback to Firebase:', backendErr);
-        }
-
-        // Fallback to Firebase storage if backend upload wasn't used
-        if (!imageUrl) {
-          const folder = productId ? `products/${productId}` : 'products/drafts';
-          const res = await uploadFileToFirebase(file, folder, (pct) => {
-            const overall = Math.round(((i + pct / 100) / files.length) * 100);
-            setUploadProgress(overall);
-          });
-          imageUrl = res.url;
-          storagePath = res.path;
+        if (!uploadResult || !uploadResult.url) {
+          throw new Error('Storage service did not return a valid public image URL.');
         }
 
         const isFirst = updated.length === 0;
         const newImgObj = {
-          id: `temp_${Date.now()}_${i}`,
-          image_url: imageUrl,
-          storage_path: storagePath,
+          id: `img_${Date.now()}_${i}_${Math.random().toString(36).substr(2, 4)}`,
+          image_url: uploadResult.url,
+          storage_path: uploadResult.path || '',
           alt_text: file.name.replace(/\.[^/.]+$/, ''),
           is_primary: isFirst,
           display_order: updated.length,
           size_bytes: file.size,
+          storage_provider: uploadResult.storage || 'cloud'
         };
 
         updated.push(newImgObj);
+        successCount++;
       } catch (err) {
         notify(`Failed to upload "${file.name}": ${err.message}`, 'error');
       }
@@ -89,7 +76,9 @@ export default function AdminProductGalleryManager({
     setUploadProgress(100);
     setGallery(updated);
     if (onImagesChange) onImagesChange(updated);
-    notify(`Added ${files.length} images to product gallery.`, 'success');
+    if (successCount > 0) {
+      notify(`Successfully uploaded and verified ${successCount} image(s) for product gallery.`, 'success');
+    }
   };
 
   const setPrimary = (index) => {
@@ -120,17 +109,15 @@ export default function AdminProductGalleryManager({
     const target = gallery[index];
     if (!target) return;
 
-    if (!window.confirm('Are you sure you want to delete this image from Firebase Storage and the gallery?')) {
+    if (!window.confirm('Are you sure you want to delete this image from storage and the gallery?')) {
       return;
     }
 
-    // Delete from Firebase Storage if storage_path is present
     if (target.storage_path) {
       await deleteFileFromFirebase(target.storage_path);
     }
 
     const updated = gallery.filter((_, i) => i !== index);
-    // If deleted was primary, assign first remaining as primary
     if (target.is_primary && updated.length > 0) {
       updated[0].is_primary = true;
     }
@@ -138,7 +125,7 @@ export default function AdminProductGalleryManager({
     const reordered = updated.map((img, i) => ({ ...img, display_order: i }));
     setGallery(reordered);
     if (onImagesChange) onImagesChange(reordered);
-    notify('Image deleted and purged from Firebase Storage.', 'success');
+    notify('Image removed from gallery.', 'success');
   };
 
   const handleReplace = async (index, file) => {
@@ -151,26 +138,24 @@ export default function AdminProductGalleryManager({
 
     const old = gallery[index];
     try {
-      notify('Uploading replacement image...', 'info');
-      const folder = productId ? `products/${productId}` : 'products/drafts';
-      const res = await uploadFileToFirebase(file, folder);
+      notify('Uploading replacement image to storage...', 'info');
+      const uploadResult = await uploadProductImage(file, productId);
 
-      // Clean old file
-      if (old.storage_path && old.storage_path !== res.path) {
+      if (old.storage_path && old.storage_path !== uploadResult.path) {
         await deleteFileFromFirebase(old.storage_path);
       }
 
       const updated = [...gallery];
       updated[index] = {
         ...old,
-        image_url: res.url,
-        storage_path: res.path,
+        image_url: uploadResult.url,
+        storage_path: uploadResult.path,
         size_bytes: file.size,
       };
 
       setGallery(updated);
       if (onImagesChange) onImagesChange(updated);
-      notify('Image replaced successfully in Firebase Storage.', 'success');
+      notify('Image replaced successfully.', 'success');
     } catch (err) {
       notify(`Replace failed: ${err.message}`, 'error');
     }
@@ -240,6 +225,7 @@ export default function AdminProductGalleryManager({
                   src={img.image_url}
                   alt={img.alt_text || `Product image ${idx + 1}`}
                   className="w-full h-full object-cover"
+                  onError={(e) => handleImageError(e)}
                 />
 
                 {/* Primary Badge */}

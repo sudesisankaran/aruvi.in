@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import ProductCard from '../components/ProductCard';
+import { getProductImageUrl, handleImageError } from '../utils/imageUtils';
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -71,7 +72,7 @@ export default function HomePage() {
           price: `₹${currPrice.toLocaleString('en-IN')}`,
           origPrice: origPrice > currPrice ? `₹${origPrice.toLocaleString('en-IN')}` : '',
           category: p.category,
-          image: p.image || 'assets/images/kanjivaram_green.jpg',
+          image: getProductImageUrl(p),
           badge: p.badge || `👑 Look ${idx + 1}`,
           productId: p.id
         };
@@ -173,7 +174,7 @@ export default function HomePage() {
                     src={currentLook.image} 
                     alt={currentLook.title} 
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    onError={(e) => { e.currentTarget.src = 'assets/images/kanjivaram_green.jpg'; }}
+                    onError={(e) => handleImageError(e)}
                   />
                   <span style={{ position: 'absolute', top: '16px', left: '16px', background: 'var(--color-primary)', color: '#fff', padding: '5px 12px', borderRadius: '99px', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>
                     {currentLook.tag}
@@ -362,7 +363,7 @@ export default function HomePage() {
                     src={cat.image} 
                     alt={cat.name} 
                     style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
-                    onError={(e) => { e.currentTarget.src = 'assets/images/kanjivaram_green.jpg'; }}
+                    onError={(e) => handleImageError(e)}
                   />
                 </div>
                 <span style={{ fontSize: '0.86rem', fontWeight: 700, lineHeight: 1.25, color: '#0e2920' }}>

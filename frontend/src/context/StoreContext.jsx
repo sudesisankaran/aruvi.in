@@ -190,6 +190,12 @@ export function StoreProvider({ children }) {
         const cleanProds = dbProducts.map((p) => {
           const currPrice = Number(p.price) || 0;
           const origPrice = p.original_price ? Number(p.original_price) : currPrice;
+          const imgGallery = Array.isArray(p.images) ? p.images : [];
+          const primaryFromGallery = imgGallery.find(img => img.is_primary)?.image_url || imgGallery[0]?.image_url;
+          let resolvedImg = p.image;
+          if (!resolvedImg || resolvedImg.includes('kanjivaram_green.jpg')) {
+            resolvedImg = primaryFromGallery || p.image || '';
+          }
           return {
             id: p.id,
             title: p.title,
@@ -204,8 +210,8 @@ export function StoreProvider({ children }) {
             description: p.description || '',
             status: p.status || 'active',
             isFeatured: !!p.is_featured,
-            image: p.image || 'assets/images/kanjivaram_green.jpg',
-            images: Array.isArray(p.images) ? p.images : [],
+            image: resolvedImg,
+            images: imgGallery,
             rating: Number(p.rating) || 4.9,
             reviews: p.reviews_count || 18,
             createdAt: p.created_at
@@ -746,13 +752,15 @@ export function StoreProvider({ children }) {
       description: (newProd.description || '').trim(),
       status: newProd.status || 'active',
       is_featured: !!newProd.isFeatured,
-      image: newProd.image || 'assets/images/kanjivaram_green.jpg',
+      image: newProd.image && !newProd.image.includes('kanjivaram_green.jpg') 
+        ? newProd.image 
+        : ((newProd.images?.[0]?.image_url || newProd.images?.[0]?.url) || (newProd.image || '')),
       images: (newProd.images || []).map((img, idx) => ({
-        image_url: img.image_url || img.url || img,
+        image_url: img.image_url || img.url || (typeof img === 'string' ? img : ''),
         storage_path: img.storage_path || '',
         alt_text: img.alt_text || newProd.title,
-        is_primary: idx === 0,
-        display_order: idx
+        is_primary: Boolean(img.is_primary !== undefined ? img.is_primary : idx === 0),
+        display_order: Number(img.display_order !== undefined ? img.display_order : idx)
       }))
     };
 
@@ -817,16 +825,21 @@ export function StoreProvider({ children }) {
     if (fields.description !== undefined) backendPayload.description = fields.description.trim();
     if (fields.fabric) backendPayload.fabric = fields.fabric;
     if (fields.badge !== undefined) backendPayload.badge = fields.badge;
-    if (fields.image) backendPayload.image = fields.image;
-    if (fields.category) backendPayload.category = fields.category;
     if (fields.images) {
       backendPayload.images = fields.images.map((img, idx) => ({
-        image_url: img.image_url || img.url || img,
+        image_url: img.image_url || img.url || (typeof img === 'string' ? img : ''),
         storage_path: img.storage_path || '',
         alt_text: img.alt_text || fields.title || '',
-        is_primary: idx === 0,
-        display_order: idx
+        is_primary: Boolean(img.is_primary !== undefined ? img.is_primary : idx === 0),
+        display_order: Number(img.display_order !== undefined ? img.display_order : idx)
       }));
+      const primaryUrl = backendPayload.images.find(img => img.is_primary)?.image_url || backendPayload.images[0]?.image_url;
+      if (primaryUrl && (!fields.image || fields.image.includes('kanjivaram_green.jpg'))) {
+        backendPayload.image = primaryUrl;
+      }
+    }
+    if (fields.image && !backendPayload.image) {
+      backendPayload.image = fields.image;
     }
 
     try {

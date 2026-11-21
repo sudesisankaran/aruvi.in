@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
+import { getProductImageUrl, handleImageError } from '../utils/imageUtils';
 
 export default function CheckoutPage() {
   const { cart, getCartSubtotal, discountPercent, createOrder, user } = useStore();
@@ -281,9 +282,10 @@ export default function CheckoutPage() {
               {cart.map((item) => (
                 <div key={`${item.id}-${item.selectedSize}`} style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                   <img 
-                    src={item.image || 'assets/images/kanjivaram_green.jpg'} 
+                    src={getProductImageUrl(item)} 
                     alt={item.title} 
                     style={{ width: '50px', height: '60px', objectFit: 'cover', borderRadius: '6px' }} 
+                    onError={(e) => handleImageError(e)}
                   />
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: '0.88rem', fontWeight: 600, color: '#0e2920' }}>{item.title}</div>
