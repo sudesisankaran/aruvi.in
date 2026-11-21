@@ -231,6 +231,30 @@ export function StoreProvider({ children }) {
           productsCount: c.products_count || 0
         }));
         setCategories(cleanCats);
+      } else if (Array.isArray(dbCategories) && dbCategories.length === 0) {
+        // If central database categories are empty, seed default store categories
+        const defaultSeedCats = [
+          { name: 'Salwar', slug: 'salwar', icon: '✨' },
+          { name: 'Sharara', slug: 'sharara', icon: '✨' },
+          { name: 'Ethnic Wear', slug: 'ethnic-wear', icon: '✨' },
+          { name: 'Maxis', slug: 'maxis', icon: '✨' },
+          { name: 'Co-ordsets', slug: 'co-ordsets', icon: '✨' },
+          { name: 'Casual Tops', slug: 'casual-tops', icon: '✨' },
+          { name: 'Western Wear', slug: 'western-wear', icon: '✨' },
+          { name: 'Jeans & Pants', slug: 'jeans-pants', icon: '✨' },
+          { name: 'Kids Wear', slug: 'kids-wear', icon: '✨' }
+        ];
+        for (const cat of defaultSeedCats) {
+          try {
+            await productsApi.createCategory({
+              name: cat.name,
+              slug: cat.slug,
+              icon: cat.icon,
+              image: 'assets/images/kanjivaram_green.jpg',
+              is_active: true
+            });
+          } catch (e) {}
+        }
       }
     } catch (err) {}
 
@@ -734,7 +758,32 @@ export function StoreProvider({ children }) {
 
     // 3. Send product data to backend & wait for actual database response
     try {
-      const res = await productsApi.createProduct(backendPayload);
+      let res;
+      try {
+        res = await productsApi.createProduct(backendPayload);
+      } catch (firstErr) {
+        const errStr = JSON.stringify(firstErr.response?.data || '');
+        if (errStr.includes('slug=') || errStr.includes('category') || errStr.includes('does not exist')) {
+          // Auto-create category in central database and retry product creation
+          const targetSlug = (backendPayload.category || 'salwar').toLowerCase();
+          const targetName = targetSlug.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+          try {
+            await productsApi.createCategory({
+              name: targetName,
+              slug: targetSlug,
+              icon: '✨',
+              image: 'assets/images/kanjivaram_green.jpg',
+              is_active: true
+            });
+            res = await productsApi.createProduct(backendPayload);
+          } catch (retryErr) {
+            throw firstErr;
+          }
+        } else {
+          throw firstErr;
+        }
+      }
+
       if (!res || !res.id) {
         throw new Error('Central database did not return a valid product ID.');
       }
