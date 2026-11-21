@@ -79,8 +79,21 @@ export function StoreProvider({ children }) {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // Central Products Catalog: Zero default products, driven 100% by central database
-  const [products, setProducts] = useState([]);
+  // Central Products Catalog: Synchronized with database & persisted locally for instant loading
+  const [products, setProducts] = useState(() => {
+    try {
+      const saved = localStorage.getItem('aruvi_products');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+      return [];
+    } catch (e) {
+      return [];
+    }
+  });
 
   // Categories: guaranteed distinct boutique AI cover images
   const [categories, setCategories] = useState(() => {
@@ -201,19 +214,29 @@ export function StoreProvider({ children }) {
     try {
       // 1. Fetch active products from shared central database
       const dbProducts = await productsApi.getProducts();
-      if (Array.isArray(dbProducts)) {
+      if (Array.isArray(dbProducts) && dbProducts.length > 0) {
         // Map DRF fields cleanly for React components
         const cleanProds = dbProducts.map((p) => {
           const currPrice = Number(p.price) || 0;
           const origPrice = p.original_price ? Number(p.original_price) : currPrice;
-          const imgGallery = (Array.isArray(p.images) ? p.images : []).map(img => ({
-            ...img,
-            image_url: normalizeImageUrl(img?.image_url || img?.url || (typeof img === 'string' ? img : ''))
-          }));
+          const imgGallery = (Array.isArray(p.images) ? p.images : []).map(img => {
+            const rawUrl = img?.image_url || img?.url || '';
+            const pathUrl = img?.storage_path || '';
+            let bestImg = rawUrl;
+            if (rawUrl.startsWith('data:image/')) bestImg = rawUrl;
+            else if (pathUrl.startsWith('data:image/')) bestImg = pathUrl;
+            else bestImg = normalizeImageUrl(rawUrl);
+            return {
+              ...img,
+              image_url: bestImg
+            };
+          });
           const primaryFromGallery = imgGallery.find(img => img.is_primary)?.image_url || imgGallery[0]?.image_url;
-          let resolvedImg = normalizeImageUrl(p.image);
-          if (!resolvedImg) {
-            resolvedImg = primaryFromGallery || '';
+          let resolvedImg = p.image || '';
+          if (resolvedImg.startsWith('data:image/')) {
+            // Keep data URL directly
+          } else {
+            resolvedImg = normalizeImageUrl(resolvedImg) || primaryFromGallery || '';
           }
           return {
             id: p.id,
@@ -237,9 +260,12 @@ export function StoreProvider({ children }) {
           };
         });
         setProducts(cleanProds);
+        try {
+          localStorage.setItem('aruvi_products', JSON.stringify(cleanProds));
+        } catch (e) {}
       }
     } catch (err) {
-      // Offline fallback: keep local products state
+      // Offline fallback: keep local products state intact
     }
 
     try {
@@ -348,13 +374,14 @@ export function StoreProvider({ children }) {
     };
   }, [syncWithCentralDatabase]);
 
-  // LocalStorage synchronizations (cart, wishlist, settings)
+  // LocalStorage synchronizations (products, cart, wishlist, settings)
   useEffect(() => {
     try {
-      // Clear legacy local product cache to ensure single source of truth
-      localStorage.removeItem('aruvi_products');
+      if (Array.isArray(products) && products.length > 0) {
+        localStorage.setItem('aruvi_products', JSON.stringify(products));
+      }
     } catch (e) {}
-  }, []);
+  }, [products]);
 
   useEffect(() => {
     try {
@@ -411,7 +438,7 @@ export function StoreProvider({ children }) {
             id: product.id,
             title: product.title,
             price: Number(product.price) || 0,
-            image: product.image,
+            image: getProductImageUrl(product),
             category: product.category,
             selectedSize,
             quantity
@@ -810,9 +837,43 @@ export function StoreProvider({ children }) {
         throw new Error('Central database did not return a valid product ID.');
       }
 
-      // 4. Invalidate query cache & refetch immediately from central database
-      await syncWithCentralDatabase();
-      addToast(`Product "${res.title || newProd.title}" added to central database successfully!`, 'success');
+      // 4. Optimistic & Instant UI Update across Homepage, Shop, and Catalog
+      const primaryImgUrl = res.image || backendPayload.image || newProd.image || '';
+      const resolvedGallery = (Array.isArray(res.images) && res.images.length > 0)
+        ? res.images
+        : (backendPayload.images || []);
+
+      const newProductObj = {
+        id: res.id,
+        title: res.title || newProd.title,
+        sku: res.sku || backendPayload.sku,
+        category: res.category_slug || res.category || backendPayload.category || 'salwar',
+        categoryName: res.category_name || (res.category_slug || res.category || backendPayload.category || 'salwar').replace(/[-_]/g, ' '),
+        price: Number(res.price) || Number(backendPayload.price),
+        originalPrice: res.original_price ? Number(res.original_price) : (backendPayload.original_price ? Number(backendPayload.original_price) : null),
+        stock: res.stock !== undefined ? Number(res.stock) : Number(backendPayload.stock),
+        fabric: res.fabric || backendPayload.fabric,
+        badge: res.badge || backendPayload.badge,
+        description: res.description || backendPayload.description,
+        status: res.status || backendPayload.status || 'active',
+        isFeatured: Boolean(res.is_featured !== undefined ? res.is_featured : backendPayload.is_featured),
+        image: primaryImgUrl,
+        images: resolvedGallery,
+        rating: Number(res.rating) || 4.9,
+        reviews: res.reviews_count || 18,
+        createdAt: res.created_at || new Date().toISOString()
+      };
+
+      setProducts((prev) => [newProductObj, ...prev.filter((p) => p.id !== res.id)]);
+      try {
+        const saved = JSON.parse(localStorage.getItem('aruvi_products') || '[]');
+        const updatedList = [newProductObj, ...saved.filter((p) => p.id !== res.id)];
+        localStorage.setItem('aruvi_products', JSON.stringify(updatedList));
+      } catch (e) {}
+
+      // Background re-sync to guarantee backend alignment
+      syncWithCentralDatabase().catch(() => {});
+      addToast(`Product "${res.title || newProd.title}" added to store successfully!`, 'success');
       return res;
     } catch (err) {
       // 5. Never show false success notification! Display actual backend error
@@ -858,7 +919,45 @@ export function StoreProvider({ children }) {
 
     try {
       const res = await productsApi.updateProduct(targetId, backendPayload);
-      await syncWithCentralDatabase();
+
+      // Instant optimistic state update
+      setProducts((prev) => prev.map((p) => {
+        if (p.id === targetId) {
+          const updatedImg = res.image || backendPayload.image || p.image;
+          const updatedImages = (Array.isArray(res.images) && res.images.length > 0) 
+            ? res.images 
+            : (backendPayload.images || p.images);
+          return {
+            ...p,
+            ...fields,
+            image: updatedImg,
+            images: updatedImages,
+            price: backendPayload.price !== undefined ? backendPayload.price : p.price,
+            originalPrice: backendPayload.original_price !== undefined ? backendPayload.original_price : p.originalPrice,
+            stock: backendPayload.stock !== undefined ? backendPayload.stock : p.stock,
+            isFeatured: backendPayload.is_featured !== undefined ? backendPayload.is_featured : p.isFeatured
+          };
+        }
+        return p;
+      }));
+
+      try {
+        const saved = JSON.parse(localStorage.getItem('aruvi_products') || '[]');
+        const updatedSaved = saved.map((p) => {
+          if (p.id === targetId) {
+            return {
+              ...p,
+              ...fields,
+              image: res.image || backendPayload.image || p.image,
+              images: (Array.isArray(res.images) && res.images.length > 0) ? res.images : (backendPayload.images || p.images)
+            };
+          }
+          return p;
+        });
+        localStorage.setItem('aruvi_products', JSON.stringify(updatedSaved));
+      } catch (e) {}
+
+      syncWithCentralDatabase().catch(() => {});
       addToast('Product updated in central database successfully.', 'success');
       return res;
     } catch (err) {
@@ -874,7 +973,12 @@ export function StoreProvider({ children }) {
     }
     try {
       await productsApi.deleteProduct(prodId);
-      await syncWithCentralDatabase();
+      setProducts((prev) => prev.filter((p) => p.id !== prodId));
+      try {
+        const saved = JSON.parse(localStorage.getItem('aruvi_products') || '[]');
+        localStorage.setItem('aruvi_products', JSON.stringify(saved.filter((p) => p.id !== prodId)));
+      } catch (e) {}
+      syncWithCentralDatabase().catch(() => {});
       addToast('Product removed from database successfully.', 'info');
       return true;
     } catch (err) {

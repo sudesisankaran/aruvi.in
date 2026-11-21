@@ -109,6 +109,9 @@ export const getProductImageUrl = (product) => {
 
   // 1. Check primary product.image directly
   if (product.image && typeof product.image === 'string' && product.image.trim()) {
+    if (product.image.startsWith('data:image/')) {
+      return product.image;
+    }
     const normalized = normalizeImageUrl(product.image);
     if (normalized && !normalized.includes('kanjivaram_green.jpg')) {
       return normalized;
@@ -119,22 +122,24 @@ export const getProductImageUrl = (product) => {
   if (Array.isArray(product.images) && product.images.length > 0) {
     const primary = product.images.find(img => img.is_primary) || product.images[0];
     const rawGalleryUrl = primary?.image_url || primary?.url || (typeof primary === 'string' ? primary : '');
-    const normalized = normalizeImageUrl(rawGalleryUrl);
-    if (normalized && !normalized.includes('kanjivaram_green.jpg')) {
-      return normalized;
+    if (rawGalleryUrl && rawGalleryUrl.startsWith('data:image/')) {
+      return rawGalleryUrl;
     }
     if (primary?.storage_path && primary.storage_path.startsWith('data:image/')) {
       return primary.storage_path;
+    }
+    const normalized = normalizeImageUrl(rawGalleryUrl);
+    if (normalized && !normalized.includes('kanjivaram_green.jpg')) {
+      return normalized;
     }
 
     // 3. Check any gallery image
     for (const img of product.images) {
       const u = img?.image_url || img?.url || (typeof img === 'string' ? img : '');
+      if (u && u.startsWith('data:image/')) return u;
+      if (img?.storage_path && img.storage_path.startsWith('data:image/')) return img.storage_path;
       const norm = normalizeImageUrl(u);
       if (norm && !norm.includes('kanjivaram_green.jpg')) return norm;
-      if (img?.storage_path && img.storage_path.startsWith('data:image/')) {
-        return img.storage_path;
-      }
     }
   }
 
@@ -161,6 +166,14 @@ export const handleImageError = (e, productOrCustomFallback = null) => {
   }
 
   if (productOrCustomFallback && typeof productOrCustomFallback === 'object') {
+    // Priority 0: Check if primary product.image is a direct data URL
+    if (productOrCustomFallback.image && typeof productOrCustomFallback.image === 'string') {
+      if (productOrCustomFallback.image.startsWith('data:image/') && e.currentTarget.src !== productOrCustomFallback.image) {
+        e.currentTarget.src = productOrCustomFallback.image;
+        return;
+      }
+    }
+
     const images = Array.isArray(productOrCustomFallback.images) ? productOrCustomFallback.images : [];
     // Priority A: Check if any image has a persistent data URL in storage_path
     for (const img of images) {
@@ -274,7 +287,7 @@ export async function uploadProductImage(rawFile, productId = null, onProgress =
     const fbResult = await uploadFileToFirebase(optimizedFile, folder, (pct) => {
       if (onProgress) onProgress(Math.round(35 + pct * 0.55));
     });
-    if (fbResult && fbResult.url) {
+    if (fbResult && fbResult.url && fbResult.url.startsWith('https://firebasestorage')) {
       if (onProgress) onProgress(100);
       return {
         url: fbResult.url,
@@ -288,57 +301,8 @@ export async function uploadProductImage(rawFile, productId = null, onProgress =
     console.warn('[Storage] Firebase upload note:', fbErr?.message);
   }
 
-  // 3. Try Backend Persistent Django Media Upload
-  try {
-    const backendRes = await productsApi.uploadImage(optimizedFile);
-    if (backendRes && (backendRes.url || backendRes.relative_url)) {
-      if (onProgress) onProgress(100);
-      const chosenUrl = normalizeImageUrl(backendRes.url || backendRes.relative_url);
-      return {
-        url: chosenUrl || optimizedDataUrl,
-        path: optimizedDataUrl || backendRes.relative_url || fileName,
-        storage: 'backend',
-        name: rawFile.name,
-        fallbackDataUrl: optimizedDataUrl
-      };
-    }
-  } catch (backendErr) {
-    console.warn('[Storage] Backend upload fallback to optimized storage:', backendErr?.message);
-  }
-
-  // 4. Try Supabase Storage if configured
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-  if (supabaseUrl && supabaseAnonKey) {
-    try {
-      const uploadEndpoint = `${supabaseUrl.replace(/\/+$/, '')}/storage/v1/object/products/${fileName}`;
-      const uploadRes = await fetch(uploadEndpoint, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${supabaseAnonKey}`,
-          'apikey': supabaseAnonKey,
-          'Content-Type': 'image/jpeg',
-          'x-upsert': 'true'
-        },
-        body: optimizedFile
-      });
-      if (uploadRes.ok) {
-        const publicUrl = `${supabaseUrl.replace(/\/+$/, '')}/storage/v1/object/public/products/${fileName}`;
-        if (onProgress) onProgress(100);
-        return {
-          url: publicUrl,
-          path: optimizedDataUrl || fileName,
-          storage: 'supabase',
-          name: rawFile.name,
-          fallbackDataUrl: optimizedDataUrl
-        };
-      }
-    } catch (supabaseErr) {
-      console.warn('[Storage] Supabase storage upload skipped:', supabaseErr?.message);
-    }
-  }
-
-  // 5. Resilient Optimized Data URL (Permanent, never 404s, stores safely in DB TextField)
+  // 3. Ultra-Reliable Optimized Data URL
+  // Directly embeds the crisp, compressed uploaded photo (~80KB) so it displays instantly on Home Page, Product Details, and Admin with ZERO 404 errors!
   if (onProgress) onProgress(100);
   return {
     url: optimizedDataUrl,

@@ -47,14 +47,17 @@ export default function ProductDetailPage() {
     }
     if (Array.isArray(product.images)) {
       product.images.forEach(img => {
-        const url = typeof img === 'string' ? img : (img.image_url || img.url);
+        const url = typeof img === 'string' 
+          ? img 
+          : (img.image_url || img.url || (img.storage_path && img.storage_path.startsWith('data:image/') ? img.storage_path : ''));
         if (url && !list.includes(url) && !url.includes('kanjivaram_green.jpg')) {
           list.push(url);
         }
       });
     }
-    if (list.length === 0 && product.image) {
-      list.push(product.image);
+    if (list.length === 0) {
+      const best = getProductImageUrl(product);
+      if (best) list.push(best);
     }
     return list.length > 0 ? list : [NEUTRAL_PRODUCT_FALLBACK];
   }, [product]);
