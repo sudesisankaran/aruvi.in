@@ -670,16 +670,24 @@ export function StoreProvider({ children }) {
   };
 
   const parseBackendError = (err, fallback = 'Operation failed.') => {
-    let errMsg = err.response?.data?.error || 
-                 err.response?.data?.detail ||
-                 (err.response?.data ? (typeof err.response.data === 'string' ? err.response.data : JSON.stringify(err.response.data)) : null) || 
-                 err.message || 
-                 fallback;
-    if (typeof errMsg === 'string' && (errMsg.includes('<!DOCTYPE') || errMsg.includes('<html') || errMsg.includes('<title>'))) {
-      const match = errMsg.match(/<title>(.*?)<\/title>/i);
-      errMsg = match ? match[1].trim() : 'Server Error';
+    if (err.response?.data) {
+      const data = err.response.data;
+      if (typeof data === 'string') {
+        if (data.includes('<!DOCTYPE') || data.includes('<html') || data.includes('<title>')) {
+          const match = data.match(/<title>(.*?)<\/title>/i);
+          return match ? match[1].trim() : 'Server Error';
+        }
+        return data;
+      }
+      if (data.error) return data.error;
+      if (data.detail) return data.detail;
+      const firstKey = Object.keys(data)[0];
+      if (firstKey && Array.isArray(data[firstKey])) {
+        return `${firstKey.charAt(0).toUpperCase() + firstKey.slice(1)}: ${data[firstKey].join(', ')}`;
+      }
+      return JSON.stringify(data);
     }
-    return errMsg;
+    return err.message || fallback;
   };
 
   // -------------------------------------------------------------

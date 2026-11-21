@@ -1,6 +1,36 @@
 from rest_framework import serializers
 from .models import Category, Product, ProductImage
 
+class AutoCreateCategorySlugField(serializers.SlugRelatedField):
+    """
+    Resilient Category Field:
+    Resolves by slug or name; if missing, automatically creates the category
+    so product publishing never fails due to unseeded categories.
+    """
+    def to_internal_value(self, data):
+        if not data:
+            category, _ = Category.objects.get_or_create(
+                slug='salwar',
+                defaults={'name': 'Salwar', 'icon': '✨', 'is_active': True}
+            )
+            return category
+        slug = str(data).strip().lower()
+        category = Category.objects.filter(slug=slug).first()
+        if not category:
+            category = Category.objects.filter(name__iexact=data).first()
+        if not category:
+            name = slug.replace('-', ' ').replace('_', ' ').title()
+            category, _ = Category.objects.get_or_create(
+                slug=slug,
+                defaults={
+                    'name': name,
+                    'icon': '✨',
+                    'image': 'assets/images/kanjivaram_green.jpg',
+                    'is_active': True
+                }
+            )
+        return category
+
 class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductImage
@@ -17,10 +47,11 @@ class CategorySerializer(serializers.ModelSerializer):
         return obj.products.count()
 
 class ProductSerializer(serializers.ModelSerializer):
-    category = serializers.SlugRelatedField(
+    category = AutoCreateCategorySlugField(
         slug_field='slug',
         queryset=Category.objects.all(),
-        required=False
+        required=False,
+        allow_null=True
     )
     category_id = serializers.PrimaryKeyRelatedField(
         queryset=Category.objects.all(),
@@ -43,11 +74,17 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         images_data = validated_data.pop('images', [])
-        # If category wasn't provided, default to first category
-        if 'category' not in validated_data:
-            validated_data['category'] = Category.objects.first()
+        # If category wasn't provided, default to Salwar
+        if 'category' not in validated_data or not validated_data.get('category'):
+            default_cat, _ = Category.objects.get_or_create(
+                slug='salwar',
+                defaults={'name': 'Salwar', 'icon': '✨', 'is_active': True}
+            )
+            validated_data['category'] = default_cat
         product = Product.objects.create(**validated_data)
         for img_data in images_data:
+            ProductImage.objects.create(product=product, **img_data)
+        return product
             ProductImage.objects.create(product=product, **img_data)
         return product
 
