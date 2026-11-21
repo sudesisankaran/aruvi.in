@@ -21,24 +21,7 @@ export const DEFAULT_CATEGORIES = [
 
 export const INITIAL_PRODUCTS = [];
 
-export const DEFAULT_BANNERS = [
-  {
-    id: 1,
-    title: 'Festive Royal Heritage Drop',
-    subtitle: 'Handloom Kanchipurams & Chanderi Silks',
-    tag: 'FESTIVE SALE',
-    image_url: 'assets/images/festive_promo.jpg',
-    storage_path: 'banners/banner_festive_heritage.webp'
-  },
-  {
-    id: 2,
-    title: 'Next-Gen AI Virtual Fitting Room',
-    subtitle: 'Try On Any Boutique Ensemble Realtime',
-    tag: 'AI POWERED',
-    image_url: 'assets/images/hero_saree_model.jpg',
-    storage_path: 'banners/banner_ai_fitting.webp'
-  }
-];
+export const DEFAULT_BANNERS = [];
 
 export const DEFAULT_COUPONS = [
   { code: 'ARUVI20', type: 'percentage', value: 20, minOrder: 999 },
@@ -134,7 +117,13 @@ export function StoreProvider({ children }) {
   const [banners, setBanners] = useState(() => {
     try {
       const saved = localStorage.getItem('aruvi_banners');
-      return saved ? JSON.parse(saved) : DEFAULT_BANNERS;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          return parsed.filter(b => b.title !== 'Festive Royal Heritage Drop' && b.title !== 'Next-Gen AI Virtual Fitting Room');
+        }
+      }
+      return DEFAULT_BANNERS;
     } catch (e) {
       return DEFAULT_BANNERS;
     }

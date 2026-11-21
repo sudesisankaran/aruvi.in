@@ -253,52 +253,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Promotional Banners Showcase (if any) */}
-      {banners && banners.length > 0 && (
-        <section className="admin-banners-showcase" style={{ padding: '36px 0', background: '#faf8f5', borderBottom: '1px solid rgba(200,157,56,0.15)' }}>
-          <div className="container">
-            <div style={{ display: 'grid', gridTemplateColumns: banners.length === 1 ? '1fr' : 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
-              {banners.map((b) => (
-                <div 
-                  key={b.id} 
-                  style={{ 
-                    position: 'relative', 
-                    borderRadius: '20px', 
-                    overflow: 'hidden', 
-                    minHeight: '230px', 
-                    boxShadow: '0 12px 30px rgba(14,41,32,0.08)',
-                    border: '1.5px solid rgba(200,157,56,0.3)',
-                    display: 'flex',
-                    alignItems: 'flex-end'
-                  }}
-                >
-                  <img 
-                    src={b.image_url} 
-                    alt={b.title} 
-                    style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-                    onError={(e) => { e.currentTarget.src = 'assets/images/festive_promo.jpg'; }}
-                  />
-                  <div style={{ position: 'relative', zIndex: 2, padding: '24px', background: 'linear-gradient(to top, rgba(14,41,32,0.92) 0%, rgba(14,41,32,0.4) 65%, transparent 100%)', width: '100%', color: '#fff' }}>
-                    <span style={{ background: 'var(--color-gold)', color: '#0e2920', fontSize: '0.72rem', fontWeight: 800, padding: '3px 10px', borderRadius: '99px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                      {b.tag || 'EXCLUSIVE DROP'}
-                    </span>
-                    <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', margin: '8px 0 4px', color: '#fff' }}>
-                      {b.title}
-                    </h3>
-                    <p style={{ fontSize: '0.86rem', color: 'rgba(255,255,255,0.85)', margin: '0 0 12px' }}>
-                      {b.subtitle}
-                    </p>
-                    <Link to="/shop" className="btn btn-sm btn-primary hover-shimmer" style={{ padding: '8px 18px', fontSize: '0.82rem' }}>
-                      Explore Collection →
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* =========================================================
           SECTION 1: SHOP BY CATEGORY (9 Boutique Categories)
           ========================================================= */}
