@@ -33,7 +33,7 @@ export default function ShopPage() {
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
       // Category filter
-      if (activeCategory !== 'all' && product.category !== activeCategory) {
+      if (activeCategory !== 'all' && (product.category || '').toLowerCase() !== activeCategory.toLowerCase()) {
         return false;
       }
 

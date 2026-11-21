@@ -66,7 +66,7 @@ export default function ProductDetailPage() {
 
   // Related products from same category
   const relatedProducts = products
-    .filter(p => p.category === product.category && String(p.id) !== String(product.id) && (p.status || 'active') === 'active')
+    .filter(p => (p.category || '').toLowerCase() === (product.category || '').toLowerCase() && String(p.id) !== String(product.id) && (p.status || 'active').toLowerCase() === 'active')
     .slice(0, 4);
 
   const handleAddToCart = () => {
