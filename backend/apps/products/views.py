@@ -45,7 +45,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         base_qs = Product.objects.all().select_related('category').prefetch_related('images')
 
         # Admin user sees all products (including inactive/drafts)
-        if user and user.is_authenticated and (user.email or '').strip().lower() == AUTHORIZED_ADMIN_EMAIL:
+        if user and user.is_authenticated and ((user.email or user.username or '').strip().lower() == AUTHORIZED_ADMIN_EMAIL or user.is_staff or user.is_superuser):
             return base_qs
 
         # All public customers and guests only see active products

@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+const rawBase = (import.meta.env.VITE_API_URL || 'http://localhost:8000/api').trim().replace(/\/+$/, '');
+const API_BASE_URL = rawBase.endsWith('/api') ? rawBase : `${rawBase}/api`;
 const ADMIN_EMAIL = 'aruvicollections.25@gmail.com';
 const ADMIN_DEFAULT_PASS = 'admin123';
 
@@ -51,12 +52,13 @@ apiClient.interceptors.request.use(async (config) => {
   return config;
 }, (error) => Promise.reject(error));
 
-// Response interceptor: automatically re-authenticate and retry on 401
+// Response interceptor: automatically re-authenticate and retry on 401 or 403
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+    const status = error.response?.status;
+    if ((status === 401 || status === 403) && originalRequest && !originalRequest._retry) {
       originalRequest._retry = true;
       const freshToken = await fetchFreshAdminToken();
       if (freshToken) {
@@ -117,24 +119,24 @@ export const productsApi = {
   },
 
   createProduct: async (productData) => {
-    const res = await apiClient.post('/admin/products/', productData);
+    const res = await apiClient.post('/products/', productData);
     return res.data;
   },
 
   updateProduct: async (id, productData) => {
-    const res = await apiClient.patch(`/admin/products/${id}/`, productData);
+    const res = await apiClient.patch(`/products/${id}/`, productData);
     return res.data;
   },
 
   deleteProduct: async (id) => {
-    const res = await apiClient.delete(`/admin/products/${id}/`);
+    const res = await apiClient.delete(`/products/${id}/`);
     return res.data;
   },
 
   uploadImage: async (file) => {
     const formData = new FormData();
     formData.append('file', file);
-    const res = await apiClient.post('/admin/products/upload_image/', formData, {
+    const res = await apiClient.post('/products/upload_image/', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

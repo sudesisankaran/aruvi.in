@@ -6,7 +6,7 @@ class IsStrictAdminUser(BasePermission):
     """
     Strict server-side authorization:
     Only authenticated users whose email is strictly 'aruvicollections.25@gmail.com'
-    and who possess staff/superuser credentials can access admin endpoints.
+    and/or who possess staff/superuser credentials can access admin endpoints.
     """
     message = "Access denied. Only aruvicollections.25@gmail.com is authorized for administrator access."
 
@@ -14,7 +14,7 @@ class IsStrictAdminUser(BasePermission):
         if not (request.user and request.user.is_authenticated):
             return False
         user_email = (request.user.email or request.user.username or '').strip().lower()
-        return user_email == AUTHORIZED_ADMIN_EMAIL and (request.user.is_staff or request.user.is_superuser)
+        return user_email == AUTHORIZED_ADMIN_EMAIL or bool(request.user.is_staff or request.user.is_superuser)
 
 class IsStrictAdminOrReadOnly(BasePermission):
     """
@@ -29,4 +29,4 @@ class IsStrictAdminOrReadOnly(BasePermission):
         if not (request.user and request.user.is_authenticated):
             return False
         user_email = (request.user.email or request.user.username or '').strip().lower()
-        return user_email == AUTHORIZED_ADMIN_EMAIL and (request.user.is_staff or request.user.is_superuser)
+        return user_email == AUTHORIZED_ADMIN_EMAIL or bool(request.user.is_staff or request.user.is_superuser)
