@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import ProductCard from '../components/ProductCard';
-import { getProductImageUrl, handleImageError } from '../utils/imageUtils';
+import { getProductImageUrl, getCategoryImageUrl, handleImageError } from '../utils/imageUtils';
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -364,26 +364,17 @@ export default function HomePage() {
                     marginBottom: '10px'
                   }}
                 >
-                  {(() => {
-                    const catSlug = (cat.slug || cat.id || 'salwar').toLowerCase();
-                    const expectedImg = `assets/images/category_${catSlug.replace(/[-_]/g, '_')}.jpg`;
-                    const srcImg = (!cat.image || cat.image.includes('kanjivaram_green.jpg') || !cat.image.includes('category_'))
-                      ? expectedImg
-                      : cat.image;
-                    return (
-                      <img 
-                        src={srcImg} 
-                        alt={cat.name} 
-                        style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
-                        onError={(e) => {
-                          if (!e.currentTarget.dataset.fallbackApplied) {
-                            e.currentTarget.dataset.fallbackApplied = 'true';
-                            e.currentTarget.src = expectedImg;
-                          }
-                        }}
-                      />
-                    );
-                  })()}
+                  <img 
+                    src={getCategoryImageUrl(cat)} 
+                    alt={cat.name} 
+                    style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+                    onError={(e) => {
+                      const fallback = getCategoryImageUrl(cat);
+                      if (e.currentTarget.src !== fallback) {
+                        e.currentTarget.src = fallback;
+                      }
+                    }}
+                  />
                 </div>
                 <span style={{ fontSize: '0.86rem', fontWeight: 700, lineHeight: 1.25, color: '#0e2920' }}>
                   {cat.name}

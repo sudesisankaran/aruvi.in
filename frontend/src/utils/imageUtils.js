@@ -16,6 +16,40 @@
 import { productsApi } from '../services/api';
 import { uploadFileToFirebase } from '../services/firebase';
 
+// Dedicated, authentic AI luxury category cover images for all 9 collections
+export const CATEGORY_IMAGE_MAP = {
+  'salwar': 'assets/images/category_salwar.jpg',
+  'sharara': 'assets/images/category_sharara.jpg',
+  'ethnic-wear': 'assets/images/category_ethnic_wear.jpg',
+  'ethnic_wear': 'assets/images/category_ethnic_wear.jpg',
+  'maxis': 'assets/images/category_maxis.jpg',
+  'co-ordsets': 'assets/images/category_coordsets.jpg',
+  'coordsets': 'assets/images/category_coordsets.jpg',
+  'co_ordsets': 'assets/images/category_coordsets.jpg',
+  'casual-tops': 'assets/images/category_casual_tops.jpg',
+  'casual_tops': 'assets/images/category_casual_tops.jpg',
+  'western-wear': 'assets/images/category_western.jpg',
+  'western_wear': 'assets/images/category_western.jpg',
+  'western': 'assets/images/category_western.jpg',
+  'jeans-pants': 'assets/images/category_jeans_pants.jpg',
+  'jeans_pants': 'assets/images/category_jeans_pants.jpg',
+  'kids-wear': 'assets/images/category_kids_wear.jpg',
+  'kids_wear': 'assets/images/category_kids_wear.jpg'
+};
+
+/**
+ * Returns the distinct, curated high-resolution boutique image for any category.
+ * Prevents repeating the green saree across all category circles.
+ */
+export const getCategoryImageUrl = (categoryOrSlug) => {
+  if (!categoryOrSlug) return CATEGORY_IMAGE_MAP['salwar'];
+  const raw = typeof categoryOrSlug === 'object' 
+    ? (categoryOrSlug.slug || categoryOrSlug.id || categoryOrSlug.name || '')
+    : String(categoryOrSlug);
+  const clean = raw.trim().toLowerCase().replace(/['\s_]+/g, '-');
+  return CATEGORY_IMAGE_MAP[clean] || CATEGORY_IMAGE_MAP[clean.replace(/-/g, '_')] || `assets/images/category_${clean.replace(/-/g, '_')}.jpg`;
+};
+
 // Elegant neutral luxury boutique SVG fallback
 export const NEUTRAL_PRODUCT_FALLBACK = 
   "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500' fill='%23fbfaf7'><rect width='400' height='500' fill='%23f9f8f5'/><path d='M200 160 C185 145 175 130 190 115 C205 100 218 110 210 128 L200 142 L275 190 L125 190 Z' stroke='%23c89d38' stroke-width='2' fill='none'/><path d='M125 190 L105 380 L295 380 L275 190 Z' stroke='%230e2920' stroke-width='1.75' fill='none'/><circle cx='200' cy='112' r='8' stroke='%23c89d38' stroke-width='1.5' fill='none'/><text x='200' y='425' font-family='serif' font-size='13' font-weight='600' fill='%230e2920' text-anchor='middle' letter-spacing='2'>ARUVI COUTURE</text></svg>";
@@ -68,38 +102,45 @@ export const normalizeImageUrl = (url) => {
 };
 
 /**
- * Resolves the genuine product image URL with normalization.
+ * Resolves the genuine product image URL with normalization and resilient fallbacks.
  */
 export const getProductImageUrl = (product) => {
   if (!product) return NEUTRAL_PRODUCT_FALLBACK;
 
-  // 1. Check product.images gallery for primary or first image
+  // 1. Check primary product.image directly
+  if (product.image && typeof product.image === 'string' && product.image.trim()) {
+    const normalized = normalizeImageUrl(product.image);
+    if (normalized && !normalized.includes('kanjivaram_green.jpg')) {
+      return normalized;
+    }
+  }
+
+  // 2. Check product.images gallery for primary or first image
   if (Array.isArray(product.images) && product.images.length > 0) {
     const primary = product.images.find(img => img.is_primary) || product.images[0];
     const rawGalleryUrl = primary?.image_url || primary?.url || (typeof primary === 'string' ? primary : '');
     const normalized = normalizeImageUrl(rawGalleryUrl);
-    if (normalized) return normalized;
+    if (normalized && !normalized.includes('kanjivaram_green.jpg')) {
+      return normalized;
+    }
     if (primary?.storage_path && primary.storage_path.startsWith('data:image/')) {
       return primary.storage_path;
     }
-  }
 
-  // 2. Check product.image
-  if (product.image && typeof product.image === 'string') {
-    const normalized = normalizeImageUrl(product.image);
-    if (normalized) return normalized;
-  }
-
-  // 3. Fallback to any valid URL or data URL in gallery
-  if (Array.isArray(product.images)) {
+    // 3. Check any gallery image
     for (const img of product.images) {
       const u = img?.image_url || img?.url || (typeof img === 'string' ? img : '');
-      const normalized = normalizeImageUrl(u);
-      if (normalized) return normalized;
+      const norm = normalizeImageUrl(u);
+      if (norm && !norm.includes('kanjivaram_green.jpg')) return norm;
       if (img?.storage_path && img.storage_path.startsWith('data:image/')) {
         return img.storage_path;
       }
     }
+  }
+
+  // 4. Fallback to the product's actual category cover image instead of blank wireframe
+  if (product.category) {
+    return getCategoryImageUrl(product.category);
   }
 
   return NEUTRAL_PRODUCT_FALLBACK;
@@ -107,7 +148,7 @@ export const getProductImageUrl = (product) => {
 
 /**
  * Handles image loading failures gracefully.
- * If product has backup data URLs or gallery alternatives, uses them immediately without showing SVG fallback.
+ * If product has backup data URLs or category cover, uses them immediately without showing SVG fallback.
  */
 export const handleImageError = (e, productOrCustomFallback = null) => {
   if (!e?.currentTarget) return;
@@ -140,6 +181,12 @@ export const handleImageError = (e, productOrCustomFallback = null) => {
         e.currentTarget.src = normalizeImageUrl(u);
         return;
       }
+    }
+
+    // Priority C: Use the product's category cover image
+    if (productOrCustomFallback.category) {
+      e.currentTarget.src = getCategoryImageUrl(productOrCustomFallback.category);
+      return;
     }
   }
 

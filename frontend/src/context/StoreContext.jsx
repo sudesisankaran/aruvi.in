@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { signInWithGoogleAuth, signOutAuth } from '../services/firebase';
 import { authApi, productsApi, ordersApi, settingsApi, fetchFreshAdminToken } from '../services/api';
-import { normalizeImageUrl } from '../utils/imageUtils';
+import { normalizeImageUrl, getCategoryImageUrl } from '../utils/imageUtils';
 
 const StoreContext = createContext(null);
 
@@ -82,30 +82,28 @@ export function StoreProvider({ children }) {
   // Central Products Catalog: Zero default products, driven 100% by central database
   const [products, setProducts] = useState([]);
 
-  // Categories
+  // Categories: guaranteed distinct boutique AI cover images
   const [categories, setCategories] = useState(() => {
     try {
       const saved = localStorage.getItem('aruvi_categories');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed.map((c) => {
-            const catKey = (c.slug || c.id || '').toLowerCase();
-            const def = DEFAULT_CATEGORIES.find(dc => dc.id === catKey || dc.slug === catKey);
-            let img = c.image;
-            if (!img || img.includes('kanjivaram_green.jpg') || !img.includes('category_')) {
-              img = def?.image || `assets/images/category_${catKey.replace(/[-_]/g, '_')}.jpg`;
-            }
-            return {
-              ...c,
-              image: img
-            };
-          });
+          return parsed.map((c) => ({
+            ...c,
+            image: getCategoryImageUrl(c)
+          }));
         }
       }
-      return DEFAULT_CATEGORIES;
+      return DEFAULT_CATEGORIES.map(c => ({
+        ...c,
+        image: getCategoryImageUrl(c)
+      }));
     } catch (e) {
-      return DEFAULT_CATEGORIES;
+      return DEFAULT_CATEGORIES.map(c => ({
+        ...c,
+        image: getCategoryImageUrl(c)
+      }));
     }
   });
 
@@ -249,19 +247,13 @@ export function StoreProvider({ children }) {
       const dbCategories = await productsApi.getCategories();
       if (Array.isArray(dbCategories) && dbCategories.length > 0) {
         const cleanCats = dbCategories.map((c) => {
-          const catKey = (c.slug || c.id || '').toLowerCase();
-          const defaultMatch = DEFAULT_CATEGORIES.find(dc => dc.id === catKey || dc.slug === catKey);
-          let catImg = c.image;
-          // If backend image is empty, doesn't match category pattern, or has the green saree, strictly use matching category image!
-          if (!catImg || catImg.includes('kanjivaram_green.jpg') || !catImg.includes('category_')) {
-            catImg = defaultMatch?.image || `assets/images/category_${catKey.replace(/[-_]/g, '_')}.jpg`;
-          }
+          const defaultMatch = DEFAULT_CATEGORIES.find(dc => dc.id === c.slug || dc.slug === c.slug);
           return {
             id: c.slug || c.id,
             name: c.name,
             slug: c.slug,
             description: c.description || defaultMatch?.description || '',
-            image: catImg,
+            image: getCategoryImageUrl(c),
             icon: c.icon || defaultMatch?.icon || '✨',
             productsCount: c.products_count || 0
           };
@@ -278,7 +270,7 @@ export function StoreProvider({ children }) {
               name: cat.name,
               slug: cat.slug,
               icon: cat.icon,
-              image: cat.image,
+              image: getCategoryImageUrl(cat),
               is_active: true
             });
           } catch (e) {}
@@ -802,7 +794,7 @@ export function StoreProvider({ children }) {
               name: targetName,
               slug: targetSlug,
               icon: '✨',
-              image: `assets/images/category_${targetSlug.replace(/[-_]/g, '_')}.jpg`,
+              image: getCategoryImageUrl(targetSlug),
               is_active: true
             });
             res = await productsApi.createProduct(backendPayload);

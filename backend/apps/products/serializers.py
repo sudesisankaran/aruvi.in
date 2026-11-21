@@ -4,43 +4,59 @@ from .models import Category, Product, ProductImage
 class AutoCreateCategorySlugField(serializers.SlugRelatedField):
     """
     Resilient Category Field:
-    Resolves by slug or name; if missing, automatically creates the category
-    so product publishing never fails due to unseeded categories.
+    Resolves by slug, name, or creates on the fly with its correct cover image.
+    Never fails product creation.
     """
     def to_internal_value(self, data):
-        if not data:
-            category = Category.objects.filter(slug='salwar').first()
-            if not category:
-                category = Category.objects.create(
-                    slug='salwar',
-                    name='Salwar',
-                    icon='👗',
-                    image='assets/images/category_salwar.jpg',
-                    is_active=True
-                )
-            return category
-        slug = str(data).strip().lower()
-        category = Category.objects.filter(slug__iexact=slug).first()
-        if not category:
-            category = Category.objects.filter(name__iexact=str(data).strip()).first()
-        if not category:
-            clean_name = slug.replace('-', ' ').replace('_', ' ').title()
-            category = Category.objects.filter(name__iexact=clean_name).first()
-        if not category:
-            clean_name = slug.replace('-', ' ').replace('_', ' ').title()
-            try:
-                category, _ = Category.objects.get_or_create(
-                    slug=slug,
-                    defaults={
-                        'name': clean_name,
-                        'icon': '✨',
-                        'image': f'assets/images/category_{slug.replace("-", "_")}.jpg',
-                        'is_active': True
-                    }
-                )
-            except Exception:
-                category = Category.objects.first()
-        return category
+        slug = str(data or 'salwar').strip().lower()
+        if not slug or slug in ['null', 'undefined']:
+            slug = 'salwar'
+
+        # 1. Exact slug match
+        cat = Category.objects.filter(slug__iexact=slug).first()
+        if cat:
+            return cat
+
+        # 2. Case-insensitive Name match
+        cat = Category.objects.filter(name__iexact=str(data).strip()).first()
+        if cat:
+            return cat
+
+        # 3. Cleaned title match
+        clean_name = slug.replace('-', ' ').replace('_', ' ').title()
+        cat = Category.objects.filter(name__iexact=clean_name).first()
+        if cat:
+            return cat
+
+        # 4. Auto-create category in database with dedicated cover
+        cat_img = f"assets/images/category_{slug.replace('-', '_')}.jpg"
+        if slug in ['western-wear', 'western']:
+            cat_img = 'assets/images/category_western.jpg'
+        elif slug in ['co-ordsets', 'coordsets']:
+            cat_img = 'assets/images/category_coordsets.jpg'
+
+        try:
+            cat, _ = Category.objects.get_or_create(
+                slug=slug,
+                defaults={
+                    'name': clean_name,
+                    'icon': '✨',
+                    'image': cat_img,
+                    'is_active': True
+                }
+            )
+            return cat
+        except Exception:
+            cat = Category.objects.first()
+            if cat:
+                return cat
+            return Category.objects.create(
+                slug='salwar',
+                name='Salwar',
+                icon='👗',
+                image='assets/images/category_salwar.jpg',
+                is_active=True
+            )
 
 class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:

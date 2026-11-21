@@ -281,12 +281,16 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
     }
 
     const primaryImg = prodImages.find((img) => img.is_primary) || prodImages[0];
-    const mainImageUrl = primaryImg ? primaryImg.image_url : (prodImages.length > 0 ? prodImages[0].image_url : '');
+    const mainImageUrl = primaryImg 
+      ? (primaryImg.image_url || primaryImg.storage_path || '') 
+      : (prodImages.length > 0 ? (prodImages[0].image_url || prodImages[0].storage_path || '') : '');
+
+    const catValue = (prodCategory || (categories[0]?.slug || categories[0]?.id || 'salwar')).toLowerCase();
 
     const payload = {
       title: prodTitle.trim(),
-      sku: prodSku.trim() || `ARUVI-${prodCategory.substring(0, 3).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`,
-      category: prodCategory,
+      sku: prodSku.trim() || `ARUVI-${catValue.substring(0, 3).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`,
+      category: catValue,
       price: Number(prodPrice),
       originalPrice: prodOriginalPrice ? Number(prodOriginalPrice) : null,
       stock: Math.max(0, parseInt(prodStock, 10) || 0),
@@ -1133,7 +1137,7 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
                       className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:border-gold capitalize"
                     >
                       {categories.map((c) => (
-                        <option key={c.id} value={c.id}>{c.name}</option>
+                        <option key={c.id || c.slug} value={c.slug || c.id}>{c.name}</option>
                       ))}
                     </select>
                   </div>
