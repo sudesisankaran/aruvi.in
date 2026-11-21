@@ -8,38 +8,38 @@ import { uploadFileToFirebase } from '../services/firebase';
 import { getProductImageUrl, handleImageError } from '../utils/imageUtils';
 import AdminProductGalleryManager from '../components/AdminProductGalleryManager';
 import ImageUploadDropzone from '../components/ImageUploadDropzone';
-import { 
-  LayoutDashboard, 
-  Package, 
-  PlusCircle, 
-  Layers, 
-  ShoppingCart, 
-  Users, 
-  Boxes, 
-  FileText, 
-  MessageSquare, 
-  Settings, 
-  UserCheck, 
-  LogOut, 
-  Search, 
-  Filter, 
-  CheckCircle2, 
-  Clock, 
-  Truck, 
-  AlertCircle, 
-  XCircle, 
-  Edit, 
-  Trash2, 
-  Eye, 
-  Download, 
-  ChevronRight, 
-  Menu, 
-  X, 
-  Sparkles, 
-  Plus, 
-  Save, 
-  Phone, 
-  Mail, 
+import {
+  LayoutDashboard,
+  Package,
+  PlusCircle,
+  Layers,
+  ShoppingCart,
+  Users,
+  Boxes,
+  FileText,
+  MessageSquare,
+  Settings,
+  UserCheck,
+  LogOut,
+  Search,
+  Filter,
+  CheckCircle2,
+  Clock,
+  Truck,
+  AlertCircle,
+  XCircle,
+  Edit,
+  Trash2,
+  Eye,
+  Download,
+  ChevronRight,
+  Menu,
+  X,
+  Sparkles,
+  Plus,
+  Save,
+  Phone,
+  Mail,
   MapPin,
   IndianRupee,
   ShieldCheck,
@@ -47,19 +47,19 @@ import {
 } from 'lucide-react';
 
 export default function AdminPage({ initialTab = 'dashboard' }) {
-  const { 
-    user, 
-    isAdmin, 
-    loginWithGoogle, 
-    loginWithEmail, 
-    logout, 
-    products, 
-    categories, 
-    orders, 
+  const {
+    user,
+    isAdmin,
+    loginWithGoogle,
+    loginWithEmail,
+    logout,
+    products,
+    categories,
+    orders,
     customers,
-    addProduct, 
-    updateProduct, 
-    deleteProduct, 
+    addProduct,
+    updateProduct,
+    deleteProduct,
     clearAllProducts,
     updateStock,
     addCategory,
@@ -72,7 +72,7 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
     deleteBanner,
     updateOrderStatus,
     addOrderNote,
-    addToast 
+    addToast
   } = useStore();
 
   const navigate = useNavigate();
@@ -266,8 +266,8 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
       prod.images && prod.images.length > 0
         ? prod.images
         : (prod.image && !prod.image.includes('kanjivaram_green.jpg'))
-        ? [{ id: '1', image_url: prod.image, is_primary: true }]
-        : []
+          ? [{ id: '1', image_url: prod.image, is_primary: true }]
+          : []
     );
     setActiveTab('add-product');
   };
@@ -443,7 +443,7 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
       <div className="min-h-screen bg-ivory/40 flex items-center justify-center p-4 py-16">
         <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-emerald-900/15 shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-emerald-900 via-gold to-emerald-900" />
-          
+
           <div className="text-center mb-8">
             <div className="w-16 h-16 rounded-2xl bg-emerald-950 text-gold flex items-center justify-center mx-auto mb-4 border border-gold/40 shadow-md">
               <ShieldCheck className="w-9 h-9" />
@@ -542,7 +542,7 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
 
   return (
     <div className="admin-page-view min-h-screen bg-slate-50 flex flex-col lg:flex-row">
-      
+
       {/* -------------------------------------------------------------
           SIDEBAR NAVIGATION (12 Sections)
           ------------------------------------------------------------- */}
@@ -559,8 +559,8 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
                 <span className="text-[10px] text-gold uppercase tracking-widest font-semibold block">Admin Portal</span>
               </div>
             </Link>
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={() => setMobileSidebarOpen(false)}
               className="lg:hidden text-white/70 hover:text-white"
             >
@@ -581,20 +581,18 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
                     setActiveTab(item.id);
                     setMobileSidebarOpen(false);
                   }}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition cursor-pointer ${
-                    isActive 
-                      ? 'bg-gold text-emerald-950 font-bold shadow-md' 
-                      : 'text-emerald-100/70 hover:bg-emerald-900/60 hover:text-white'
-                  }`}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition cursor-pointer ${isActive
+                    ? 'bg-gold text-emerald-950 font-bold shadow-md'
+                    : 'text-emerald-100/70 hover:bg-emerald-900/60 hover:text-white'
+                    }`}
                 >
                   <div className="flex items-center gap-3">
                     <Icon className="w-4 h-4" />
                     <span>{item.label}</span>
                   </div>
                   {typeof item.count === 'number' && (
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                      isActive ? 'bg-emerald-950 text-gold' : 'bg-emerald-900 text-white'
-                    }`}>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${isActive ? 'bg-emerald-950 text-gold' : 'bg-emerald-900 text-white'
+                      }`}>
                       {item.count}
                     </span>
                   )}
@@ -623,7 +621,7 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
 
       {/* Backdrop for mobile sidebar */}
       {mobileSidebarOpen && (
-        <div 
+        <div
           onClick={() => setMobileSidebarOpen(false)}
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
         />
@@ -633,7 +631,7 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
           MAIN CONTENT AREA
           ------------------------------------------------------------- */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        
+
         {/* Top Navbar */}
         <header className="bg-white border-b border-slate-200 px-4 sm:px-8 py-4 flex items-center justify-between sticky top-0 z-30 shadow-sm">
           <div className="flex items-center gap-3">
@@ -677,10 +675,10 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
               ========================================================= */}
           {activeTab === 'dashboard' && (
             <div className="space-y-8">
-              
+
               {/* Metric KPI Cards */}
               <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                
+
                 {/* Total Revenue */}
                 <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                   <div className="flex items-center justify-between mb-2">
@@ -810,12 +808,11 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
                             <td className="p-3">{ord.items?.length || 1} item(s)</td>
                             <td className="p-3 font-bold text-slate-900">₹{Number(ord.total || 0).toLocaleString('en-IN')}</td>
                             <td className="p-3">
-                              <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
-                                ord.status === 'Completed' ? 'bg-emerald-100 text-emerald-800' :
+                              <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${ord.status === 'Completed' ? 'bg-emerald-100 text-emerald-800' :
                                 ord.status === 'Cancelled' ? 'bg-rose-100 text-rose-800' :
-                                ord.status === 'Confirmed' ? 'bg-blue-100 text-blue-800' :
-                                'bg-amber-100 text-amber-800'
-                              }`}>
+                                  ord.status === 'Confirmed' ? 'bg-blue-100 text-blue-800' :
+                                    'bg-amber-100 text-amber-800'
+                                }`}>
                                 {ord.status || 'Pending'}
                               </span>
                             </td>
@@ -844,14 +841,14 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
               ========================================================= */}
           {activeTab === 'products' && (
             <div className="space-y-6">
-              
+
               {/* Header & Controls */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
                   <h3 className="font-serif text-lg font-bold text-primary-dark">Product Catalog</h3>
                   <p className="text-xs text-slate-500">Manage all live garments, pricing, stock and visibility</p>
                 </div>
-                
+
                 <div className="flex flex-wrap items-center gap-2">
                   <button
                     type="button"
@@ -1006,11 +1003,10 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
                               </td>
 
                               <td className="p-3">
-                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                                  (p.stock || 0) <= 0 ? 'bg-rose-100 text-rose-800' :
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${(p.stock || 0) <= 0 ? 'bg-rose-100 text-rose-800' :
                                   isStockLow ? 'bg-amber-100 text-amber-800' :
-                                  'bg-emerald-100 text-emerald-800'
-                                }`}>
+                                    'bg-emerald-100 text-emerald-800'
+                                  }`}>
                                   {p.stock ?? 0} in stock
                                 </span>
                               </td>
@@ -1022,9 +1018,8 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
                                     const nextStatus = p.status === 'inactive' ? 'active' : 'inactive';
                                     updateProduct(p.id, { status: nextStatus });
                                   }}
-                                  className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase transition ${
-                                    p.status === 'inactive' ? 'bg-slate-100 text-slate-600' : 'bg-emerald-50 text-emerald-800 border border-emerald-300'
-                                  }`}
+                                  className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase transition ${p.status === 'inactive' ? 'bg-slate-100 text-slate-600' : 'bg-emerald-50 text-emerald-800 border border-emerald-300'
+                                    }`}
                                 >
                                   {p.status === 'inactive' ? 'Inactive' : 'Active'}
                                 </button>
@@ -1095,7 +1090,7 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
               </div>
 
               <form onSubmit={handleSaveProduct} className="space-y-6">
-                
+
                 {/* Basic Details */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
@@ -1295,7 +1290,7 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
               ========================================================= */}
           {activeTab === 'categories' && (
             <div className="space-y-8">
-              
+
               {/* Category Add Form */}
               <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
                 <h3 className="font-serif text-lg font-bold text-primary-dark mb-4">
@@ -1433,7 +1428,7 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
               ========================================================= */}
           {activeTab === 'orders' && (
             <div className="space-y-6">
-              
+
               {/* Filter Tabs & Search */}
               <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -1460,11 +1455,10 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
                       key={st}
                       type="button"
                       onClick={() => setOrderStatusFilter(st)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase transition whitespace-nowrap ${
-                        orderStatusFilter === st 
-                          ? 'bg-primary-dark text-gold' 
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase transition whitespace-nowrap ${orderStatusFilter === st
+                        ? 'bg-primary-dark text-gold'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        }`}
                     >
                       {st}
                     </button>
@@ -1513,12 +1507,11 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
                                 <select
                                   value={ord.status || 'Pending'}
                                   onChange={(e) => updateOrderStatus(ord.id, e.target.value)}
-                                  className={`px-2 py-1 rounded text-[11px] font-bold uppercase border ${
-                                    ord.status === 'Completed' ? 'bg-emerald-50 text-emerald-800 border-emerald-300' :
+                                  className={`px-2 py-1 rounded text-[11px] font-bold uppercase border ${ord.status === 'Completed' ? 'bg-emerald-50 text-emerald-800 border-emerald-300' :
                                     ord.status === 'Cancelled' ? 'bg-rose-50 text-rose-800 border-rose-300' :
-                                    ord.status === 'Confirmed' ? 'bg-blue-50 text-blue-800 border-blue-300' :
-                                    'bg-amber-50 text-amber-800 border-amber-300'
-                                  }`}
+                                      ord.status === 'Confirmed' ? 'bg-blue-50 text-blue-800 border-blue-300' :
+                                        'bg-amber-50 text-amber-800 border-amber-300'
+                                    }`}
                                 >
                                   <option value="Pending">Pending</option>
                                   <option value="Confirmed">Confirmed</option>
@@ -1692,11 +1685,10 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
                               <td className="p-3 font-bold text-base text-slate-900">{stockNum}</td>
 
                               <td className="p-3">
-                                <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                                  stockNum <= 0 ? 'bg-rose-100 text-rose-800' :
+                                <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${stockNum <= 0 ? 'bg-rose-100 text-rose-800' :
                                   stockNum <= 3 ? 'bg-amber-100 text-amber-800' :
-                                  'bg-emerald-100 text-emerald-800'
-                                }`}>
+                                    'bg-emerald-100 text-emerald-800'
+                                  }`}>
                                   {stockNum <= 0 ? 'Out of Stock' : stockNum <= 3 ? 'Low Stock' : 'In Stock'}
                                 </span>
                               </td>
@@ -1742,7 +1734,7 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
               ========================================================= */}
           {activeTab === 'tryon' && (
             <div className="space-y-6">
-              
+
               {/* Header Banner */}
               <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
                 <div>
@@ -1799,7 +1791,7 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
 
               {/* 4-Stat Metric Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                
+
                 {/* Card 1: Provider Status */}
                 <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
@@ -1809,11 +1801,10 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
                     <span className="font-serif text-lg font-bold text-primary-dark">
                       FASHN AI
                     </span>
-                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                      tryonStats?.api_configured 
-                        ? 'bg-emerald-50 text-emerald-800 border border-emerald-300' 
-                        : 'bg-amber-50 text-amber-800 border border-amber-300'
-                    }`}>
+                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${tryonStats?.api_configured
+                      ? 'bg-emerald-50 text-emerald-800 border border-emerald-300'
+                      : 'bg-amber-50 text-amber-800 border border-amber-300'
+                      }`}>
                       {tryonStats?.api_configured ? '● Key Configured' : '⚠ Key Required'}
                     </span>
                   </div>
@@ -1940,13 +1931,12 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
                               {sess.prediction_id ? sess.prediction_id.substring(0, 16) + '...' : 'N/A'}
                             </td>
                             <td className="py-3 px-4">
-                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                                sess.status === 'completed'
-                                  ? 'bg-emerald-50 text-emerald-800 border border-emerald-300'
-                                  : sess.status === 'failed'
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${sess.status === 'completed'
+                                ? 'bg-emerald-50 text-emerald-800 border border-emerald-300'
+                                : sess.status === 'failed'
                                   ? 'bg-rose-50 text-rose-800 border border-rose-300'
                                   : 'bg-amber-50 text-amber-800 border border-amber-300'
-                              }`}>
+                                }`}>
                                 {sess.status}
                               </span>
                             </td>
@@ -1976,7 +1966,7 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
 
               {/* Modal Preview for Clicked Try-On Image */}
               {selectedTryonImg && (
-                <div 
+                <div
                   className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4"
                   onClick={() => setSelectedTryonImg(null)}
                 >
@@ -1985,8 +1975,8 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
                       <span className="font-serif font-bold text-sm text-primary-dark">
                         FASHN AI Output Preview
                       </span>
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         onClick={() => setSelectedTryonImg(null)}
                         className="text-slate-400 hover:text-slate-700 text-sm font-bold"
                       >
@@ -1997,9 +1987,9 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
                       <img src={selectedTryonImg} alt="Generated look" className="w-full h-full object-cover" />
                     </div>
                     <div className="flex justify-end gap-2 pt-1">
-                      <a 
-                        href={selectedTryonImg} 
-                        target="_blank" 
+                      <a
+                        href={selectedTryonImg}
+                        target="_blank"
                         rel="noreferrer"
                         className="px-4 py-2 bg-primary text-white rounded-xl text-xs font-bold hover:bg-primary-dark"
                       >
@@ -2088,7 +2078,7 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
                 <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 space-y-2">
                   <strong className="block font-bold">Standard WhatsApp Order Message Format:</strong>
                   <pre className="font-mono text-[11px] bg-white p-3 rounded-lg border border-emerald-200 overflow-x-auto whitespace-pre-wrap">
-{`NEW CUSTOMER ORDER
+                    {`NEW CUSTOMER ORDER
 Order ID: ORD-2026-0001
 Date: 20 Nov 2026
 
