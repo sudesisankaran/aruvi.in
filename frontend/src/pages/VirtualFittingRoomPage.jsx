@@ -139,7 +139,11 @@ export default function VirtualFittingRoomPage() {
           } else if (pollRes.status === 'failed') {
             clearInterval(pollTimerRef.current);
             setIsProcessing(false);
-            addToast(`FASHN AI Error: ${pollRes.error || 'Generation failed'}`, 'error');
+            let errMsg = pollRes.error || 'Generation failed';
+            if (errMsg.toLowerCase().includes('body pose') || errMsg.toLowerCase().includes('pose in model')) {
+              errMsg = 'Photo tip: Please upload a front-facing standing photo where your torso and shoulders are visible so FASHN AI can drape the outfit.';
+            }
+            addToast(`FASHN AI: ${errMsg}`, 'error');
           } else if (attempts >= 60) {
             clearInterval(pollTimerRef.current);
             setIsProcessing(false);

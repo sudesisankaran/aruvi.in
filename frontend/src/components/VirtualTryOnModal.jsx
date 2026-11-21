@@ -269,10 +269,13 @@ export default function VirtualTryOnModal({
         } else if (res.status === 'failed') {
           clearInterval(pollTimerRef.current);
           setIsProcessing(false);
-          const errText = res.error || 'FASHN AI reported an issue generating this try-on.';
+          let errText = res.error || 'FASHN AI reported an issue generating this try-on.';
+          if (errText.toLowerCase().includes('body pose') || errText.toLowerCase().includes('pose in model')) {
+            errText = 'Photo tip: Please upload a front-facing standing photo where your torso and shoulders are clearly visible so FASHN AI can drape the outfit.';
+          }
           setPollError(errText);
           setStep('confirm');
-          addToast(`Virtual Try-On error: ${errText}`, 'error');
+          addToast(errText, 'error');
         } else if (attempts >= maxAttempts) {
           clearInterval(pollTimerRef.current);
           setIsProcessing(false);
