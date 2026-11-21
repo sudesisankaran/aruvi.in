@@ -35,23 +35,6 @@ export default function Header() {
 
   return (
     <>
-      {/* Top Announcement Bar */}
-      <header className="announcement-bar">
-        <div className="announcement-inner" style={{ justifyContent: 'center', position: 'relative' }}>
-          <div className="announcement-promo" style={{ textAlign: 'center' }}>
-            <span className="announcement-tag">FESTIVE SALE</span>
-            <span>✨ Use code <strong>ARUVI20</strong> for Extra 20% Off + Free Shipping on orders above ₹999 ✨</span>
-          </div>
-          {isStrictAdmin && (
-            <div className="announcement-right" style={{ position: 'absolute', right: '16px' }}>
-              <Link to="/admin" className="announcement-link" style={{ color: '#d4af37', fontWeight: 700 }}>
-                👑 Admin Portal
-              </Link>
-            </div>
-          )}
-        </div>
-      </header>
-
       {/* Main Navigation Site Header */}
       <nav className="site-header" id="site-header">
         <div className="container header-container">

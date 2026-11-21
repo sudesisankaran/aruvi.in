@@ -92,7 +92,7 @@ export default function OrderSuccessPage() {
               className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-primary-dark font-extrabold text-sm tracking-wide uppercase transition shadow-md flex items-center justify-center gap-2.5 whitespace-nowrap cursor-pointer shrink-0"
             >
               <MessageSquare className="w-5 h-5 text-emerald-950" />
-              <span>Confirm on WhatsApp</span>
+              <span>Send Order to WhatsApp (+91 86106 38978)</span>
             </button>
           </div>
 
@@ -201,7 +201,7 @@ export default function OrderSuccessPage() {
               <p className="text-text-muted font-medium">
                 Phone: {order.shipping?.phone}<br />
                 Email: {order.shipping?.email || 'N/A'}<br />
-                Concierge Line: {websiteSettings.whatsappNumber || '+91 86106 38978'}
+                Concierge WhatsApp: +91 86106 38978
               </p>
             </div>
           </div>

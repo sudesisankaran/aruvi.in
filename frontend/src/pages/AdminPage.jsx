@@ -306,8 +306,8 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
 
     setSavingProduct(true);
     const primaryImg = prodImages.find((img) => img.is_primary) || prodImages[0];
-    const mainImageUrl = primaryImg 
-      ? (primaryImg.image_url || primaryImg.storage_path || '') 
+    const mainImageUrl = primaryImg
+      ? (primaryImg.image_url || primaryImg.storage_path || '')
       : (prodImages.length > 0 ? (prodImages[0].image_url || prodImages[0].storage_path || '') : '');
 
     const catValue = (prodCategory || (categories[0]?.slug || categories[0]?.id || 'salwar')).toLowerCase();

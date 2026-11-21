@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import { getProductImageUrl, handleImageError } from '../utils/imageUtils';
+import { openWhatsAppOrderChat } from '../utils/whatsappHelper';
 
 export default function CheckoutPage() {
-  const { cart, getCartSubtotal, discountPercent, createOrder, user } = useStore();
+  const { cart, getCartSubtotal, discountPercent, createOrder, user, websiteSettings } = useStore();
   const navigate = useNavigate();
 
   const subtotal = getCartSubtotal();
@@ -33,9 +34,9 @@ export default function CheckoutPage() {
     );
   }
 
-  const handleSubmitOrder = (e) => {
+  const handleSubmitOrder = async (e) => {
     e.preventDefault();
-    if (!name || !phone || !address || !city || !pincode) {
+    if (!name.trim() || !phone.trim() || !address.trim() || !city.trim() || !pincode.trim()) {
       alert('Please fill in all shipping details.');
       return;
     }
@@ -43,25 +44,30 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
 
     const shippingDetails = {
-      name,
-      phone,
-      email: email || user?.email || 'guest@aruvi.in',
-      address,
-      city,
-      state,
-      pincode
+      name: name.trim(),
+      phone: phone.trim(),
+      email: (email || user?.email || 'guest@aruvi.in').trim(),
+      address: address.trim(),
+      city: city.trim(),
+      state: state.trim(),
+      pincode: pincode.trim()
     };
 
-    const newOrder = createOrder(shippingDetails, paymentMethod);
-
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      const newOrder = await createOrder(shippingDetails, paymentMethod);
       if (newOrder && newOrder.id) {
+        // Send complete order details to WhatsApp for 8610638978
+        openWhatsAppOrderChat(newOrder, websiteSettings);
         navigate(`/order-success/${newOrder.id}`);
       } else {
         navigate('/account');
       }
-    }, 500);
+    } catch (err) {
+      console.error('Order creation failed:', err);
+      alert(err.message || 'Could not complete order. Please check item stock.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
