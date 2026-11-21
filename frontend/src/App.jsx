@@ -6,6 +6,7 @@ import Footer from './components/Footer';
 import Toast from './components/Toast';
 import FloatingSocialBar from './components/FloatingSocialBar';
 import AdminRoute from './components/AdminRoute';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Pages
 import HomePage from './pages/HomePage';
@@ -39,28 +40,30 @@ export default function App() {
         <div className="app-container" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
           <Header />
           <main style={{ flex: 1 }}>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/shop" element={<ShopPage />} />
-              <Route path="/categories" element={<CategoriesPage />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/contact" element={<ContactPage />} />
-              <Route path="/product/:id" element={<ProductDetailPage />} />
-              <Route path="/cart" element={<CartPage />} />
-              <Route path="/checkout" element={<CheckoutPage />} />
-              <Route path="/order-success/:id" element={<OrderSuccessPage />} />
-              <Route path="/wishlist" element={<WishlistPage />} />
-              <Route path="/fitting-room" element={<VirtualFittingRoomPage />} />
-              <Route path="/virtual-fitting-room" element={<VirtualFittingRoomPage />} />
-              <Route path="/tryon" element={<VirtualFittingRoomPage />} />
-              <Route path="/try-on" element={<VirtualFittingRoomPage />} />
-              <Route path="/account" element={<AccountPage />} />
-              <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
-              <Route path="/admin/dashboard" element={<AdminRoute><AdminPage initialTab="dashboard" /></AdminRoute>} />
-              <Route path="/admin/products" element={<AdminRoute><AdminPage initialTab="products" /></AdminRoute>} />
-              <Route path="/admin/orders" element={<AdminRoute><AdminPage initialTab="orders" /></AdminRoute>} />
-              <Route path="*" element={<HomePage />} />
-            </Routes>
+            <ErrorBoundary>
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/shop" element={<ShopPage />} />
+                <Route path="/categories" element={<CategoriesPage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/product/:id" element={<ProductDetailPage />} />
+                <Route path="/cart" element={<CartPage />} />
+                <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/order-success/:id" element={<OrderSuccessPage />} />
+                <Route path="/wishlist" element={<WishlistPage />} />
+                <Route path="/fitting-room" element={<VirtualFittingRoomPage />} />
+                <Route path="/virtual-fitting-room" element={<VirtualFittingRoomPage />} />
+                <Route path="/tryon" element={<VirtualFittingRoomPage />} />
+                <Route path="/try-on" element={<VirtualFittingRoomPage />} />
+                <Route path="/account" element={<AccountPage />} />
+                <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
+                <Route path="/admin/dashboard" element={<AdminRoute><AdminPage initialTab="dashboard" /></AdminRoute>} />
+                <Route path="/admin/products" element={<AdminRoute><AdminPage initialTab="products" /></AdminRoute>} />
+                <Route path="/admin/orders" element={<AdminRoute><AdminPage initialTab="orders" /></AdminRoute>} />
+                <Route path="*" element={<HomePage />} />
+              </Routes>
+            </ErrorBoundary>
           </main>
           <Footer />
           <FloatingSocialBar />

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { signInWithGoogleAuth, signOutAuth } from '../services/firebase';
 import { authApi, productsApi, ordersApi, settingsApi, fetchFreshAdminToken } from '../services/api';
-import { normalizeImageUrl, getCategoryImageUrl } from '../utils/imageUtils';
+import { normalizeImageUrl, getCategoryImageUrl, getProductImageUrl } from '../utils/imageUtils';
 
 const StoreContext = createContext(null);
 
@@ -410,14 +410,20 @@ export function StoreProvider({ children }) {
 
   // Cart operations
   const addToCart = (product, quantity = 1, selectedSize = 'M') => {
+    if (!product) return;
+    const resolvedImg = typeof getProductImageUrl === 'function' ? getProductImageUrl(product) : (product.image || '');
+    const cleanSize = selectedSize || product.sizes?.[0] || 'M';
+    const cleanQty = Number(quantity) > 0 ? Number(quantity) : 1;
+    const cleanPrice = Number(product.price) || 0;
+
     setCart((prev) => {
-      const itemKey = `${product.id}_${selectedSize}`;
+      const itemKey = `${product.id}_${cleanSize}`;
       const existingIdx = prev.findIndex((i) => `${i.id}_${i.selectedSize}` === itemKey);
       if (existingIdx > -1) {
         const next = [...prev];
         next[existingIdx] = {
           ...next[existingIdx],
-          quantity: next[existingIdx].quantity + quantity
+          quantity: next[existingIdx].quantity + cleanQty
         };
         return next;
       } else {
@@ -425,17 +431,17 @@ export function StoreProvider({ children }) {
           ...prev,
           {
             id: product.id,
-            title: product.title,
-            price: Number(product.price) || 0,
-            image: getProductImageUrl(product),
-            category: product.category,
-            selectedSize,
-            quantity
+            title: product.title || 'Boutique Item',
+            price: cleanPrice,
+            image: resolvedImg,
+            category: product.category || 'salwar',
+            selectedSize: cleanSize,
+            quantity: cleanQty
           }
         ];
       }
     });
-    addToast(`Added "${product.title}" (${selectedSize}) to bag!`, 'success');
+    addToast(`Added "${product.title || 'Item'}" (${cleanSize}) to bag!`, 'success');
   };
 
   const removeFromCart = (productId, selectedSize) => {
