@@ -18,15 +18,19 @@ def seed_default_categories(sender, **kwargs):
             {"name": "Kids Wear", "slug": "kids-wear", "icon": "✨"},
         ]
         for cat in default_categories:
-            Category.objects.get_or_create(
+            matching_img = f"assets/images/category_{cat['slug'].replace('-', '_')}.jpg"
+            c, created = Category.objects.get_or_create(
                 slug=cat['slug'],
                 defaults={
                     'name': cat['name'],
                     'icon': cat['icon'],
-                    'image': 'assets/images/kanjivaram_green.jpg',
+                    'image': matching_img,
                     'is_active': True
                 }
             )
+            if not created and (not c.image or 'kanjivaram_green.jpg' in c.image):
+                c.image = matching_img
+                c.save(update_fields=['image'])
     except Exception:
         pass
 

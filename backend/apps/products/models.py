@@ -4,7 +4,7 @@ class Category(models.Model):
     name = models.CharField(max_length=120, unique=True)
     slug = models.SlugField(max_length=140, unique=True)
     description = models.TextField(blank=True, default='')
-    image = models.CharField(max_length=500, blank=True, default='assets/images/kanjivaram_green.jpg')
+    image = models.CharField(max_length=500, blank=True, default='')
     icon = models.CharField(max_length=50, blank=True, default='✨')
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)

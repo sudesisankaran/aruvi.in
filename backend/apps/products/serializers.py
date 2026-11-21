@@ -25,7 +25,7 @@ class AutoCreateCategorySlugField(serializers.SlugRelatedField):
                 defaults={
                     'name': name,
                     'icon': '✨',
-                    'image': 'assets/images/kanjivaram_green.jpg',
+                    'image': f'assets/images/category_{slug.replace("-", "_")}.jpg',
                     'is_active': True
                 }
             )

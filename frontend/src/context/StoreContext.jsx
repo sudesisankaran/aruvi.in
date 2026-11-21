@@ -8,15 +8,15 @@ const StoreContext = createContext(null);
 export const AUTHORIZED_ADMIN_EMAIL = 'aruvicollections.25@gmail.com';
 
 export const DEFAULT_CATEGORIES = [
-  { id: 'salwar', name: 'Salwar', icon: '👗', description: 'Designer Salwar Suits, Anarkalis & Festive Kurta Sets', featured: true, image: 'assets/images/anarkali_suit.jpg' },
-  { id: 'sharara', name: 'Sharara', icon: '✨', description: 'Royal Flared Sharara Sets & Peplum Kurta Ensembles', featured: true, image: 'assets/images/lehenga_set.jpg' },
-  { id: 'ethnic-wear', name: 'Ethnic Wear', icon: '🪡', description: 'Traditional Handcrafted Ethnic Outfits & Heritage Drapes', featured: true, image: 'assets/images/festive_promo.jpg' },
-  { id: 'maxis', name: "Maxi's", icon: '💃', description: 'Flowing Georgette, Modal Silk & Cotton Designer Maxi Dresses', featured: true, image: 'assets/images/printed_georgette.jpg' },
-  { id: 'co-ordsets', name: 'Co-ordsets', icon: '👚', description: 'Contemporary Fusion Matching Two-Piece Co-ord Sets', featured: true, image: 'assets/images/western_ethnic.jpg' },
-  { id: 'casual-tops', name: 'Casual Tops', icon: '👕', description: 'Chic Everyday Casual Tops, Designer Shirts & Tunics', featured: true, image: 'assets/images/kurti_wear.jpg' },
-  { id: 'western-wear', name: 'Western Wear', icon: '🧥', description: 'Contemporary Western Dresses, Blazers & Jumpsuits', featured: true, image: 'assets/images/premium_fabrics.jpg' },
-  { id: 'jeans-pants', name: 'Jeans & Pants', icon: '👖', description: 'High-waisted Jeans, Baggy Pants, Straight Cuts & Palazzo Trousers', featured: true, image: 'assets/images/hero_saree_model.jpg' },
-  { id: 'kids-wear', name: 'Kids Wear', icon: '👶', description: 'Designer Kids Festive Outfits, Frocks & Traditional Sets', featured: true, image: 'assets/images/cotton_saree.jpg' }
+  { id: 'maxis', name: 'Maxis', slug: 'maxis', icon: '💃', description: 'Flowing Georgette, Modal Silk & Cotton Designer Maxi Dresses', featured: true, image: 'assets/images/category_maxis.jpg' },
+  { id: 'salwar', name: 'Salwar', slug: 'salwar', icon: '👗', description: 'Designer Salwar Suits, Anarkalis & Festive Kurta Sets', featured: true, image: 'assets/images/category_salwar.jpg' },
+  { id: 'sharara', name: 'Sharara', slug: 'sharara', icon: '✨', description: 'Royal Flared Sharara Sets & Peplum Kurta Ensembles', featured: true, image: 'assets/images/category_sharara.jpg' },
+  { id: 'western-wear', name: 'Western Wear', slug: 'western-wear', icon: '🧥', description: 'Contemporary Western Dresses, Blazers & Jumpsuits', featured: true, image: 'assets/images/category_western.jpg' },
+  { id: 'casual-tops', name: 'Casual Tops', slug: 'casual-tops', icon: '👕', description: 'Chic Everyday Casual Tops, Designer Shirts & Tunics', featured: true, image: 'assets/images/category_casual_tops.jpg' },
+  { id: 'co-ordsets', name: 'Co-ordsets', slug: 'co-ordsets', icon: '👚', description: 'Contemporary Fusion Matching Two-Piece Co-ord Sets', featured: true, image: 'assets/images/category_coordsets.jpg' },
+  { id: 'ethnic-wear', name: 'Ethnic Wear', slug: 'ethnic-wear', icon: '🪡', description: 'Traditional Handcrafted Ethnic Outfits & Heritage Drapes', featured: true, image: 'assets/images/category_ethnic_wear.jpg' },
+  { id: 'jeans-pants', name: 'Jeans & Pants', slug: 'jeans-pants', icon: '👖', description: 'High-waisted Jeans, Baggy Pants, Straight Cuts & Palazzo Trousers', featured: true, image: 'assets/images/category_jeans_pants.jpg' },
+  { id: 'kids-wear', name: 'Kids Wear', slug: 'kids-wear', icon: '👶', description: 'Designer Kids Festive Outfits, Frocks & Traditional Sets', featured: true, image: 'assets/images/category_kids_wear.jpg' }
 ];
 
 export const INITIAL_PRODUCTS = [];
@@ -231,36 +231,34 @@ export function StoreProvider({ children }) {
       // 2. Fetch categories from central database
       const dbCategories = await productsApi.getCategories();
       if (Array.isArray(dbCategories) && dbCategories.length > 0) {
-        const cleanCats = dbCategories.map((c) => ({
-          id: c.slug || c.id,
-          name: c.name,
-          slug: c.slug,
-          description: c.description || '',
-          image: c.image || 'assets/images/kanjivaram_green.jpg',
-          icon: c.icon || '✨',
-          productsCount: c.products_count || 0
-        }));
+        const cleanCats = dbCategories.map((c) => {
+          const catKey = (c.slug || c.id || '').toLowerCase();
+          const defaultMatch = DEFAULT_CATEGORIES.find(dc => dc.id === catKey || dc.slug === catKey);
+          let catImg = c.image;
+          // If backend image is empty or has the green saree, strictly use the matching category image!
+          if (!catImg || catImg.includes('kanjivaram_green.jpg')) {
+            catImg = defaultMatch?.image || 'assets/images/category_salwar.jpg';
+          }
+          return {
+            id: c.slug || c.id,
+            name: c.name,
+            slug: c.slug,
+            description: c.description || defaultMatch?.description || '',
+            image: catImg,
+            icon: c.icon || defaultMatch?.icon || '✨',
+            productsCount: c.products_count || 0
+          };
+        });
         setCategories(cleanCats);
       } else if (Array.isArray(dbCategories) && dbCategories.length === 0) {
         // If central database categories are empty, seed default store categories
-        const defaultSeedCats = [
-          { name: 'Salwar', slug: 'salwar', icon: '✨' },
-          { name: 'Sharara', slug: 'sharara', icon: '✨' },
-          { name: 'Ethnic Wear', slug: 'ethnic-wear', icon: '✨' },
-          { name: 'Maxis', slug: 'maxis', icon: '✨' },
-          { name: 'Co-ordsets', slug: 'co-ordsets', icon: '✨' },
-          { name: 'Casual Tops', slug: 'casual-tops', icon: '✨' },
-          { name: 'Western Wear', slug: 'western-wear', icon: '✨' },
-          { name: 'Jeans & Pants', slug: 'jeans-pants', icon: '✨' },
-          { name: 'Kids Wear', slug: 'kids-wear', icon: '✨' }
-        ];
-        for (const cat of defaultSeedCats) {
+        for (const cat of DEFAULT_CATEGORIES) {
           try {
             await productsApi.createCategory({
               name: cat.name,
               slug: cat.slug,
               icon: cat.icon,
-              image: 'assets/images/kanjivaram_green.jpg',
+              image: cat.image,
               is_active: true
             });
           } catch (e) {}
@@ -784,7 +782,7 @@ export function StoreProvider({ children }) {
               name: targetName,
               slug: targetSlug,
               icon: '✨',
-              image: 'assets/images/kanjivaram_green.jpg',
+              image: `assets/images/category_${targetSlug.replace(/[-_]/g, '_')}.jpg`,
               is_active: true
             });
             res = await productsApi.createProduct(backendPayload);

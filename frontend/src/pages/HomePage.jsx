@@ -174,7 +174,12 @@ export default function HomePage() {
                     src={currentLook.image} 
                     alt={currentLook.title} 
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    onError={(e) => handleImageError(e, look)}
+                    onError={(e) => {
+                      if (!e.currentTarget.dataset.fallbackApplied) {
+                        e.currentTarget.dataset.fallbackApplied = 'true';
+                        e.currentTarget.src = 'assets/images/category_salwar.jpg';
+                      }
+                    }}
                   />
                   <span style={{ position: 'absolute', top: '16px', left: '16px', background: 'var(--color-primary)', color: '#fff', padding: '5px 12px', borderRadius: '99px', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>
                     {currentLook.tag}
@@ -363,7 +368,12 @@ export default function HomePage() {
                     src={cat.image} 
                     alt={cat.name} 
                     style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
-                    onError={(e) => handleImageError(e, look)}
+                    onError={(e) => {
+                      if (!e.currentTarget.dataset.fallbackApplied) {
+                        e.currentTarget.dataset.fallbackApplied = 'true';
+                        e.currentTarget.src = 'assets/images/category_salwar.jpg';
+                      }
+                    }}
                   />
                 </div>
                 <span style={{ fontSize: '0.86rem', fontWeight: 700, lineHeight: 1.25, color: '#0e2920' }}>

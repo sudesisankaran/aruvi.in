@@ -41,10 +41,15 @@ export default function CategoriesPage() {
                 {/* Image Frame */}
                 <div className="relative h-64 sm:h-72 w-full overflow-hidden bg-emerald-950">
                   <img
-                    src={cat.image || 'assets/images/kanjivaram_green.jpg'}
+                    src={cat.image || 'assets/images/category_salwar.jpg'}
                     alt={cat.name}
                     className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                    onError={(e) => handleImageError(e)}
+                    onError={(e) => {
+                      if (!e.currentTarget.dataset.fallbackApplied) {
+                        e.currentTarget.dataset.fallbackApplied = 'true';
+                        e.currentTarget.src = 'assets/images/category_salwar.jpg';
+                      }
+                    }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/80 via-emerald-950/20 to-transparent" />
                   

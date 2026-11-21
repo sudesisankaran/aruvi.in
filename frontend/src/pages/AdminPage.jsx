@@ -337,18 +337,19 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
       addToast('Please enter category name.', 'error');
       return;
     }
+    const defaultCatImg = `assets/images/category_${catName.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_')}.jpg`;
     if (editingCatId) {
       updateCategory(editingCatId, {
         name: catName.trim(),
         description: catDesc.trim(),
-        image: catImage.trim() || 'assets/images/kanjivaram_green.jpg'
+        image: catImage.trim() || defaultCatImg
       });
       setEditingCatId(null);
     } else {
       addCategory({
         name: catName.trim(),
         description: catDesc.trim(),
-        image: catImage.trim() || 'assets/images/kanjivaram_green.jpg'
+        image: catImage.trim() || defaultCatImg
       });
     }
     setCatName('');
@@ -1346,10 +1347,10 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
                     <div key={c.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm flex flex-col justify-between">
                       <div className="p-4 flex items-center gap-4">
                         <img
-                          src={c.image || 'assets/images/kanjivaram_green.jpg'}
+                          src={c.image || 'assets/images/category_salwar.jpg'}
                           alt={c.name}
                           className="w-16 h-16 rounded-xl object-cover border border-slate-200"
-                          onError={(e) => { e.currentTarget.src = 'assets/images/kanjivaram_green.jpg'; }}
+                          onError={(e) => { e.currentTarget.src = 'assets/images/category_salwar.jpg'; }}
                         />
                         <div>
                           <h4 className="font-serif font-bold text-slate-900 text-base">{c.name}</h4>
