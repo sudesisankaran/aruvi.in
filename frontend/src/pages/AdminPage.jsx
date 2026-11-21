@@ -96,9 +96,11 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
 
   // Product Add / Edit Form State
   const [editingProductId, setEditingProductId] = useState(null);
+  const [savingProduct, setSavingProduct] = useState(false);
+  const [deletingProductId, setDeletingProductId] = useState(null);
   const [prodTitle, setProdTitle] = useState('');
   const [prodSku, setProdSku] = useState('');
-  const [prodCategory, setProdCategory] = useState(categories[0]?.id || 'salwar');
+  const [prodCategory, setProdCategory] = useState(categories[0]?.slug || categories[0]?.id || 'salwar');
   const [prodPrice, setProdPrice] = useState('');
   const [prodOriginalPrice, setProdOriginalPrice] = useState('');
   const [prodStock, setProdStock] = useState('15');
@@ -237,7 +239,7 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
     setEditingProductId(null);
     setProdTitle('');
     setProdSku('');
-    setProdCategory(categories[0]?.id || 'salwar');
+    setProdCategory(categories[0]?.slug || categories[0]?.id || 'salwar');
     setProdPrice('');
     setProdOriginalPrice('');
     setProdStock('15');
@@ -250,13 +252,17 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
   };
 
   const handleStartEditProduct = (prod) => {
+    if (!prod) return;
     setEditingProductId(prod.id);
     setProdTitle(prod.title || '');
     setProdSku(prod.sku || '');
-    setProdCategory(prod.category || 'salwar');
-    setProdPrice(prod.price || '');
-    setProdOriginalPrice(prod.originalPrice || '');
-    setProdStock(typeof prod.stock === 'number' ? String(prod.stock) : '15');
+    const catVal = typeof prod.category === 'object' && prod.category !== null 
+      ? (prod.category.slug || prod.category.id) 
+      : (prod.category_slug || prod.category || 'salwar');
+    setProdCategory(String(catVal).toLowerCase().trim());
+    setProdPrice(prod.price !== undefined ? String(prod.price) : '');
+    setProdOriginalPrice(prod.originalPrice ? String(prod.originalPrice) : '');
+    setProdStock(typeof prod.stock === 'number' ? String(prod.stock) : (prod.stock || '15'));
     setProdFabric(prod.fabric || 'Pure Silk');
     setProdBadge(prod.badge || '');
     setProdDescription(prod.description || '');
@@ -272,6 +278,24 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
     setActiveTab('add-product');
   };
 
+  // Delete Product with confirmation & loading state
+  const handleDeleteProduct = async (prod) => {
+    if (!prod) return;
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete "${prod.title}"?\n\nThis will permanently remove it from your store catalog.`
+    );
+    if (!confirmDelete) return;
+
+    setDeletingProductId(prod.id);
+    try {
+      await deleteProduct(prod.id);
+    } catch (err) {
+      console.error('Delete product failed:', err);
+    } finally {
+      setDeletingProductId(null);
+    }
+  };
+
   // Save Product (Add or Edit)
   const handleSaveProduct = async (e) => {
     e.preventDefault();
@@ -280,6 +304,7 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
       return;
     }
 
+    setSavingProduct(true);
     const primaryImg = prodImages.find((img) => img.is_primary) || prodImages[0];
     const mainImageUrl = primaryImg 
       ? (primaryImg.image_url || primaryImg.storage_path || '') 
@@ -289,7 +314,7 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
 
     const payload = {
       title: prodTitle.trim(),
-      sku: prodSku.trim() || `ARUVI-${catValue.substring(0, 3).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`,
+      sku: prodSku.trim() || (editingProductId ? undefined : `ARUVI-${catValue.substring(0, 3).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`),
       category: catValue,
       price: Number(prodPrice),
       originalPrice: prodOriginalPrice ? Number(prodOriginalPrice) : null,
@@ -313,6 +338,8 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
       setActiveTab('products');
     } catch (err) {
       console.error('Save product transaction failed:', err);
+    } finally {
+      setSavingProduct(false);
     }
   };
 
@@ -1030,19 +1057,16 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
                                   <button
                                     type="button"
                                     onClick={() => handleStartEditProduct(p)}
-                                    className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-primary-dark"
+                                    className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-primary-dark transition"
                                     title="Edit Product"
                                   >
                                     <Edit className="w-4 h-4" />
                                   </button>
                                   <button
                                     type="button"
-                                    onClick={() => {
-                                      if (window.confirm(`Delete product "${p.title}"?`)) {
-                                        deleteProduct(p.id);
-                                      }
-                                    }}
-                                    className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50"
+                                    disabled={deletingProductId === p.id}
+                                    onClick={() => handleDeleteProduct(p)}
+                                    className={`p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 transition ${deletingProductId === p.id ? 'opacity-40 cursor-not-allowed' : ''}`}
                                     title="Delete Product"
                                   >
                                     <Trash2 className="w-4 h-4" />
@@ -1274,10 +1298,15 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-2.5 rounded-xl bg-primary-dark hover:bg-emerald-950 text-gold font-bold text-xs uppercase tracking-wider shadow-md flex items-center gap-2 cursor-pointer"
+                    disabled={savingProduct}
+                    className={`px-6 py-2.5 rounded-xl bg-primary-dark hover:bg-emerald-950 text-gold font-bold text-xs uppercase tracking-wider shadow-md flex items-center gap-2 cursor-pointer transition ${savingProduct ? 'opacity-60 cursor-not-allowed' : ''}`}
                   >
                     <Save className="w-4 h-4" />
-                    <span>{editingProductId ? 'Update Product' : 'Save & Publish Product'}</span>
+                    <span>
+                      {savingProduct 
+                        ? (editingProductId ? 'Updating Product...' : 'Publishing Product...') 
+                        : (editingProductId ? 'Update Product' : 'Save & Publish Product')}
+                    </span>
                   </button>
                 </div>
 

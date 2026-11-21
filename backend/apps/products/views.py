@@ -101,6 +101,23 @@ class ProductViewSet(viewsets.ModelViewSet):
         ensure_all_default_categories()
         return super().update(request, *args, **kwargs)
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        try:
+            self.perform_destroy(instance)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except ProtectedError:
+            return Response(
+                {"error": "This product cannot be deleted because it is referenced in an active order."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+    @action(detail=False, methods=['delete', 'post'], permission_classes=[IsStrictAdminUser])
+    def clear_all(self, request):
+        count = Product.objects.count()
+        Product.objects.all().delete()
+        return Response({"message": f"All {count} products deleted successfully.", "deleted_count": count})
+
     def get_queryset(self):
         user = self.request.user
         base_qs = Product.objects.all().select_related('category').prefetch_related('images')
@@ -192,6 +209,23 @@ class AdminProductViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         ensure_all_default_categories()
         return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        try:
+            self.perform_destroy(instance)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except ProtectedError:
+            return Response(
+                {"error": "This product cannot be deleted because it is referenced in an active order."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+    @action(detail=False, methods=['delete', 'post'], permission_classes=[IsStrictAdminUser])
+    def clear_all(self, request):
+        count = Product.objects.count()
+        Product.objects.all().delete()
+        return Response({"message": f"All {count} products deleted successfully.", "deleted_count": count})
 
     @action(detail=False, methods=['post'], parser_classes=[MultiPartParser, FormParser])
     def upload_image(self, request):

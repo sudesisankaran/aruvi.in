@@ -133,6 +133,11 @@ export const productsApi = {
     return res.data;
   },
 
+  clearAllProducts: async () => {
+    const res = await apiClient.post('/products/clear_all/');
+    return res.data;
+  },
+
   uploadImage: async (file) => {
     const formData = new FormData();
     formData.append('file', file);

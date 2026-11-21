@@ -115,7 +115,7 @@ export default function AdminProductGalleryManager({
       return;
     }
 
-    if (target.storage_path) {
+    if (target.storage_path && !target.storage_path.startsWith('data:image/')) {
       await deleteFileFromFirebase(target.storage_path);
     }
 

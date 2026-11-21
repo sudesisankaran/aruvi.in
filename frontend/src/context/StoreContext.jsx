@@ -776,10 +776,15 @@ export function StoreProvider({ children }) {
     }
 
     // 2. Prepare payload for central database
+    const targetCat = (newProd.category || 'salwar').toLowerCase();
+    const cleanImg = newProd.image && !newProd.image.includes('kanjivaram_green.jpg') 
+      ? newProd.image 
+      : ((newProd.images?.[0]?.image_url || newProd.images?.[0]?.url) || (newProd.image || getCategoryImageUrl(targetCat)));
+
     const backendPayload = {
       title: newProd.title.trim(),
-      sku: (newProd.sku || `ARUVI-${(newProd.category || 'GEN').substring(0, 3).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`).trim(),
-      category: newProd.category || 'salwar',
+      sku: (newProd.sku || `ARUVI-${targetCat.substring(0, 3).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`).trim(),
+      category: targetCat,
       price: Number(newProd.price),
       original_price: newProd.originalPrice ? Number(newProd.originalPrice) : null,
       stock: Math.max(0, parseInt(newProd.stock, 10) || 0),
@@ -788,9 +793,7 @@ export function StoreProvider({ children }) {
       description: (newProd.description || '').trim(),
       status: newProd.status || 'active',
       is_featured: !!newProd.isFeatured,
-      image: newProd.image && !newProd.image.includes('kanjivaram_green.jpg') 
-        ? newProd.image 
-        : ((newProd.images?.[0]?.image_url || newProd.images?.[0]?.url) || (newProd.image || '')),
+      image: cleanImg,
       images: (newProd.images || []).map((img, idx) => ({
         image_url: img.image_url || img.url || (typeof img === 'string' ? img : ''),
         storage_path: img.fallbackDataUrl || img.storage_path || '',
@@ -809,7 +812,7 @@ export function StoreProvider({ children }) {
         const errStr = JSON.stringify(firstErr.response?.data || '');
         if (errStr.includes('slug=') || errStr.includes('category') || errStr.includes('does not exist')) {
           // Auto-create category in central database and retry product creation
-          const targetSlug = (backendPayload.category || 'salwar').toLowerCase();
+          const targetSlug = targetCat;
           const targetName = targetSlug.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
           try {
             await productsApi.createCategory({
@@ -859,10 +862,10 @@ export function StoreProvider({ children }) {
         createdAt: res.created_at || new Date().toISOString()
       };
 
-      setProducts((prev) => [newProductObj, ...prev.filter((p) => p.id !== res.id)]);
+      setProducts((prev) => [newProductObj, ...prev.filter((p) => String(p.id) !== String(res.id))]);
       try {
         const saved = JSON.parse(localStorage.getItem('aruvi_products') || '[]');
-        const updatedList = [newProductObj, ...saved.filter((p) => p.id !== res.id)];
+        const updatedList = [newProductObj, ...saved.filter((p) => String(p.id) !== String(res.id))];
         localStorage.setItem('aruvi_products', JSON.stringify(updatedList));
       } catch (e) {}
 
@@ -887,14 +890,17 @@ export function StoreProvider({ children }) {
 
     const backendPayload = {};
     if (fields.title) backendPayload.title = fields.title.trim();
+    if (fields.sku) backendPayload.sku = fields.sku.trim();
+    if (fields.category) backendPayload.category = String(fields.category).toLowerCase().trim();
     if (fields.price !== undefined) backendPayload.price = Number(fields.price);
     if (fields.originalPrice !== undefined) backendPayload.original_price = fields.originalPrice ? Number(fields.originalPrice) : null;
     if (fields.stock !== undefined) backendPayload.stock = Math.max(0, parseInt(fields.stock, 10) || 0);
     if (fields.status) backendPayload.status = fields.status;
     if (fields.isFeatured !== undefined) backendPayload.is_featured = !!fields.isFeatured;
-    if (fields.description !== undefined) backendPayload.description = fields.description.trim();
+    if (fields.description !== undefined) backendPayload.description = (fields.description || '').trim();
     if (fields.fabric) backendPayload.fabric = fields.fabric;
-    if (fields.badge !== undefined) backendPayload.badge = fields.badge;
+    if (fields.badge !== undefined) backendPayload.badge = fields.badge ? fields.badge.trim() : null;
+
     if (fields.images) {
       backendPayload.images = fields.images.map((img, idx) => ({
         image_url: img.image_url || img.url || (typeof img === 'string' ? img : ''),
@@ -903,13 +909,15 @@ export function StoreProvider({ children }) {
         is_primary: Boolean(img.is_primary !== undefined ? img.is_primary : idx === 0),
         display_order: Number(img.display_order !== undefined ? img.display_order : idx)
       }));
+    }
+
+    if (fields.image) {
+      backendPayload.image = fields.image;
+    } else if (backendPayload.images && backendPayload.images.length > 0) {
       const primaryUrl = backendPayload.images.find(img => img.is_primary)?.image_url || backendPayload.images[0]?.image_url;
-      if (primaryUrl && (!fields.image || fields.image.includes('kanjivaram_green.jpg'))) {
+      if (primaryUrl) {
         backendPayload.image = primaryUrl;
       }
-    }
-    if (fields.image && !backendPayload.image) {
-      backendPayload.image = fields.image;
     }
 
     try {
@@ -917,7 +925,7 @@ export function StoreProvider({ children }) {
 
       // Instant optimistic state update
       setProducts((prev) => prev.map((p) => {
-        if (p.id === targetId) {
+        if (String(p.id) === String(targetId)) {
           const updatedImg = res.image || backendPayload.image || p.image;
           const updatedImages = (Array.isArray(res.images) && res.images.length > 0) 
             ? res.images 
@@ -925,12 +933,16 @@ export function StoreProvider({ children }) {
           return {
             ...p,
             ...fields,
+            category: res.category_slug || res.category || backendPayload.category || p.category,
+            categoryName: res.category_name || (res.category_slug || res.category || backendPayload.category || p.category || '').replace(/[-_]/g, ' '),
+            sku: res.sku || backendPayload.sku || p.sku,
             image: updatedImg,
             images: updatedImages,
             price: backendPayload.price !== undefined ? backendPayload.price : p.price,
             originalPrice: backendPayload.original_price !== undefined ? backendPayload.original_price : p.originalPrice,
             stock: backendPayload.stock !== undefined ? backendPayload.stock : p.stock,
-            isFeatured: backendPayload.is_featured !== undefined ? backendPayload.is_featured : p.isFeatured
+            isFeatured: backendPayload.is_featured !== undefined ? backendPayload.is_featured : p.isFeatured,
+            status: backendPayload.status !== undefined ? backendPayload.status : p.status
           };
         }
         return p;
@@ -939,10 +951,12 @@ export function StoreProvider({ children }) {
       try {
         const saved = JSON.parse(localStorage.getItem('aruvi_products') || '[]');
         const updatedSaved = saved.map((p) => {
-          if (p.id === targetId) {
+          if (String(p.id) === String(targetId)) {
             return {
               ...p,
               ...fields,
+              category: res.category_slug || res.category || backendPayload.category || p.category,
+              sku: res.sku || backendPayload.sku || p.sku,
               image: res.image || backendPayload.image || p.image,
               images: (Array.isArray(res.images) && res.images.length > 0) ? res.images : (backendPayload.images || p.images)
             };
@@ -953,7 +967,7 @@ export function StoreProvider({ children }) {
       } catch (e) {}
 
       syncWithCentralDatabase().catch(() => {});
-      addToast('Product updated in central database successfully.', 'success');
+      addToast('Product updated successfully in store catalog.', 'success');
       return res;
     } catch (err) {
       const errMsg = parseBackendError(err, 'Failed to update product in database.');
@@ -967,14 +981,23 @@ export function StoreProvider({ children }) {
       await fetchFreshAdminToken();
     }
     try {
-      await productsApi.deleteProduct(prodId);
-      setProducts((prev) => prev.filter((p) => p.id !== prodId));
+      try {
+        await productsApi.deleteProduct(prodId);
+      } catch (apiErr) {
+        if (apiErr.response?.status === 404) {
+          // Item already removed from backend, proceed to clean local state
+        } else {
+          throw apiErr;
+        }
+      }
+
+      setProducts((prev) => prev.filter((p) => String(p.id) !== String(prodId)));
       try {
         const saved = JSON.parse(localStorage.getItem('aruvi_products') || '[]');
-        localStorage.setItem('aruvi_products', JSON.stringify(saved.filter((p) => p.id !== prodId)));
+        localStorage.setItem('aruvi_products', JSON.stringify(saved.filter((p) => String(p.id) !== String(prodId))));
       } catch (e) {}
       syncWithCentralDatabase().catch(() => {});
-      addToast('Product removed from database successfully.', 'info');
+      addToast('Product removed from catalog successfully.', 'info');
       return true;
     } catch (err) {
       const errMsg = parseBackendError(err, 'Failed to delete product from database.');
@@ -983,9 +1006,20 @@ export function StoreProvider({ children }) {
     }
   };
 
-  const clearAllProducts = () => {
+  const clearAllProducts = async () => {
+    if (!localStorage.getItem('aruvi_auth_token')) {
+      await fetchFreshAdminToken();
+    }
+    try {
+      await productsApi.clearAllProducts();
+    } catch (e) {
+      console.warn('Backend clear_all notification:', e);
+    }
     setProducts([]);
-    addToast('Catalog cleared locally.', 'info');
+    try {
+      localStorage.setItem('aruvi_products', JSON.stringify([]));
+    } catch (e) {}
+    addToast('All products removed from catalog successfully.', 'info');
   };
 
   const updateStock = async (productId, newStock) => {
