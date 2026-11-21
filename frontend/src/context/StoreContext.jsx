@@ -669,6 +669,19 @@ export function StoreProvider({ children }) {
     localStorage.removeItem('aruvi_auth_token');
   };
 
+  const parseBackendError = (err, fallback = 'Operation failed.') => {
+    let errMsg = err.response?.data?.error || 
+                 err.response?.data?.detail ||
+                 (err.response?.data ? (typeof err.response.data === 'string' ? err.response.data : JSON.stringify(err.response.data)) : null) || 
+                 err.message || 
+                 fallback;
+    if (typeof errMsg === 'string' && (errMsg.includes('<!DOCTYPE') || errMsg.includes('<html') || errMsg.includes('<title>'))) {
+      const match = errMsg.match(/<title>(.*?)<\/title>/i);
+      errMsg = match ? match[1].trim() : 'Server Error';
+    }
+    return errMsg;
+  };
+
   // -------------------------------------------------------------
   // CENTRAL PRODUCT MANAGEMENT (Global Synchronization)
   // -------------------------------------------------------------
@@ -724,10 +737,7 @@ export function StoreProvider({ children }) {
       return res;
     } catch (err) {
       // 5. Never show false success notification! Display actual backend error
-      const errMsg = err.response?.data?.error || 
-                     (err.response?.data ? (typeof err.response.data === 'string' ? err.response.data : JSON.stringify(err.response.data)) : null) || 
-                     err.message || 
-                     'Failed to save product in central database.';
+      const errMsg = parseBackendError(err, 'Failed to save product in central database.');
       addToast(`Error saving product: ${errMsg}`, 'error');
       throw new Error(errMsg);
     }
@@ -768,10 +778,7 @@ export function StoreProvider({ children }) {
       addToast('Product updated in central database successfully.', 'success');
       return res;
     } catch (err) {
-      const errMsg = err.response?.data?.error || 
-                     (err.response?.data ? (typeof err.response.data === 'string' ? err.response.data : JSON.stringify(err.response.data)) : null) || 
-                     err.message || 
-                     'Failed to update product in database.';
+      const errMsg = parseBackendError(err, 'Failed to update product in database.');
       addToast(`Error updating product: ${errMsg}`, 'error');
       throw new Error(errMsg);
     }
@@ -787,10 +794,7 @@ export function StoreProvider({ children }) {
       addToast('Product removed from database successfully.', 'info');
       return true;
     } catch (err) {
-      const errMsg = err.response?.data?.error || 
-                     (err.response?.data ? (typeof err.response.data === 'string' ? err.response.data : JSON.stringify(err.response.data)) : null) || 
-                     err.message || 
-                     'Failed to delete product from database.';
+      const errMsg = parseBackendError(err, 'Failed to delete product from database.');
       addToast(`Error deleting product: ${errMsg}`, 'error');
       throw new Error(errMsg);
     }
@@ -809,7 +813,7 @@ export function StoreProvider({ children }) {
       addToast('Stock level updated in central database.', 'success');
       return true;
     } catch (err) {
-      const errMsg = err.response?.data?.error || err.message || 'Failed to update stock.';
+      const errMsg = parseBackendError(err, 'Failed to update stock.');
       addToast(`Error updating stock: ${errMsg}`, 'error');
       throw new Error(errMsg);
     }
