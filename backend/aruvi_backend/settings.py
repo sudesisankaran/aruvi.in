@@ -1,5 +1,10 @@
 import os
 from pathlib import Path
+try:
+    from dotenv import load_dotenv
+    load_dotenv(Path(__file__).resolve().parent.parent / '.env')
+except ImportError:
+    pass
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -28,6 +33,7 @@ INSTALLED_APPS = [
     'apps.products',
     'apps.orders',
     'apps.website_settings',
+    'apps.tryon',
 ]
 
 MIDDLEWARE = [
@@ -176,3 +182,9 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
     'http://127.0.0.1:8000',
 ]
+
+# FASHN AI Virtual Try-On Configuration (Exclusively Model: tryon-v1.6)
+# Key is read exclusively from backend environment; never exposed to frontend
+FASHN_API_KEY = os.getenv('FASHN_API_KEY', '').strip()
+FASHN_API_URL = os.getenv('FASHN_API_URL', 'https://api.fashn.ai/v1').strip()
+FASHN_DEFAULT_MODEL = 'tryon-v1.6'

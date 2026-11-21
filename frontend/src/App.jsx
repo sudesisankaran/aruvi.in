@@ -51,6 +51,9 @@ export default function App() {
               <Route path="/order-success/:id" element={<OrderSuccessPage />} />
               <Route path="/wishlist" element={<WishlistPage />} />
               <Route path="/fitting-room" element={<VirtualFittingRoomPage />} />
+              <Route path="/virtual-fitting-room" element={<VirtualFittingRoomPage />} />
+              <Route path="/tryon" element={<VirtualFittingRoomPage />} />
+              <Route path="/try-on" element={<VirtualFittingRoomPage />} />
               <Route path="/account" element={<AccountPage />} />
               <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
               <Route path="/admin/dashboard" element={<AdminRoute><AdminPage initialTab="dashboard" /></AdminRoute>} />

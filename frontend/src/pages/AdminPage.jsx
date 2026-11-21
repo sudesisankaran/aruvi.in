@@ -1,7 +1,7 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
-import { fetchFreshAdminToken } from '../services/api';
+import { fetchFreshAdminToken, tryonApi } from '../services/api';
 import { downloadOrderInvoicePDF } from '../utils/pdfGenerator';
 import { openWhatsAppOrderChat } from '../utils/whatsappHelper';
 import { uploadFileToFirebase } from '../services/firebase';
@@ -126,6 +126,29 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
   const [catDesc, setCatDesc] = useState('');
   const [catImage, setCatImage] = useState('');
   const [editingCatId, setEditingCatId] = useState(null);
+
+  // FASHN AI Virtual Try-On Admin State
+  const [tryonStats, setTryonStats] = useState(null);
+  const [loadingTryonStats, setLoadingTryonStats] = useState(false);
+  const [selectedTryonImg, setSelectedTryonImg] = useState(null);
+
+  const fetchTryonStats = useCallback(async () => {
+    setLoadingTryonStats(true);
+    try {
+      const data = await tryonApi.getAdminStats();
+      setTryonStats(data);
+    } catch (err) {
+      console.warn('Failed to load try-on stats:', err);
+    } finally {
+      setLoadingTryonStats(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'tryon') {
+      fetchTryonStats();
+    }
+  }, [activeTab, fetchTryonStats]);
 
   // Settings State Form
   const [settingsForm, setSettingsForm] = useState({
@@ -506,6 +529,7 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
     { id: 'orders', label: 'Orders', icon: ShoppingCart, count: orders.length },
     { id: 'customers', label: 'Customers', icon: Users, count: customers.length },
     { id: 'inventory', label: 'Inventory / Stock', icon: Boxes },
+    { id: 'tryon', label: 'FASHN Virtual Try-On', icon: Sparkles },
     { id: 'pdf-management', label: 'PDF & Invoices', icon: FileText },
     { id: 'whatsapp-settings', label: 'WhatsApp Settings', icon: MessageSquare },
     { id: 'website-settings', label: 'Website Settings', icon: Settings },
@@ -1706,6 +1730,282 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* =========================================================
+              FASHN AI VIRTUAL TRY-ON MANAGEMENT (PHASE 11)
+              ========================================================= */}
+          {activeTab === 'tryon' && (
+            <div className="space-y-6">
+              
+              {/* Header Banner */}
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-gold/15 text-gold-dark border border-gold/40 flex items-center gap-1">
+                      <Sparkles className="w-3 h-3 text-gold-dark" />
+                      FASHN AI Engine
+                    </span>
+                    <span className="text-[10px] font-mono text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                      Model: tryon-v1.6
+                    </span>
+                  </div>
+                  <h3 className="font-serif text-xl font-bold text-primary-dark">
+                    Virtual Try-On Neural Atelier
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Real-time monitoring, customer silhouette drape metrics, and FASHN API connection health.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={fetchTryonStats}
+                    disabled={loadingTryonStats}
+                    className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 transition flex items-center gap-2 border border-slate-200"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${loadingTryonStats ? 'animate-spin text-gold' : ''}`} />
+                    <span>{loadingTryonStats ? 'Refreshing...' : 'Refresh Metrics'}</span>
+                  </button>
+                  <Link
+                    to="/fitting-room"
+                    target="_blank"
+                    className="px-4 py-2 rounded-xl bg-primary hover:bg-primary-dark text-white text-xs font-bold transition flex items-center gap-1.5 shadow"
+                  >
+                    <Eye className="w-3.5 h-3.5 text-gold" />
+                    <span>Open Customer Fitting Studio ↗</span>
+                  </Link>
+                </div>
+              </div>
+
+              {/* API Security Notice */}
+              <div className="bg-emerald-50/70 border border-emerald-900/10 rounded-2xl p-4 flex items-start gap-3 text-emerald-950 text-xs">
+                <ShieldCheck className="w-5 h-5 text-emerald-700 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-bold text-emerald-900 text-xs uppercase tracking-wider">
+                    Zero-Exposure Backend Architecture
+                  </h4>
+                  <p className="mt-0.5 text-emerald-800 leading-relaxed">
+                    The FASHN AI API key is read exclusively by the Django backend from environment variables (<code className="bg-emerald-100 px-1 py-0.5 rounded font-mono">FASHN_API_KEY</code>). Client requests route securely through <code className="bg-emerald-100 px-1 py-0.5 rounded font-mono">/api/virtual-tryon/</code>; the secret key is never exposed to frontend code or client network inspectors.
+                  </p>
+                </div>
+              </div>
+
+              {/* 4-Stat Metric Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                
+                {/* Card 1: Provider Status */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
+                    AI Provider & Model
+                  </span>
+                  <div className="flex items-center justify-between">
+                    <span className="font-serif text-lg font-bold text-primary-dark">
+                      FASHN AI
+                    </span>
+                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                      tryonStats?.api_configured 
+                        ? 'bg-emerald-50 text-emerald-800 border border-emerald-300' 
+                        : 'bg-amber-50 text-amber-800 border border-amber-300'
+                    }`}>
+                      {tryonStats?.api_configured ? '● Key Configured' : '⚠ Key Required'}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 font-mono">
+                    tryon-v1.6 • Balanced Mode
+                  </p>
+                </div>
+
+                {/* Card 2: Total Generations */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
+                    Total Try-On Requests
+                  </span>
+                  <div className="flex items-center justify-between">
+                    <span className="font-serif text-2xl font-bold text-primary-dark">
+                      {tryonStats?.total_requests ?? 0}
+                    </span>
+                    <Sparkles className="w-5 h-5 text-gold-dark" />
+                  </div>
+                  <p className="text-[11px] text-slate-500">
+                    All-time customer simulations
+                  </p>
+                </div>
+
+                {/* Card 3: Successful */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
+                    Completed Renders
+                  </span>
+                  <div className="flex items-center justify-between">
+                    <span className="font-serif text-2xl font-bold text-emerald-700">
+                      {tryonStats?.successful ?? 0}
+                    </span>
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <p className="text-[11px] text-slate-500">
+                    High-fidelity generated drapes
+                  </p>
+                </div>
+
+                {/* Card 4: Failed / In-Flight */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
+                    In Progress / Issues
+                  </span>
+                  <div className="flex items-center justify-between">
+                    <span className="font-serif text-2xl font-bold text-slate-700">
+                      {tryonStats?.in_progress ?? 0} <span className="text-xs text-slate-400 font-normal">in queue</span>
+                    </span>
+                    <span className="text-xs text-rose-600 font-bold">
+                      {tryonStats?.failed ?? 0} failed
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500">
+                    Real-time queue activity
+                  </p>
+                </div>
+              </div>
+
+              {/* Generation History Table */}
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="p-4 sm:p-5 border-b border-slate-200 flex items-center justify-between">
+                  <div>
+                    <h4 className="font-serif font-bold text-base text-primary-dark">
+                      Recent Generation Sessions
+                    </h4>
+                    <p className="text-xs text-slate-500">
+                      Audited logs of customer try-on requests with FASHN prediction status
+                    </p>
+                  </div>
+                  <span className="text-xs font-mono text-slate-500">
+                    Showing latest {tryonStats?.recent_sessions?.length ?? 0} sessions
+                  </span>
+                </div>
+
+                {loadingTryonStats ? (
+                  <div className="p-12 text-center text-slate-400 text-xs">
+                    Loading try-on logs...
+                  </div>
+                ) : !tryonStats?.recent_sessions || tryonStats.recent_sessions.length === 0 ? (
+                  <div className="p-12 text-center text-slate-500 space-y-2">
+                    <Sparkles className="w-8 h-8 text-gold mx-auto" />
+                    <h5 className="font-bold text-sm text-slate-700">No Try-On Sessions Yet</h5>
+                    <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                      Customers can click "Preview on Me" on any product detail page or visit the Virtual Fitting Studio to initiate simulations.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse text-xs">
+                      <thead>
+                        <tr className="bg-slate-50 text-slate-500 border-b border-slate-200 font-bold uppercase tracking-wider text-[10px]">
+                          <th className="py-3 px-4">Date / Time</th>
+                          <th className="py-3 px-4">Garment</th>
+                          <th className="py-3 px-4">Category</th>
+                          <th className="py-3 px-4">Prediction ID</th>
+                          <th className="py-3 px-4">Status</th>
+                          <th className="py-3 px-4 text-right">Result</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {tryonStats.recent_sessions.map((sess) => (
+                          <tr key={sess.id} className="hover:bg-slate-50 transition">
+                            <td className="py-3 px-4 text-slate-600 font-mono text-[11px]">
+                              {new Date(sess.created_at).toLocaleString('en-IN', {
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </td>
+                            <td className="py-3 px-4">
+                              <div className="font-bold text-slate-900 truncate max-w-[180px]">
+                                {sess.product_title || 'Aruvi Garment'}
+                              </div>
+                              <span className="text-[10px] text-slate-500">
+                                ₹{sess.product_price ? Number(sess.product_price).toLocaleString('en-IN') : 'N/A'}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 uppercase text-[10px] font-bold text-slate-500">
+                              {sess.category || 'auto'}
+                            </td>
+                            <td className="py-3 px-4 font-mono text-[11px] text-slate-600">
+                              {sess.prediction_id ? sess.prediction_id.substring(0, 16) + '...' : 'N/A'}
+                            </td>
+                            <td className="py-3 px-4">
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                                sess.status === 'completed'
+                                  ? 'bg-emerald-50 text-emerald-800 border border-emerald-300'
+                                  : sess.status === 'failed'
+                                  ? 'bg-rose-50 text-rose-800 border border-rose-300'
+                                  : 'bg-amber-50 text-amber-800 border border-amber-300'
+                              }`}>
+                                {sess.status}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 text-right">
+                              {sess.result_image_url ? (
+                                <button
+                                  type="button"
+                                  onClick={() => setSelectedTryonImg(sess.result_image_url)}
+                                  className="text-xs text-gold-dark hover:underline font-bold inline-flex items-center gap-1"
+                                >
+                                  <Eye className="w-3.5 h-3.5" />
+                                  <span>View</span>
+                                </button>
+                              ) : (
+                                <span className="text-slate-400 text-[11px] italic">
+                                  {sess.status === 'failed' ? 'Failed' : 'Pending'}
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+
+              {/* Modal Preview for Clicked Try-On Image */}
+              {selectedTryonImg && (
+                <div 
+                  className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4"
+                  onClick={() => setSelectedTryonImg(null)}
+                >
+                  <div className="bg-white rounded-3xl p-4 max-w-md w-full shadow-2xl space-y-3" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                      <span className="font-serif font-bold text-sm text-primary-dark">
+                        FASHN AI Output Preview
+                      </span>
+                      <button 
+                        type="button" 
+                        onClick={() => setSelectedTryonImg(null)}
+                        className="text-slate-400 hover:text-slate-700 text-sm font-bold"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                    <div className="aspect-[3/4] rounded-2xl overflow-hidden bg-slate-900 border border-slate-200">
+                      <img src={selectedTryonImg} alt="Generated look" className="w-full h-full object-cover" />
+                    </div>
+                    <div className="flex justify-end gap-2 pt-1">
+                      <a 
+                        href={selectedTryonImg} 
+                        target="_blank" 
+                        rel="noreferrer"
+                        className="px-4 py-2 bg-primary text-white rounded-xl text-xs font-bold hover:bg-primary-dark"
+                      >
+                        Open Full Resolution ↗
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              )}
+
             </div>
           )}
 

@@ -216,4 +216,39 @@ export const settingsApi = {
   },
 };
 
+// -----------------------------------------------------------------
+// FASHN AI VIRTUAL TRY-ON API (Exclusively Model: tryon-v1.6)
+// -----------------------------------------------------------------
+export const tryonApi = {
+  generateTryOn: async (payload) => {
+    const res = await apiClient.post('/virtual-tryon/generate/', payload);
+    return res.data;
+  },
+
+  getTryOnStatus: async (predictionId) => {
+    const res = await apiClient.get(`/virtual-tryon/status/${predictionId}/`);
+    return res.data;
+  },
+
+  saveTryOn: async (predictionId) => {
+    const res = await apiClient.post('/virtual-tryon/save/', { prediction_id: predictionId });
+    return res.data;
+  },
+
+  deleteTryOn: async (id) => {
+    const res = await apiClient.delete(`/virtual-tryon/${id}/`);
+    return res.data;
+  },
+
+  getTryOnHistory: async () => {
+    const res = await apiClient.get('/virtual-tryon/history/');
+    return res.data;
+  },
+
+  getAdminStats: async () => {
+    const res = await apiClient.get('/virtual-tryon/admin-stats/');
+    return res.data;
+  },
+};
+
 export default apiClient;

@@ -9,6 +9,7 @@ urlpatterns = [
     path('api/auth/', include('apps.accounts.urls')),
     path('api/admin/products/', include('apps.products.admin_urls')),
     path('api/products/', include('apps.products.urls')),
+    path('api/virtual-tryon/', include('apps.tryon.urls')),
     path('api/orders/', include('apps.orders.urls')),
     path('api/settings/', include('apps.website_settings.urls')),
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),

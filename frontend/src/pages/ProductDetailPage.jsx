@@ -3,6 +3,8 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import ProductCard from '../components/ProductCard';
 import { getProductImageUrl, handleImageError, NEUTRAL_PRODUCT_FALLBACK } from '../utils/imageUtils';
+import VirtualTryOnModal from '../components/VirtualTryOnModal';
+import { Sparkles } from 'lucide-react';
 
 export default function ProductDetailPage() {
   const { id } = useParams();
@@ -14,6 +16,7 @@ export default function ProductDetailPage() {
   const [selectedSize, setSelectedSize] = useState('M');
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [isTryOnOpen, setIsTryOnOpen] = useState(false);
 
   if (!product) {
     return (
@@ -272,6 +275,39 @@ Please confirm availability and dispatch timeline.`;
               )}
             </div>
 
+            {/* Real FASHN AI Virtual Try-On Button (PHASE 4) */}
+            <div style={{ marginBottom: '16px' }}>
+              <button
+                type="button"
+                onClick={() => setIsTryOnOpen(true)}
+                className="btn hover-shimmer"
+                style={{
+                  width: '100%',
+                  padding: '13px 20px',
+                  borderRadius: '12px',
+                  background: 'linear-gradient(135deg, #0e2920 0%, #174233 100%)',
+                  color: '#ffffff',
+                  border: '1.5px solid var(--color-gold)',
+                  boxShadow: '0 8px 24px rgba(14,41,32,0.18)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '10px',
+                  fontWeight: 700,
+                  fontSize: '0.94rem',
+                  cursor: 'pointer',
+                  letterSpacing: '0.04em',
+                  transition: 'all 0.25s ease'
+                }}
+              >
+                <Sparkles style={{ width: '18px', height: '18px', color: 'var(--color-gold)' }} />
+                <span>Preview on Me</span>
+                <span style={{ fontSize: '0.68rem', background: 'rgba(200,157,56,0.2)', border: '1px solid var(--color-gold)', color: '#f4db8e', padding: '2px 8px', borderRadius: '99px', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 800 }}>
+                  FASHN AI
+                </span>
+              </button>
+            </div>
+
             {/* Action Buttons */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', marginBottom: '16px' }}>
               <button 
@@ -392,6 +428,14 @@ Please confirm availability and dispatch timeline.`;
             </div>
           </div>
         )}
+
+        {/* FASHN AI Virtual Try-On Modal */}
+        <VirtualTryOnModal
+          isOpen={isTryOnOpen}
+          onClose={() => setIsTryOnOpen(false)}
+          product={product}
+          selectedSize={selectedSize}
+        />
 
       </div>
     </div>
