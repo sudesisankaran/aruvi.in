@@ -12,11 +12,64 @@ from .models import Category, Product, ProductImage
 from .serializers import CategorySerializer, ProductSerializer
 from apps.accounts.permissions import IsStrictAdminUser, IsStrictAdminOrReadOnly, AUTHORIZED_ADMIN_EMAIL
 
+def ensure_all_default_categories():
+    """
+    Auto-seeds and auto-heals all 9 boutique categories with their matching AI covers.
+    Runs on category/product listings and creations to guarantee zero missing categories.
+    """
+    default_categories = [
+        {"name": "Salwar", "slug": "salwar", "icon": "👗"},
+        {"name": "Sharara", "slug": "sharara", "icon": "✨"},
+        {"name": "Ethnic Wear", "slug": "ethnic-wear", "icon": "🪡"},
+        {"name": "Maxis", "slug": "maxis", "icon": "💃"},
+        {"name": "Co-ordsets", "slug": "co-ordsets", "icon": "👚"},
+        {"name": "Casual Tops", "slug": "casual-tops", "icon": "👕"},
+        {"name": "Western Wear", "slug": "western-wear", "icon": "🧥"},
+        {"name": "Jeans & Pants", "slug": "jeans-pants", "icon": "👖"},
+        {"name": "Kids Wear", "slug": "kids-wear", "icon": "👶"},
+    ]
+    for cat in default_categories:
+        img_name = f"assets/images/category_{cat['slug'].replace('-', '_')}.jpg"
+        c = Category.objects.filter(slug__iexact=cat['slug']).first()
+        if not c:
+            c = Category.objects.filter(name__iexact=cat['name']).first()
+        if not c:
+            try:
+                Category.objects.create(
+                    slug=cat['slug'],
+                    name=cat['name'],
+                    icon=cat['icon'],
+                    image=img_name,
+                    is_active=True
+                )
+            except Exception:
+                pass
+        else:
+            changed = False
+            if not c.image or 'kanjivaram_green.jpg' in c.image:
+                c.image = img_name
+                changed = True
+            if c.slug != cat['slug']:
+                c.slug = cat['slug']
+                changed = True
+            if changed:
+                try:
+                    c.save()
+                except Exception:
+                    pass
+
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsStrictAdminOrReadOnly]
     lookup_field = 'slug'
+
+    def list(self, request, *args, **kwargs):
+        ensure_all_default_categories()
+        return super().list(request, *args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -40,6 +93,14 @@ class ProductViewSet(viewsets.ModelViewSet):
     ordering_fields = ['price', 'created_at', 'stock', 'rating']
     ordering = ['-created_at']
 
+    def create(self, request, *args, **kwargs):
+        ensure_all_default_categories()
+        return super().create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        ensure_all_default_categories()
+        return super().update(request, *args, **kwargs)
+
     def get_queryset(self):
         user = self.request.user
         base_qs = Product.objects.all().select_related('category').prefetch_related('images')
@@ -57,7 +118,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         if not uploaded_file:
             return Response({"error": "No image file provided in 'file' parameter."}, status=status.HTTP_400_BAD_REQUEST)
         
-        allowed_extensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif']
+        allowed_extensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif']
         ext = os.path.splitext(uploaded_file.name)[1].lower()
         if ext not in allowed_extensions:
             return Response(
@@ -124,13 +185,21 @@ class AdminProductViewSet(viewsets.ModelViewSet):
     ordering_fields = ['price', 'created_at', 'stock', 'rating']
     ordering = ['-created_at']
 
+    def create(self, request, *args, **kwargs):
+        ensure_all_default_categories()
+        return super().create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        ensure_all_default_categories()
+        return super().update(request, *args, **kwargs)
+
     @action(detail=False, methods=['post'], parser_classes=[MultiPartParser, FormParser])
     def upload_image(self, request):
         uploaded_file = request.FILES.get('file') or request.FILES.get('image')
         if not uploaded_file:
             return Response({"error": "No image file provided in 'file' parameter."}, status=status.HTTP_400_BAD_REQUEST)
         
-        allowed_extensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif']
+        allowed_extensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif']
         ext = os.path.splitext(uploaded_file.name)[1].lower()
         if ext not in allowed_extensions:
             return Response(

@@ -1,14 +1,20 @@
-class DisableCSRFForAPIMiddleware:
+from django.middleware.csrf import CsrfViewMiddleware
+
+class DisableCSRFForAPIMiddleware(CsrfViewMiddleware):
     """
-    Middleware to disable CSRF checks for API requests (/api/*).
-    API endpoints use Token-based authentication or public access,
-    so CSRF cookie verification is neither necessary nor appropriate
-    for decoupled frontend SPAs (React on Vercel / localhost).
+    Decoupled API CSRF Middleware:
+    Completely exempts all /api/* endpoints from CSRF enforcement.
+    Decoupled single-page applications (React on Vercel / dev) use Token authentication
+    or public access; browser cookie CSRF checks are inapplicable and cause 403 Forbidden errors.
+    Standard Django admin (/admin/*) retains full CSRF protection.
     """
-    def __init__(self, get_response):
-        self.get_response = get_response
+    def process_view(self, request, callback, callback_args, callback_kwargs):
+        if request.path_info.startswith('/api/'):
+            setattr(request, '_dont_enforce_csrf_checks', True)
+            return None  # Whitelist all API calls completely
+        return super().process_view(request, callback, callback_args, callback_kwargs)
 
     def __call__(self, request):
         if request.path_info.startswith('/api/'):
             setattr(request, '_dont_enforce_csrf_checks', True)
-        return self.get_response(request)
+        return super().__call__(request)

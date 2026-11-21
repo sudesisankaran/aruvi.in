@@ -364,17 +364,26 @@ export default function HomePage() {
                     marginBottom: '10px'
                   }}
                 >
-                  <img 
-                    src={cat.image} 
-                    alt={cat.name} 
-                    style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
-                    onError={(e) => {
-                      if (!e.currentTarget.dataset.fallbackApplied) {
-                        e.currentTarget.dataset.fallbackApplied = 'true';
-                        e.currentTarget.src = 'assets/images/category_salwar.jpg';
-                      }
-                    }}
-                  />
+                  {(() => {
+                    const catSlug = (cat.slug || cat.id || 'salwar').toLowerCase();
+                    const expectedImg = `assets/images/category_${catSlug.replace(/[-_]/g, '_')}.jpg`;
+                    const srcImg = (!cat.image || cat.image.includes('kanjivaram_green.jpg') || !cat.image.includes('category_'))
+                      ? expectedImg
+                      : cat.image;
+                    return (
+                      <img 
+                        src={srcImg} 
+                        alt={cat.name} 
+                        style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+                        onError={(e) => {
+                          if (!e.currentTarget.dataset.fallbackApplied) {
+                            e.currentTarget.dataset.fallbackApplied = 'true';
+                            e.currentTarget.src = expectedImg;
+                          }
+                        }}
+                      />
+                    );
+                  })()}
                 </div>
                 <span style={{ fontSize: '0.86rem', fontWeight: 700, lineHeight: 1.25, color: '#0e2920' }}>
                   {cat.name}

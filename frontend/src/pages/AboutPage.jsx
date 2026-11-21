@@ -26,10 +26,10 @@ export default function AboutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-20">
           <div className="relative rounded-3xl overflow-hidden shadow-2xl border-2 border-gold/40">
             <img 
-              src="assets/images/kanjivaram_green.jpg" 
+              src="assets/images/category_ethnic_wear.jpg" 
               alt="Artisanal Handloom Craft" 
               className="w-full h-full object-cover max-h-[500px]"
-              onError={(e) => { e.currentTarget.src = 'assets/images/kanjivaram_green.jpg'; }}
+              onError={(e) => { e.currentTarget.src = 'assets/images/category_salwar.jpg'; }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/80 via-transparent to-transparent flex items-end p-8 text-white">
               <div>

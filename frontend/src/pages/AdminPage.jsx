@@ -1294,7 +1294,7 @@ export default function AdminPage({ initialTab = 'dashboard' }) {
                     </label>
                     <input
                       type="text"
-                      placeholder="assets/images/kanjivaram_green.jpg"
+                      placeholder="assets/images/category_salwar.jpg"
                       value={catImage}
                       onChange={(e) => setCatImage(e.target.value)}
                       className="w-full px-4 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-gold"

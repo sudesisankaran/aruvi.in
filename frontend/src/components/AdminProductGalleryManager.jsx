@@ -57,7 +57,7 @@ export default function AdminProductGalleryManager({
         const newImgObj = {
           id: `img_${Date.now()}_${i}_${Math.random().toString(36).substr(2, 4)}`,
           image_url: uploadResult.url,
-          storage_path: uploadResult.path || '',
+          storage_path: uploadResult.fallbackDataUrl || uploadResult.path || '',
           alt_text: file.name.replace(/\.[^/.]+$/, ''),
           is_primary: isFirst,
           display_order: updated.length,
@@ -151,7 +151,7 @@ export default function AdminProductGalleryManager({
       updated[index] = {
         ...old,
         image_url: uploadResult.url,
-        storage_path: uploadResult.path,
+        storage_path: uploadResult.fallbackDataUrl || uploadResult.path,
         size_bytes: file.size,
       };
 

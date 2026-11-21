@@ -86,7 +86,24 @@ export function StoreProvider({ children }) {
   const [categories, setCategories] = useState(() => {
     try {
       const saved = localStorage.getItem('aruvi_categories');
-      return saved ? JSON.parse(saved) : DEFAULT_CATEGORIES;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map((c) => {
+            const catKey = (c.slug || c.id || '').toLowerCase();
+            const def = DEFAULT_CATEGORIES.find(dc => dc.id === catKey || dc.slug === catKey);
+            let img = c.image;
+            if (!img || img.includes('kanjivaram_green.jpg') || !img.includes('category_')) {
+              img = def?.image || `assets/images/category_${catKey.replace(/[-_]/g, '_')}.jpg`;
+            }
+            return {
+              ...c,
+              image: img
+            };
+          });
+        }
+      }
+      return DEFAULT_CATEGORIES;
     } catch (e) {
       return DEFAULT_CATEGORIES;
     }
@@ -235,9 +252,9 @@ export function StoreProvider({ children }) {
           const catKey = (c.slug || c.id || '').toLowerCase();
           const defaultMatch = DEFAULT_CATEGORIES.find(dc => dc.id === catKey || dc.slug === catKey);
           let catImg = c.image;
-          // If backend image is empty or has the green saree, strictly use the matching category image!
-          if (!catImg || catImg.includes('kanjivaram_green.jpg')) {
-            catImg = defaultMatch?.image || 'assets/images/category_salwar.jpg';
+          // If backend image is empty, doesn't match category pattern, or has the green saree, strictly use matching category image!
+          if (!catImg || catImg.includes('kanjivaram_green.jpg') || !catImg.includes('category_')) {
+            catImg = defaultMatch?.image || `assets/images/category_${catKey.replace(/[-_]/g, '_')}.jpg`;
           }
           return {
             id: c.slug || c.id,
@@ -250,6 +267,9 @@ export function StoreProvider({ children }) {
           };
         });
         setCategories(cleanCats);
+        try {
+          localStorage.setItem('aruvi_categories', JSON.stringify(cleanCats));
+        } catch (e) {}
       } else if (Array.isArray(dbCategories) && dbCategories.length === 0) {
         // If central database categories are empty, seed default store categories
         for (const cat of DEFAULT_CATEGORIES) {
@@ -759,7 +779,7 @@ export function StoreProvider({ children }) {
         : ((newProd.images?.[0]?.image_url || newProd.images?.[0]?.url) || (newProd.image || '')),
       images: (newProd.images || []).map((img, idx) => ({
         image_url: img.image_url || img.url || (typeof img === 'string' ? img : ''),
-        storage_path: img.storage_path || '',
+        storage_path: img.fallbackDataUrl || img.storage_path || '',
         alt_text: img.alt_text || newProd.title,
         is_primary: Boolean(img.is_primary !== undefined ? img.is_primary : idx === 0),
         display_order: Number(img.display_order !== undefined ? img.display_order : idx)
@@ -830,7 +850,7 @@ export function StoreProvider({ children }) {
     if (fields.images) {
       backendPayload.images = fields.images.map((img, idx) => ({
         image_url: img.image_url || img.url || (typeof img === 'string' ? img : ''),
-        storage_path: img.storage_path || '',
+        storage_path: img.fallbackDataUrl || img.storage_path || '',
         alt_text: img.alt_text || fields.title || '',
         is_primary: Boolean(img.is_primary !== undefined ? img.is_primary : idx === 0),
         display_order: Number(img.display_order !== undefined ? img.display_order : idx)

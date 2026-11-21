@@ -9,26 +9,37 @@ class AutoCreateCategorySlugField(serializers.SlugRelatedField):
     """
     def to_internal_value(self, data):
         if not data:
-            category, _ = Category.objects.get_or_create(
-                slug='salwar',
-                defaults={'name': 'Salwar', 'icon': '✨', 'is_active': True}
-            )
+            category = Category.objects.filter(slug='salwar').first()
+            if not category:
+                category = Category.objects.create(
+                    slug='salwar',
+                    name='Salwar',
+                    icon='👗',
+                    image='assets/images/category_salwar.jpg',
+                    is_active=True
+                )
             return category
         slug = str(data).strip().lower()
-        category = Category.objects.filter(slug=slug).first()
+        category = Category.objects.filter(slug__iexact=slug).first()
         if not category:
-            category = Category.objects.filter(name__iexact=data).first()
+            category = Category.objects.filter(name__iexact=str(data).strip()).first()
         if not category:
-            name = slug.replace('-', ' ').replace('_', ' ').title()
-            category, _ = Category.objects.get_or_create(
-                slug=slug,
-                defaults={
-                    'name': name,
-                    'icon': '✨',
-                    'image': f'assets/images/category_{slug.replace("-", "_")}.jpg',
-                    'is_active': True
-                }
-            )
+            clean_name = slug.replace('-', ' ').replace('_', ' ').title()
+            category = Category.objects.filter(name__iexact=clean_name).first()
+        if not category:
+            clean_name = slug.replace('-', ' ').replace('_', ' ').title()
+            try:
+                category, _ = Category.objects.get_or_create(
+                    slug=slug,
+                    defaults={
+                        'name': clean_name,
+                        'icon': '✨',
+                        'image': f'assets/images/category_{slug.replace("-", "_")}.jpg',
+                        'is_active': True
+                    }
+                )
+            except Exception:
+                category = Category.objects.first()
         return category
 
 class ProductImageSerializer(serializers.ModelSerializer):
@@ -45,6 +56,14 @@ class CategorySerializer(serializers.ModelSerializer):
 
     def get_products_count(self, obj):
         return obj.products.count()
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        img = data.get('image')
+        slug = (instance.slug or '').replace('-', '_')
+        if not img or 'kanjivaram_green.jpg' in str(img):
+            data['image'] = f"assets/images/category_{slug}.jpg"
+        return data
 
 class ProductSerializer(serializers.ModelSerializer):
     category = AutoCreateCategorySlugField(
@@ -76,13 +95,18 @@ class ProductSerializer(serializers.ModelSerializer):
         images_data = validated_data.pop('images', [])
         # If category wasn't provided, default to Salwar
         if 'category' not in validated_data or not validated_data.get('category'):
-            default_cat, _ = Category.objects.get_or_create(
-                slug='salwar',
-                defaults={'name': 'Salwar', 'icon': '✨', 'is_active': True}
-            )
+            default_cat = Category.objects.filter(slug='salwar').first()
+            if not default_cat:
+                default_cat = Category.objects.create(
+                    slug='salwar',
+                    name='Salwar',
+                    icon='👗',
+                    image='assets/images/category_salwar.jpg',
+                    is_active=True
+                )
             validated_data['category'] = default_cat
 
-        # Ensure product.image is set to the primary uploaded image URL
+        # Ensure product.image is set to the primary uploaded image URL or data URL
         primary_url = None
         for img in images_data:
             if img.get('is_primary') and img.get('image_url'):
@@ -146,4 +170,6 @@ class ProductSerializer(serializers.ModelSerializer):
             primary_img = instance.images.filter(is_primary=True).first() or instance.images.first()
             if primary_img and primary_img.image_url:
                 data['image'] = primary_img.image_url
+            elif primary_img and primary_img.storage_path and primary_img.storage_path.startswith('data:image/'):
+                data['image'] = primary_img.storage_path
         return data

@@ -5,10 +5,10 @@ import ImageUploadDropzone from '../components/ImageUploadDropzone';
 import { getProductImageUrl, handleImageError } from '../utils/imageUtils';
 
 const MODELS = [
-  { id: 'pooja', name: 'Pooja', style: 'Modern Silks & Salwars', height: "5'6\"", image: 'assets/images/kanjivaram_green.jpg' },
-  { id: 'meera', name: 'Meera', style: 'Bridal & Traditional Ethnic', height: "5'4\"", image: 'assets/images/kanjivaram_red.jpg' },
-  { id: 'ananya', name: 'Ananya', style: 'Contemporary Indo-Western & Maxis', height: "5'7\"", image: 'assets/images/soft_silk_blue.jpg' },
-  { id: 'diya-aarav', name: 'Diya & Aarav', style: 'Kids Festive Outfits', height: "4'2\"", image: 'assets/images/organza_pink.jpg' },
+  { id: 'pooja', name: 'Pooja', style: 'Modern Silks & Salwars', height: "5'6\"", image: 'assets/images/category_salwar.jpg' },
+  { id: 'meera', name: 'Meera', style: 'Bridal & Traditional Ethnic', height: "5'4\"", image: 'assets/images/category_ethnic_wear.jpg' },
+  { id: 'ananya', name: 'Ananya', style: 'Contemporary Indo-Western & Maxis', height: "5'7\"", image: 'assets/images/category_western.jpg' },
+  { id: 'diya-aarav', name: 'Diya & Aarav', style: 'Kids Festive Outfits', height: "4'2\"", image: 'assets/images/category_kids_wear.jpg' },
 ];
 
 export default function VirtualFittingRoomPage() {

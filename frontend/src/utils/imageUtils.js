@@ -1,18 +1,20 @@
 /**
- * Aruvi Collections - Core Image Utilities & Universal Storage Service
+ * Aruvi Collections - Core Image Utilities & Universal Multi-Tier Storage Service
  *
  * Guarantees:
  * 1. Client-side automatic optimization: Resizes large phone/camera images to crisp,
- *    high-fidelity web resolution (~80KB - 150KB) so uploads are instantaneous and permanent.
+ *    high-fidelity web resolution (~80KB - 120KB) so uploads are instantaneous and permanent.
  * 2. URL Normalization: Converts relative /media/ paths and localhost URLs to live backend host URLs.
- * 3. Resilient Multi-Tier Storage:
- *    - Backend media upload (/api/products/upload_image/)
+ * 3. Resilient Multi-Tier Storage Pipeline:
+ *    - Permanent Google Cloud Firebase Storage (aruvicollections-5ce06.firebasestorage.app)
+ *    - Backend Django Media (/api/products/upload_image/)
  *    - Supabase Cloud Storage (if configured)
- *    - High-fidelity optimized WebP/JPEG data URL (stored in database TextField, never 404s)
+ *    - High-fidelity optimized WebP/JPEG data URL (stored safely in database TextField, never 404s)
  * 4. Zero False Fallbacks: Never turns into another product or green saree.
  */
 
 import { productsApi } from '../services/api';
+import { uploadFileToFirebase } from '../services/firebase';
 
 // Elegant neutral luxury boutique SVG fallback
 export const NEUTRAL_PRODUCT_FALLBACK = 
@@ -71,12 +73,15 @@ export const normalizeImageUrl = (url) => {
 export const getProductImageUrl = (product) => {
   if (!product) return NEUTRAL_PRODUCT_FALLBACK;
 
-  // 1. Check product.images gallery
+  // 1. Check product.images gallery for primary or first image
   if (Array.isArray(product.images) && product.images.length > 0) {
     const primary = product.images.find(img => img.is_primary) || product.images[0];
     const rawGalleryUrl = primary?.image_url || primary?.url || (typeof primary === 'string' ? primary : '');
     const normalized = normalizeImageUrl(rawGalleryUrl);
     if (normalized) return normalized;
+    if (primary?.storage_path && primary.storage_path.startsWith('data:image/')) {
+      return primary.storage_path;
+    }
   }
 
   // 2. Check product.image
@@ -85,12 +90,15 @@ export const getProductImageUrl = (product) => {
     if (normalized) return normalized;
   }
 
-  // 3. Fallback to any image in gallery
+  // 3. Fallback to any valid URL or data URL in gallery
   if (Array.isArray(product.images)) {
     for (const img of product.images) {
       const u = img?.image_url || img?.url || (typeof img === 'string' ? img : '');
       const normalized = normalizeImageUrl(u);
       if (normalized) return normalized;
+      if (img?.storage_path && img.storage_path.startsWith('data:image/')) {
+        return img.storage_path;
+      }
     }
   }
 
@@ -99,7 +107,7 @@ export const getProductImageUrl = (product) => {
 
 /**
  * Handles image loading failures gracefully.
- * If product has alternative images or data URLs, tries those first before showing SVG fallback.
+ * If product has backup data URLs or gallery alternatives, uses them immediately without showing SVG fallback.
  */
 export const handleImageError = (e, productOrCustomFallback = null) => {
   if (!e?.currentTarget) return;
@@ -113,6 +121,19 @@ export const handleImageError = (e, productOrCustomFallback = null) => {
 
   if (productOrCustomFallback && typeof productOrCustomFallback === 'object') {
     const images = Array.isArray(productOrCustomFallback.images) ? productOrCustomFallback.images : [];
+    // Priority A: Check if any image has a persistent data URL in storage_path
+    for (const img of images) {
+      if (img?.storage_path && img.storage_path.startsWith('data:image/')) {
+        e.currentTarget.src = img.storage_path;
+        return;
+      }
+      if (img?.image_url && img.image_url.startsWith('data:image/')) {
+        e.currentTarget.src = img.image_url;
+        return;
+      }
+    }
+
+    // Priority B: Try alternative gallery image URLs
     for (const img of images) {
       const u = img?.image_url || img?.url || '';
       if (u && !u.includes('kanjivaram_green.jpg') && u !== e.currentTarget.src) {
@@ -127,8 +148,8 @@ export const handleImageError = (e, productOrCustomFallback = null) => {
 
 /**
  * Client-Side Image Optimizer:
- * Automatically compresses large phone/camera images (up to 20MB) down to
- * an ultra-sharp, high-performance web resolution (~80KB - 150KB) in WebP/JPEG.
+ * Automatically compresses large phone/camera images (up to 25MB) down to
+ * an ultra-sharp, high-performance web resolution (~80KB - 120KB) in JPEG.
  */
 export function optimizeImageFile(file, maxWidth = 1200, maxHeight = 1600, quality = 0.85) {
   return new Promise((resolve) => {
@@ -178,29 +199,49 @@ export function optimizeImageFile(file, maxWidth = 1200, maxHeight = 1600, quali
 }
 
 /**
- * Universal Storage Upload:
- * Automatically optimizes file first, then uploads:
- * 1. Backend persistent Django media (/api/products/upload_image/)
- * 2. Supabase Storage (if configured)
- * 3. Resilient optimized Data URL (~100KB, permanent, never 404s, stores safely in DB)
+ * Universal Multi-Tier Storage Upload:
+ * Automatically optimizes file first, then uploads across:
+ * 1. Firebase Google Cloud Storage (aruvicollections-5ce06.firebasestorage.app)
+ * 2. Backend Persistent Django Media (/api/products/upload_image/)
+ * 3. Supabase Cloud Storage (if configured)
+ * 4. Resilient optimized Data URL (~100KB, permanent, never 404s, stores safely in DB)
  */
 export async function uploadProductImage(rawFile, productId = null, onProgress = null) {
   if (!rawFile) {
     throw new Error('Please select an image file to upload.');
   }
 
-  if (onProgress) onProgress(15);
+  if (onProgress) onProgress(10);
 
-  // 1. Optimize image client-side to ~100KB
+  // 1. Optimize image client-side to ~80KB-120KB
   const { file: optimizedFile, dataUrl: optimizedDataUrl } = await optimizeImageFile(rawFile);
-  if (onProgress) onProgress(40);
+  if (onProgress) onProgress(35);
 
   const cleanName = (rawFile.name || 'product').replace(/[^a-zA-Z0-9.-]/g, '_');
   const timestamp = Date.now();
   const folder = productId ? `products/${productId}` : 'products';
   const fileName = `${folder}/${timestamp}_${cleanName}`;
 
-  // 2. Try Backend Persistent Django Media Upload
+  // 2. Try Firebase Cloud Storage (Permanent Google Cloud CDN)
+  try {
+    const fbResult = await uploadFileToFirebase(optimizedFile, folder, (pct) => {
+      if (onProgress) onProgress(Math.round(35 + pct * 0.55));
+    });
+    if (fbResult && fbResult.url) {
+      if (onProgress) onProgress(100);
+      return {
+        url: fbResult.url,
+        path: optimizedDataUrl || fbResult.path || fileName,
+        storage: 'firebase',
+        name: rawFile.name,
+        fallbackDataUrl: optimizedDataUrl
+      };
+    }
+  } catch (fbErr) {
+    console.warn('[Storage] Firebase upload note:', fbErr?.message);
+  }
+
+  // 3. Try Backend Persistent Django Media Upload
   try {
     const backendRes = await productsApi.uploadImage(optimizedFile);
     if (backendRes && (backendRes.url || backendRes.relative_url)) {
@@ -208,17 +249,17 @@ export async function uploadProductImage(rawFile, productId = null, onProgress =
       const chosenUrl = normalizeImageUrl(backendRes.url || backendRes.relative_url);
       return {
         url: chosenUrl || optimizedDataUrl,
-        path: backendRes.relative_url || fileName,
+        path: optimizedDataUrl || backendRes.relative_url || fileName,
         storage: 'backend',
         name: rawFile.name,
         fallbackDataUrl: optimizedDataUrl
       };
     }
   } catch (backendErr) {
-    console.warn('[Storage] Backend upload fallback to optimized storage:', backendErr.message);
+    console.warn('[Storage] Backend upload fallback to optimized storage:', backendErr?.message);
   }
 
-  // 3. Try Supabase Storage if configured
+  // 4. Try Supabase Storage if configured
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
   const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
   if (supabaseUrl && supabaseAnonKey) {
@@ -239,23 +280,22 @@ export async function uploadProductImage(rawFile, productId = null, onProgress =
         if (onProgress) onProgress(100);
         return {
           url: publicUrl,
-          path: fileName,
+          path: optimizedDataUrl || fileName,
           storage: 'supabase',
           name: rawFile.name,
           fallbackDataUrl: optimizedDataUrl
         };
       }
     } catch (supabaseErr) {
-      console.warn('[Storage] Supabase storage upload skipped:', supabaseErr.message);
+      console.warn('[Storage] Supabase storage upload skipped:', supabaseErr?.message);
     }
   }
 
-  // 4. Resilient Optimized Data URL Fallback
-  // (Because it is optimized to ~100KB, it stores in DB TextField with zero overhead, never expires, never 404s)
+  // 5. Resilient Optimized Data URL (Permanent, never 404s, stores safely in DB TextField)
   if (onProgress) onProgress(100);
   return {
     url: optimizedDataUrl,
-    path: fileName,
+    path: optimizedDataUrl,
     storage: 'data-url',
     name: rawFile.name,
     fallbackDataUrl: optimizedDataUrl

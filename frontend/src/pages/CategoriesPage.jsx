@@ -40,17 +40,26 @@ export default function CategoriesPage() {
               >
                 {/* Image Frame */}
                 <div className="relative h-64 sm:h-72 w-full overflow-hidden bg-emerald-950">
-                  <img
-                    src={cat.image || 'assets/images/category_salwar.jpg'}
-                    alt={cat.name}
-                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                    onError={(e) => {
-                      if (!e.currentTarget.dataset.fallbackApplied) {
-                        e.currentTarget.dataset.fallbackApplied = 'true';
-                        e.currentTarget.src = 'assets/images/category_salwar.jpg';
-                      }
-                    }}
-                  />
+                  {(() => {
+                    const catSlug = (cat.slug || cat.id || 'salwar').toLowerCase();
+                    const expectedImg = `assets/images/category_${catSlug.replace(/[-_]/g, '_')}.jpg`;
+                    const srcImg = (!cat.image || cat.image.includes('kanjivaram_green.jpg') || !cat.image.includes('category_'))
+                      ? expectedImg
+                      : cat.image;
+                    return (
+                      <img
+                        src={srcImg}
+                        alt={cat.name}
+                        className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                        onError={(e) => {
+                          if (!e.currentTarget.dataset.fallbackApplied) {
+                            e.currentTarget.dataset.fallbackApplied = 'true';
+                            e.currentTarget.src = expectedImg;
+                          }
+                        }}
+                      />
+                    );
+                  })()}
                   <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/80 via-emerald-950/20 to-transparent" />
                   
                   {/* Badge & Count */}
