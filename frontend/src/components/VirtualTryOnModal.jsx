@@ -215,7 +215,25 @@ export default function VirtualTryOnModal({
       pollFashnStatus(pId);
     } catch (err) {
       console.error('Try-On Generation failed:', err);
-      const msg = err.response?.data?.error || err.message || 'Failed to start FASHN AI virtual try-on.';
+      let msg = 'Failed to start FASHN AI virtual try-on.';
+      if (err.response?.data) {
+        const d = err.response.data;
+        if (typeof d === 'string') msg = d;
+        else if (d.error) msg = d.error;
+        else if (d.detail) msg = d.detail;
+        else if (d.message) msg = d.message;
+        else {
+          const keys = Object.keys(d);
+          if (keys.length > 0) {
+            const firstVal = d[keys[0]];
+            msg = Array.isArray(firstVal) ? `${keys[0]}: ${firstVal.join(', ')}` : String(firstVal);
+          } else {
+            msg = JSON.stringify(d);
+          }
+        }
+      } else if (err.message) {
+        msg = err.message;
+      }
       setPollError(msg);
       setIsProcessing(false);
       setStep('confirm');

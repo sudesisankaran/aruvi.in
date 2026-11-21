@@ -155,7 +155,25 @@ export default function VirtualFittingRoomPage() {
 
     } catch (err) {
       setIsProcessing(false);
-      const errMsg = err.response?.data?.error || err.message || 'Failed to connect to FASHN AI.';
+      let errMsg = 'Failed to connect to FASHN AI.';
+      if (err.response?.data) {
+        const d = err.response.data;
+        if (typeof d === 'string') errMsg = d;
+        else if (d.error) errMsg = d.error;
+        else if (d.detail) errMsg = d.detail;
+        else if (d.message) errMsg = d.message;
+        else {
+          const keys = Object.keys(d);
+          if (keys.length > 0) {
+            const firstVal = d[keys[0]];
+            errMsg = Array.isArray(firstVal) ? `${keys[0]}: ${firstVal.join(', ')}` : String(firstVal);
+          } else {
+            errMsg = JSON.stringify(d);
+          }
+        }
+      } else if (err.message) {
+        errMsg = err.message;
+      }
       addToast(errMsg, 'error');
     }
   };

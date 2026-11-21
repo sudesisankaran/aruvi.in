@@ -80,26 +80,36 @@ class GenerateTryOnView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         data = serializer.validated_data
-        product_id = data['product_id']
+        product_id = data.get('product_id', '')
         model_image = data['model_image']
         chosen_category = data.get('category', 'auto')
         mode = data.get('mode', 'balanced')
         cover_feet = data.get('cover_feet', False)
         adjust_hands = data.get('adjust_hands', False)
 
-        try:
-            product = Product.objects.get(id=product_id)
-        except Product.DoesNotExist:
-            return Response({"error": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
+        product = None
+        if product_id:
+            try:
+                p_id_int = int(product_id)
+                product = Product.objects.filter(id=p_id_int).first()
+            except (ValueError, TypeError):
+                product = Product.objects.filter(sku=str(product_id)).first()
+            if not product:
+                product = Product.objects.filter(title__iexact=str(product_id).strip()).first()
+
+        if not product:
+            product = Product.objects.first()
 
         # 1. Resolve genuine garment image from request or product
-        garment_image = data.get('garment_image') or product.image
-        if not garment_image or 'kanjivaram_green.jpg' in garment_image:
-            primary_img = product.images.filter(is_primary=True).first() or product.images.first()
-            if primary_img:
-                garment_image = primary_img.image_url or primary_img.storage_path
+        garment_image = data.get('garment_image')
+        if not garment_image and product:
+            garment_image = product.image
+            if not garment_image or 'kanjivaram_green.jpg' in garment_image:
+                primary_img = product.images.filter(is_primary=True).first() or product.images.first()
+                if primary_img:
+                    garment_image = primary_img.image_url or primary_img.storage_path
 
-        if not garment_image and product.category:
+        if not garment_image and product and product.category:
             slug = product.category.slug.replace('-', '_')
             garment_image = f"assets/images/category_{slug}.jpg"
 
@@ -109,15 +119,16 @@ class GenerateTryOnView(APIView):
         # 2. Normalize and resolve garment image for FASHN AI
         garment_image = resolve_garment_image_for_fashn(garment_image, request)
 
+        product_title = product.title if product else 'Boutique Outfit'
         if not garment_image:
             return Response(
-                {"error": f"No high-resolution product image found for '{product.title}'."},
+                {"error": f"No high-resolution product image found for '{product_title}'."},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
         # 3. Auto-detect category from product if set to auto
         final_category = chosen_category
-        if final_category == 'auto' and product.category:
+        if final_category == 'auto' and product and product.category:
             final_category = map_product_category_to_fashn(product.category.slug)
 
         # 4. Submit to FASHN AI run endpoint
@@ -151,7 +162,7 @@ class GenerateTryOnView(APIView):
             category=final_category,
             mode=mode,
             model_image_url=model_image if not model_image.startswith('data:') else f"[Data-URI {len(model_image)} bytes]",
-            garment_image_url=garment_image,
+            garment_image_url=garment_image if not garment_image.startswith('data:') else f"[Data-URI {len(garment_image)} bytes]",
             consent_given=True,
             ip_address=get_client_ip(request)
         )
@@ -162,10 +173,10 @@ class GenerateTryOnView(APIView):
             "status": pred_status,
             "session_id": session.id,
             "product": {
-                "id": product.id,
-                "title": product.title,
-                "price": str(product.price),
-                "image": garment_image
+                "id": product.id if product else None,
+                "title": product_title,
+                "price": str(product.price) if product else '0.00',
+                "image": garment_image if not garment_image.startswith('data:') else '[Data-URI]'
             }
         }, status=status.HTTP_201_CREATED)
 

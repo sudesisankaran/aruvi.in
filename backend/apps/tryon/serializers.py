@@ -3,7 +3,7 @@ from .models import TryOnSession
 from apps.products.models import Product
 
 class TryOnGenerateSerializer(serializers.Serializer):
-    product_id = serializers.IntegerField(required=True)
+    product_id = serializers.CharField(required=False, allow_blank=True, allow_null=True, default='')
     garment_image = serializers.CharField(required=False, allow_blank=True, default='')
     model_image = serializers.CharField(required=True, allow_blank=False)
     category = serializers.ChoiceField(
@@ -25,11 +25,6 @@ class TryOnGenerateSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 "Customer consent is required before processing photographs with FASHN AI."
             )
-        return value
-
-    def validate_product_id(self, value):
-        if not Product.objects.filter(id=value).exists():
-            raise serializers.ValidationError(f"Product with ID {value} does not exist.")
         return value
 
 class TryOnSessionSerializer(serializers.ModelSerializer):
